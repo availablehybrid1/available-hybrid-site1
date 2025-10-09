@@ -176,7 +176,7 @@ export default function Home() {
         <div className="mb-6 flex items-end justify-between">
           <div>
             <h2 className="text-2xl font-semibold">Exclusive Stock</h2>
-            <p className="text-sm text-white/70">High-efficiency hybrids curated for Los Angeles drivers.</p>
+            <p className="text-sm text-white/70">High-efficiency Cars curated for California drivers.</p>
           </div>
           <a href="/inventory" className="text-sm font-medium text-red-400 hover:text-red-300">View All →</a>
         </div>
