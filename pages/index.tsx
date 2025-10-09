@@ -1,4 +1,4 @@
-// pages/index.tsx — Luxury + Filtros + Badges + Paginación/Chips (React import corregido)
+// pages/index.tsx — Luxury + Filtros + Badges + Paginación/Chips
 import * as React from "react";
 import * as invMod from "../data/inventory";
 
