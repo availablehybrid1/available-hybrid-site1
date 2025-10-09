@@ -1,5 +1,6 @@
-// pages/[id].tsx — Detalle con galería (SSR) y tamaño controlado
+// pages/[id].tsx — Detalle con galería (SSR) + SEO + accesos rápidos
 import * as React from "react";
+import Head from "next/head";
 import type { GetServerSideProps } from "next";
 import * as invMod from "../data/inventory";
 
@@ -25,35 +26,63 @@ type Vehicle = {
 const formatPrice = (p?: number) =>
   p || p === 0 ? `$${p.toLocaleString()}` : "Consultar";
 
+// SSR: buscamos el vehículo por id en cada request
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const { id } = params as { id: string };
 
-  // Acepta inventory, default, etc.
   const anyInv: any = invMod as any;
   const inventory: Vehicle[] =
     (anyInv.inventory ?? anyInv.default ?? []) as Vehicle[];
 
   const vehicle = inventory.find((v) => v.id === id) || null;
 
-  if (!vehicle) {
-    return { notFound: true };
-  }
+  if (!vehicle) return { notFound: true };
 
   return { props: { vehicle } };
 };
 
 export default function VehiclePage({ vehicle }: { vehicle: Vehicle }) {
+  // Fotos seguras (si no hay, usa placeholder)
   const photos =
     (vehicle?.photos?.filter(Boolean) as string[] | undefined)?.length
       ? (vehicle.photos as string[])
       : ["/placeholder-car.jpg"];
 
+  // Estado galería
   const [idx, setIdx] = React.useState(0);
   const next = () => setIdx((i) => (i + 1) % photos.length);
   const prev = () => setIdx((i) => (i - 1 + photos.length) % photos.length);
 
+  // Navegación con teclado ← →
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") next();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // SEO
+  const pageTitle =
+    vehicle.title ||
+    `${vehicle.year ?? ""} ${vehicle.make ?? ""} ${vehicle.model ?? ""}`.trim();
+
+  const pageDesc =
+    vehicle.description ||
+    `Hybrid • ${vehicle.year ?? ""} ${vehicle.make ?? ""} ${vehicle.model ?? ""}`.trim();
+
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
+      <Head>
+        <title>{pageTitle} | Available Hybrid</title>
+        <meta name="description" content={pageDesc} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDesc} />
+        <meta property="og:image" content={photos[0]} />
+      </Head>
+
       {/* HEADER */}
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
         <a
@@ -78,8 +107,8 @@ export default function VehiclePage({ vehicle }: { vehicle: Vehicle }) {
             <img
               key={photos[idx]}
               src={photos[idx]}
-              alt={`${vehicle.title || vehicle.id} photo ${idx + 1}`}
-              className="h-full w-full object-contain" /* evita que se desborde */
+              alt={`${pageTitle} photo ${idx + 1}`}
+              className="h-full w-full object-contain"
             />
 
             {photos.length > 1 && (
@@ -115,7 +144,7 @@ export default function VehiclePage({ vehicle }: { vehicle: Vehicle }) {
                   <button
                     key={src + i}
                     onClick={() => setIdx(i)}
-                    className={`relative h-16 w-28 flex-shrink-0 overflow-hidden rounded-md ring-1 ${
+                    className={`relative h-16 w-28 flex-shrink-0 overflow-hidden rounded-md ring-2 ${
                       active ? "ring-red-500" : "ring-white/15"
                     }`}
                     title={`Photo ${i + 1}`}
@@ -124,6 +153,7 @@ export default function VehiclePage({ vehicle }: { vehicle: Vehicle }) {
                       src={src}
                       alt={`thumb ${i + 1}`}
                       className="h-full w-full object-cover"
+                      loading="lazy"
                     />
                   </button>
                 );
@@ -135,12 +165,8 @@ export default function VehiclePage({ vehicle }: { vehicle: Vehicle }) {
         {/* Panel lateral */}
         <aside className="space-y-4">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <h1 className="text-xl font-semibold">
-              {vehicle.title ||
-                `${vehicle.year ?? ""} ${vehicle.make ?? ""} ${
-                  vehicle.model ?? ""
-                }`.trim()}
-            </h1>
+            <h1 className="text-xl font-semibold">{pageTitle}</h1>
+
             <div className="mt-2 text-white/70">
               {vehicle.mileage
                 ? `${vehicle.mileage.toLocaleString()} miles`
