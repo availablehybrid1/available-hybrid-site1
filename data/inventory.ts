@@ -47,7 +47,7 @@ export const inventory: Vehicle[] = [
   },
   {
   id: 'cruze-2012',
-  title: 'Chevrolet Cruze 2012',
+  title: 'Chevrolet Cruze 2012 Azul',
   year: 2012,
   make: 'Chevrolet',
   model: 'Cruze',
@@ -60,12 +60,11 @@ export const inventory: Vehicle[] = [
   description:
     'Sedán confiable y económico en excelente estado mecánico. Aire acondicionado frío, transmisión suave y motor eficiente. Perfecto para transporte diario o primer vehículo. Título limpio y listo para transferir.',
   photos: [
+    '/ChatGPT Image Oct 9, 2025, 12_22_52 AM.png',
     '/WhatsApp Image 2025-10-09 at 12.18.18 AM.jpeg',
-    '/WhatsApp Image 2025-10-09 at 12.18.19 AM.jpeg',
-    '/WhatsApp Image 2025-10-09 at 12.18.20 AM.jpeg'
+    '/WhatsApp Image 2025-10-09 at 12.18.19 AM.jpeg'
   ],
 },
-
   {
     id: 'prius-2015',
     title: 'Toyota Prius 2015',
