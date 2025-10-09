@@ -1,4 +1,4 @@
-// pages/index.tsx — Luxury + Filtros + Badges + Paginación/Chips
+// pages/index.tsx — Luxury + Filtros + Badges + Paginación/Chips (tema Negro + Dorado)
 import * as React from "react";
 import * as invMod from "../data/inventory";
 
@@ -35,7 +35,7 @@ function statusLabel(s?: Vehicle["status"]) {
   return "Exclusive Stock";
 }
 function statusClasses(s?: Vehicle["status"]) {
-  if (s === "just_arrived") return "bg-emerald-600/80 text-white ring-emerald-400/30";
+  if (s === "just_arrived") return "bg-emerald-600/80 text-white ring-emerald-400/30"; // mantenemos verde para diferenciar estado
   if (s === "pending_detail") return "bg-yellow-500/80 text-black ring-yellow-300/40";
   return "bg-black/60 text-white/80 ring-white/10";
 }
@@ -46,13 +46,13 @@ function VehicleCard({ v }: { v: Vehicle }) {
   return (
     <a
       href={`/${v.id}`} // cambia a `/inventory/${v.id}` si tu detalle está ahí
-      className="group relative overflow-hidden rounded-2xl border border-red-600/20 bg-[radial-gradient(100%_100%_at_50%_0%,rgba(255,255,255,0.06),rgba(0,0,0,0.3))] shadow-[0_10px_30px_rgba(0,0,0,0.45)] ring-1 ring-white/5 transition hover:-translate-y-0.5"
+      className="group relative overflow-hidden rounded-2xl border border-amber-500/20 bg-[radial-gradient(100%_100%_at_50%_0%,rgba(255,255,255,0.06),rgba(0,0,0,0.3))] shadow-[0_10px_30px_rgba(0,0,0,0.45)] ring-1 ring-white/5 transition hover:-translate-y-0.5"
     >
       <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between px-3 py-2">
         <span className={`rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ring-1 ${statusClasses(v.status)}`}>
           {statusLabel(v.status)}
         </span>
-        <span className="rounded-md bg-red-600/80 px-2 py-0.5 text-[10px] font-bold text-white shadow">
+        <span className="rounded-md bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold text-black shadow">
           {formatPrice(v.price)}
         </span>
       </div>
@@ -96,13 +96,13 @@ export default function Home() {
   const [query, setQuery] = React.useState("");
   const [sortBy, setSortBy] = React.useState<"price_desc" | "price_asc" | "year_desc" | "year_asc">("price_desc");
 
-  // Filtros (3B)
+  // Filtros
   const [make, setMake] = React.useState<string>("");
   const [model, setModel] = React.useState<string>("");
   const [pmin, setPmin] = React.useState<number>(0);
   const [pmax, setPmax] = React.useState<number>(0);
 
-  // Paginación (PASO 5)
+  // Paginación
   const [page, setPage] = React.useState<number>(1);
   const [perPage, setPerPage] = React.useState<number>(12);
 
@@ -118,7 +118,7 @@ export default function Home() {
     setPmax(meta.maxPrice);
   }, [inventory]);
 
-  // Filtros + orden (3E)
+  // Filtros + orden
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
     let arr = inventory.filter((v) => {
@@ -149,7 +149,7 @@ export default function Home() {
     return arr;
   }, [inventory, query, sortBy, make, model, pmin, pmax]);
 
-  // ---- PASO 5: Paginación ----
+  // Paginación
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
   React.useEffect(() => { setPage(1); }, [query, make, model, pmin, pmax, sortBy, perPage]);
@@ -177,11 +177,12 @@ export default function Home() {
         <div className="absolute inset-0 -z-10">
           <img
             src="/lux-hero.jpg"
-            alt="Exotic red sports car"
+            alt="Exotic luxury car"
             onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
             className="h-[56vh] w-full object-cover opacity-55"
           />
-          <div className="absolute inset-0 bg-[radial-gradient(80%_80%_at_50%_20%,rgba(220,38,38,0.35),transparent_60%)]" />
+          {/* Dorado cálido */}
+          <div className="absolute inset-0 bg-[radial-gradient(80%_80%_at_50%_20%,rgba(245,158,11,0.35),transparent_60%)]" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-neutral-950" />
         </div>
 
@@ -201,7 +202,7 @@ export default function Home() {
             <a className="opacity-80 hover:opacity-100" href="#inventory">Inventory</a>
             <a className="opacity-80 hover:opacity-100" href="#contact">Contact</a>
           </nav>
-          <a href="tel:+18184223567" className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-red-500">
+          <a href="tel:+18184223567" className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-black shadow hover:bg-amber-400">
             Call (818) 422-3567
           </a>
         </header>
@@ -288,7 +289,7 @@ export default function Home() {
                 ))}
                 <button
                   onClick={(e) => { e.preventDefault(); clearAll(); }}
-                  className="ml-1 rounded-full border border-white/10 bg-red-600/20 px-3 py-1 text-xs text-red-200 hover:bg-red-600/30"
+                  className="ml-1 rounded-full border border-white/10 bg-amber-500/20 px-3 py-1 text-xs text-amber-200 hover:bg-amber-500/30"
                 >
                   Clear all
                 </button>
@@ -336,7 +337,7 @@ export default function Home() {
                   <button
                     key={n}
                     onClick={() => setPage(n)}
-                    className={`rounded-lg px-3 py-1 text-sm ${active ? "bg-red-600 text-white" : "border border-white/10 bg-white/5 text-white/80 hover:bg-white/10"}`}
+                    className={`rounded-lg px-3 py-1 text-sm ${active ? "bg-amber-500 text-black" : "border border-white/10 bg-white/5 text-white/80 hover:bg-white/10"}`}
                   >
                     {n}
                   </button>
@@ -390,13 +391,13 @@ export default function Home() {
           <form action="/contact" method="post" className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <h3 className="text-xl font-semibold">Send a message</h3>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <input name="name" required placeholder="Name" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm placeholder-white/40 outline-none focus:border-red-400/40" />
-              <input name="phone" placeholder="Phone" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm placeholder-white/40 outline-none focus:border-red-400/40" />
-              <input name="email" type="email" placeholder="Email" className="sm:col-span-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm placeholder-white/40 outline-none focus:border-red-400/40" />
-              <textarea name="message" rows={4} placeholder="Tell us what you’re looking for" className="sm:col-span-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm placeholder-white/40 outline-none focus:border-red-400/40" />
+              <input name="name" required placeholder="Name" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm placeholder-white/40 outline-none focus:border-amber-500/40" />
+              <input name="phone" placeholder="Phone" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm placeholder-white/40 outline-none focus:border-amber-500/40" />
+              <input name="email" type="email" placeholder="Email" className="sm:col-span-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm placeholder-white/40 outline-none focus:border-amber-500/40" />
+              <textarea name="message" rows={4} placeholder="Tell us what you’re looking for" className="sm:col-span-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm placeholder-white/40 outline-none focus:border-amber-500/40" />
             </div>
             <div className="mt-4 flex justify-end">
-              <button type="submit" className="rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow hover:bg-red-500">Send</button>
+              <button type="submit" className="rounded-xl bg-amber-500 px-5 py-3 text-sm font-semibold text-black shadow hover:bg-amber-400">Send</button>
             </div>
           </form>
         </div>
