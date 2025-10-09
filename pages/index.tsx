@@ -1,4 +1,4 @@
-// pages/index.tsx — Luxury + Filtros + Badges + Paginación/Chips (tema Negro + Rojo)
+// pages/index.tsx — Luxury + Filtros + Badges + Paginación/Chips + Sort por Mileage + WhatsApp CTA
 import * as React from "react";
 import * as invMod from "../data/inventory";
 
@@ -94,7 +94,9 @@ function VehicleCard({ v }: { v: Vehicle }) {
 export default function Home() {
   // Búsqueda/orden
   const [query, setQuery] = React.useState("");
-  const [sortBy, setSortBy] = React.useState<"price_desc" | "price_asc" | "year_desc" | "year_asc">("price_desc");
+  const [sortBy, setSortBy] = React.useState<
+    "price_desc" | "price_asc" | "year_desc" | "year_asc" | "mileage_asc" | "mileage_desc"
+  >("price_desc");
 
   // Filtros
   const [make, setMake] = React.useState<string>("");
@@ -138,12 +140,15 @@ export default function Home() {
 
     arr.sort((a, b) => {
       const ap = a?.price ?? 0, bp = b?.price ?? 0;
-      const ay = a?.year ?? 0, by = b?.year ?? 0;
+      const ay = a?.year ?? 0,  by = b?.year ?? 0;
+      const am = a?.mileage ?? 0, bm = b?.mileage ?? 0;
       switch (sortBy) {
-        case "price_asc": return ap - bp;
-        case "year_desc": return by - ay;
-        case "year_asc": return ay - by;
-        default: return bp - ap;
+        case "price_asc":     return ap - bp;
+        case "year_desc":     return by - ay;
+        case "year_asc":      return ay - by;
+        case "mileage_asc":   return am - bm;
+        case "mileage_desc":  return bm - am;
+        default:              return bp - ap; // price_desc
       }
     });
     return arr;
@@ -169,6 +174,19 @@ export default function Home() {
     setPmin(meta.minPrice); setPmax(meta.maxPrice);
     setSortBy("price_desc");
   };
+
+  // ---- WhatsApp CTA (href dinámico con filtros) ----
+  const waHref = React.useMemo(() => {
+    const base = "https://wa.me/18184223567";
+    const msg =
+      `Hola, vengo de hybridrm.com.\n` +
+      `Estoy buscando un híbrido.\n` +
+      `Búsqueda: ${query || "—"}\n` +
+      `Marca: ${make || "Cualquiera"}\n` +
+      `Modelo: ${model || "Cualquiera"}\n` +
+      `Precio: ${pmin ? `$${pmin.toLocaleString()}` : "Min?"} - ${pmax ? `$${pmax.toLocaleString()}` : "Max?"}`;
+    return `${base}?text=${encodeURIComponent(msg)}`;
+  }, [query, make, model, pmin, pmax]);
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
@@ -268,6 +286,8 @@ export default function Home() {
                   <option value="price_asc">Price: Low → High</option>
                   <option value="year_desc">Year: New → Old</option>
                   <option value="year_asc">Year: Old → New</option>
+                  <option value="mileage_asc">Mileage: Low → High</option>
+                  <option value="mileage_desc">Mileage: High → Low</option>
                 </select>
               </div>
             </div>
@@ -413,6 +433,23 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* ---- BOTÓN FLOTANTE WHATSAPP ---- */}
+      <a
+        href={waHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chatear por WhatsApp"
+        className="fixed bottom-6 right-6 z-50 inline-flex items-center justify-center rounded-full bg-green-500 p-4 text-white shadow-lg ring-1 ring-white/10 hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-green-300"
+      >
+        {/* Ícono WhatsApp (SVG) */}
+        <svg viewBox="0 0 32 32" className="h-6 w-6" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M19.11 17.27c-.27-.14-1.57-.78-1.82-.86c-.24-.09-.42-.14-.6.14c-.18.27-.69.86-.84 1.04c-.15.18-.31.2-.58.07c-.27-.14-1.13-.42-2.15-1.34c-.79-.7-1.32-1.57-1.47-1.84c-.15-.27-.02-.42.11-.56c.12-.12.27-.31.4-.47c.13-.16.18-.27.27-.45c.09-.18.05-.34-.02-.47c-.07-.14-.6-1.45-.82-1.99c-.22-.53-.44-.46-.6-.46c-.15 0-.34 0-.52 0c-.18 0-.47.07-.72.34c-.24.27-.95.93-.95 2.27c0 1.34.98 2.64 1.12 2.82c.14.18 1.93 2.95 4.68 4.14c.65.28 1.15.45 1.54.58c.65.21 1.24.18 1.7.11c.52-.08 1.57-.64 1.79-1.26c.22-.62.22-1.15.15-1.26c-.06-.11-.24-.18-.51-.32zM16 3C8.82 3 3 8.82 3 16c0 2.3.61 4.47 1.67 6.35L3 29l6.82-1.79A12.93 12.93 0 0 0 16 29c7.18 0 13-5.82 13-13S23.18 3 16 3z"
+          />
+        </svg>
+      </a>
     </main>
   );
 }
