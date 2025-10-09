@@ -349,7 +349,7 @@ export default function Home() {
         <div className="grid gap-8 md:grid-cols-2">
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <h3 className="text-xl font-semibold">Contact</h3>
-            <p className="mt-1 text-sm text-white/75">San Fernando Valley · Los Angeles, CA</p>
+            <p className="mt-1 text-sm text-white/75"> · Los Angeles, California </p>
             <div className="mt-6 space-y-3 text-sm">
               <div className="flex items-center gap-3">
                 <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">📞</span>
