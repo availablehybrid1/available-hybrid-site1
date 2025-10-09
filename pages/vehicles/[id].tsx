@@ -1,9 +1,106 @@
+// pages/vehicles/[id].tsx
 import { GetStaticPaths, GetStaticProps } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useState, useEffect, useCallback } from 'react'
 import { inventory, type Vehicle } from '../../data/inventory'
 
 type Props = { car: Vehicle }
+
+/** Carrusel minimal con Tailwind (flechas, arrastre táctil y puntitos) */
+function Carousel({ images, alt }: { images: string[]; alt: string }) {
+  const [i, setI] = useState(0)
+
+  const prev = useCallback(() => setI((v) => (v - 1 + images.length) % images.length), [images.length])
+  const next = useCallback(() => setI((v) => (v + 1) % images.length), [images.length])
+
+  // Teclas ← →
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') prev()
+      if (e.key === 'ArrowRight') next()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [prev, next])
+
+  // Arrastre táctil
+  useEffect(() => {
+    let startX = 0
+    const el = document.getElementById('carousel')!
+    const onTouchStart = (e: TouchEvent) => (startX = e.touches[0].clientX)
+    const onTouchEnd = (e: TouchEvent) => {
+      const dx = e.changedTouches[0].clientX - startX
+      if (dx > 40) prev()
+      if (dx < -40) next()
+    }
+    el?.addEventListener('touchstart', onTouchStart, { passive: true })
+    el?.addEventListener('touchend', onTouchEnd, { passive: true })
+    return () => {
+      el?.removeEventListener('touchstart', onTouchStart)
+      el?.removeEventListener('touchend', onTouchEnd)
+    }
+  }, [prev, next])
+
+  return (
+    <div className="w-full" id="carousel">
+      <div className="relative w-full h-72 md:h-96 rounded overflow-hidden">
+        <Image
+          key={images[i]}
+          src={images[i]}
+          alt={`${alt} ${i + 1}`}
+          fill
+          className="object-cover transition-opacity duration-300"
+          sizes="(max-width:768px) 100vw, 50vw"
+          priority
+        />
+
+        {/* Flecha izquierda */}
+        <button
+          onClick={prev}
+          aria-label="Anterior"
+          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full w-9 h-9 grid place-items-center hover:bg-black/70"
+        >
+          ‹
+        </button>
+
+        {/* Flecha derecha */}
+        <button
+          onClick={next}
+          aria-label="Siguiente"
+          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full w-9 h-9 grid place-items-center hover:bg-black/70"
+        >
+          ›
+        </button>
+      </div>
+
+      {/* Puntos */}
+      <div className="mt-3 flex items-center justify-center gap-2">
+        {images.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setI(idx)}
+            aria-label={`Ir a imagen ${idx + 1}`}
+            className={`h-2.5 w-2.5 rounded-full ${i === idx ? 'bg-gray-900' : 'bg-gray-300 hover:bg-gray-400'}`}
+          />
+        ))}
+      </div>
+
+      {/* Tiras de miniaturas (opcional) */}
+      <div className="mt-3 hidden md:flex gap-2">
+        {images.map((src, idx) => (
+          <button
+            key={src + idx}
+            onClick={() => setI(idx)}
+            className={`relative h-16 w-24 overflow-hidden rounded border ${i === idx ? 'border-gray-900' : 'border-gray-200'}`}
+          >
+            <Image src={src} alt={`${alt} thumb ${idx + 1}`} fill className="object-cover" sizes="96px" />
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 export default function VehiclePage({ car }: Props) {
   return (
@@ -18,20 +115,8 @@ export default function VehiclePage({ car }: Props) {
 
       <main className="max-w-5xl mx-auto p-6">
         <div className="grid gap-6 md:grid-cols-2">
-          {/* Galería */}
-          <div className="space-y-4">
-            {car.photos.map((src, i) => (
-              <div key={i} className="relative w-full h-64">
-                <Image
-                  src={src}
-                  alt={`${car.title} ${i + 1}`}
-                  fill
-                  className="object-cover rounded"
-                  sizes="(max-width:768px) 100vw, 50vw"
-                />
-              </div>
-            ))}
-          </div>
+          {/* Carrusel */}
+          <Carousel images={car.photos} alt={car.title} />
 
           {/* Datos */}
           <div>
@@ -43,6 +128,7 @@ export default function VehiclePage({ car }: Props) {
               {car.mileage && <li><strong>Millaje:</strong> {car.mileage.toLocaleString()} mi</li>}
               {car.transmission && <li><strong>Transmisión:</strong> {car.transmission}</li>}
               {car.fuel && <li><strong>Combustible:</strong> {car.fuel}</li>}
+              {car.vin && <li><strong>VIN:</strong> {car.vin}</li>}
               {car.exterior && <li><strong>Exterior:</strong> {car.exterior}</li>}
               {car.interior && <li><strong>Interior:</strong> {car.interior}</li>}
             </ul>
