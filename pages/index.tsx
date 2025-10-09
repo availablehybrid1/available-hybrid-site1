@@ -1,6 +1,25 @@
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Car, Phone, Mail, MapPin, Clock, ShieldCheck, Search, Fuel, Filter, Facebook, Instagram, Globe, ArrowRight, PhoneCall, CreditCard, Wrench, BadgeCheck, Languages } from 'lucide-react'
+import {
+  Car,
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  ShieldCheck,
+  Search,
+  Fuel,
+  Filter,
+  Facebook,
+  Instagram,
+  Globe,
+  ArrowRight,
+  PhoneCall,
+  CreditCard,
+  Wrench,
+  BadgeCheck,
+  Languages
+} from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { inventory } from '../data/inventory'
@@ -27,15 +46,4 @@ export default function Home() {
 
         {/* Inventario real */}
         <section className="mx-auto max-w-7xl px-4 py-10">
-          <h2 className="text-2xl font-bold mb-6">Inventario</h2>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {inventory.map((car) => (
-              <Link
-                key={car.id}
-                href={`/vehicles/${car.id}`}
-                className="border rounded-lg overflow-hidden hover:shadow-md transition block"
-              >
-                <div className="relative w-full h-56">
-                  <Image
-                    src={car.photos[0]}
+          <h2 className="text-2xl font-bold m
