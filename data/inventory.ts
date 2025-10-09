@@ -1,38 +1,50 @@
-// data/inventory.ts
+// /data/inventory.ts
 
+// ---- Tipos ----
 export type Vehicle = {
-  id: string
-  title: string
-  year: number
-  make: string
-  model: string
-  mileage: number
-  transmission: string
-  fuel?: string
-  trim?: string
-  exterior?: string
-  interior?: string
-  vin?: string
-  price?: number
-  description?: string
-  photos?: string[] // ⬅️ ahora opcional
-}
+  id: string;
+  title: string;
+  year: number;
+  make: string;
+  model: string;
+  mileage: number;
+  transmission?: string;
+  fuel?: string;
+  vin?: string;
+  exterior?: string;
+  interior?: string;
+  price?: number;
+  description?: string;
+  // OBLIGATORIO: siempre existirá gracias al normalizador de abajo
+  photos: string[];
+};
 
-// Imagen local de respaldo (colócala en /public/placeholder-car.jpg)
-export const PLACEHOLDER_IMG = '/placeholder-car.jpg'
+// Imagen de respaldo (asegúrate de que exista en /public)
+const PLACEHOLDER = "/placeholder-car.jpg";
 
-// ⬇️ Deja/pon aquí tu inventario real. “photos” puede omitirse.
-export const inventory: Vehicle[] = [
-  // Ejemplo:
+// ------------------------------------------------------------------
+// 1) Coloca aquí tus autos SIN preocuparte por 'photos'.
+//    Si no pones 'photos', se asignará automáticamente el placeholder.
+//    Puedes dejarlo vacío si aún no tienes inventario.
+// ------------------------------------------------------------------
+const rawInventory: Array<Omit<Vehicle, "photos"> & { photos?: string[] }> = [
+  // Ejemplo (puedes borrar/editar):
   // {
-  //   id: 'cruze-2012',
-  //   title: 'Chevrolet Cruze 2012',
+  //   id: "cruze-2012",
+  //   title: "Chevrolet Cruze 2012",
   //   year: 2012,
-  //   make: 'Chevrolet',
-  //   model: 'Cruze',
-  //   mileage: 123456,
-  //   transmission: 'Automática',
+  //   make: "Chevrolet",
+  //   model: "Cruze",
+  //   mileage: 125000,
   //   price: 5990,
-  //   // photos: [], // puedes no ponerlo
+  //   // photos: ["/car1.jpg", "/car2.jpg"], // opcional
   // },
-]
+];
+
+// ------------------------------------------------------------------
+// 2) Normalizamos para garantizar que 'photos' SIEMPRE exista.
+// ------------------------------------------------------------------
+export const inventory: Vehicle[] = rawInventory.map((v) => ({
+  photos: v.photos && v.photos.length ? v.photos : [PLACEHOLDER],
+  ...v,
+}));
