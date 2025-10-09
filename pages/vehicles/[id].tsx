@@ -4,49 +4,58 @@ import Link from "next/link";
 import { useState } from "react";
 import { inventory, type Vehicle } from "../../data/inventory";
 
-type Props = { car: Vehicle };
+/* ---------- Carrusel simple y tolerante ---------- */
+function Carousel({
+  images = [],
+  alt,
+}: {
+  images?: string[];
+  alt: string;
+}) {
+  const n = images.length;
+  // Si no hay imágenes, no mostramos nada del carrusel
+  if (!n) return null;
 
-function Carousel({ images, alt }: { images: string[]; alt: string }) {
   const [i, setI] = useState(0);
-  const n = images?.length || 1;
 
   const prev = () => setI((v) => (v - 1 + n) % n);
   const next = () => setI((v) => (v + 1) % n);
 
-  if (!images || images.length === 0) return null;
+  const current = images[i];
 
   return (
-    <div className="relative">
-      {/* Imagen actual */}
+    <div className="w-full">
       <div className="relative w-full h-72 md:h-96 rounded overflow-hidden">
         <Image
-          key={images[i]}
-          src={images[i]}
+          key={current}
+          src={current}
           alt={`${alt} foto ${i + 1}`}
           fill
           className="object-cover"
           sizes="(max-width:768px) 100vw, 60vw"
           priority
         />
+
+        {/* Flecha izquierda */}
+        <button
+          onClick={prev}
+          aria-label="Anterior"
+          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full w-9 h-9 grid place-items-center hover:bg-black/75"
+        >
+          ‹
+        </button>
+
+        {/* Flecha derecha */}
+        <button
+          onClick={next}
+          aria-label="Siguiente"
+          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full w-9 h-9 grid place-items-center hover:bg-black/75"
+        >
+          ›
+        </button>
       </div>
 
-      {/* Flechas */}
-      <button
-        onClick={prev}
-        aria-label="Anterior"
-        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full w-9 h-9 grid place-items-center hover:bg-black/75"
-      >
-        ‹
-      </button>
-      <button
-        onClick={next}
-        aria-label="Siguiente"
-        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full w-9 h-9 grid place-items-center hover:bg-black/75"
-      >
-        ›
-      </button>
-
-      {/* Puntos */}
+      {/* Puntitos */}
       <div className="mt-3 flex items-center justify-center gap-2">
         {(images || []).map((_, idx) => (
           <button
@@ -63,6 +72,9 @@ function Carousel({ images, alt }: { images: string[]; alt: string }) {
   );
 }
 
+/* ---------- Página de detalle ---------- */
+type Props = { car: Vehicle };
+
 export default function VehiclePage({ car }: Props) {
   return (
     <div className="min-h-screen bg-white">
@@ -76,13 +88,15 @@ export default function VehiclePage({ car }: Props) {
       </header>
 
       <main className="max-w-5xl mx-auto p-6">
+        {/* Galería */}
         <section className="grid gap-6 md:grid-cols-2">
           <div>
-            <Carousel images={car.photos} alt={car.title} />
+            <Carousel images={car.photos || []} alt={car.title} />
           </div>
 
           <div>
             <h1 className="text-2xl font-bold">{car.title}</h1>
+
             <ul className="space-y-2 text-gray-800 mt-4">
               <li>
                 <strong>Año:</strong> {car.year}
@@ -91,7 +105,11 @@ export default function VehiclePage({ car }: Props) {
                 <strong>Marca/Modelo:</strong> {car.make} {car.model}
               </li>
               <li>
-                <strong>Millaje:</strong> {car.mileage.toLocaleString()} mi
+                <strong>Millaje:</strong>{" "}
+                {typeof car.mileage === "number"
+                  ? car.mileage.toLocaleString()
+                  : car.mileage}{" "}
+                mi
               </li>
               <li>
                 <strong>Transmisión:</strong> {car.transmission}
@@ -99,7 +117,8 @@ export default function VehiclePage({ car }: Props) {
               <li>
                 <strong>Combustible:</strong> {car.fuel}
               </li>
-              {car["vin" as keyof Vehicle] ? (
+              {/* VIN opcional */}
+              {"vin" in car && (car as any).vin ? (
                 <li>
                   <strong>VIN:</strong> {(car as any).vin}
                 </li>
@@ -112,16 +131,19 @@ export default function VehiclePage({ car }: Props) {
               </li>
             </ul>
 
+            {/* Precio (opcional) */}
             {car.price ? (
               <p className="mt-4 text-2xl font-bold">
                 ${car.price.toLocaleString()}
               </p>
             ) : null}
 
+            {/* Descripción (opcional) */}
             {car.description ? (
               <p className="mt-4 text-gray-700">{car.description}</p>
             ) : null}
 
+            {/* Contacto */}
             <div className="mt-6 flex gap-3">
               <a
                 href="tel:7473544098"
@@ -147,7 +169,7 @@ export default function VehiclePage({ car }: Props) {
   );
 }
 
-/* SSG (páginas estáticas) */
+/* ---------- SSG ---------- */
 export async function getStaticPaths() {
   return {
     paths: inventory.map((v) => ({ params: { id: v.id } })),
@@ -158,7 +180,7 @@ export async function getStaticPaths() {
 export async function getStaticProps({
   params,
 }: {
-  params: { id?: string };
+  params?: { id?: string };
 }) {
   const id = String(params?.id || "");
   const car = inventory.find((v) => v.id === id) || null;
