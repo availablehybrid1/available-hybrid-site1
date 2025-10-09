@@ -15,8 +15,12 @@ export default function Home() {
       <main className="max-w-5xl mx-auto p-6">
         <section className="py-12">
           <h2 className="text-3xl font-bold">Bienvenido</h2>
-          <p className="mt-2 text-gray-700">Teléfono: 747-354-4098 | Email: availablehybrid@gmail.com</p>
-          <p className="mt-2 text-gray-700">Dirección: 6726 Reseda Blvd, Unit A-7, Reseda, CA 91335</p>
+          <p className="mt-2 text-gray-700">
+            Teléfono: 747-354-4098 | Email: availablehybrid@gmail.com
+          </p>
+          <p className="mt-2 text-gray-700">
+            Dirección: 6726 Reseda Blvd, Unit A-7, Reseda, CA 91335
+          </p>
         </section>
 
         {/* Inventario real */}
@@ -44,7 +48,9 @@ export default function Home() {
                   <p className="text-sm text-gray-600">
                     {car.year} · {car.mileage.toLocaleString()} mi · {car.transmission}
                   </p>
-                  <p className="mt-2 text-xl font-bold">${car.price.toLocaleString()}</p>
+                  <p className="mt-2 text-xl font-bold">
+                    ${car.price.toLocaleString()}
+                  </p>
                 </div>
               </Link>
             ))}
@@ -53,10 +59,16 @@ export default function Home() {
 
         <section className="py-12">
           <h2 className="text-2xl font-bold mb-4">Contáctanos</h2>
-          <p className="text-gray-700">¿Dudas o quieres agendar una cita? Llámanos o escríbenos:</p>
+          <p className="text-gray-700">
+            ¿Dudas o quieres agendar una cita? Llámanos o escríbenos:
+          </p>
           <div className="mt-4 flex gap-4">
-            <a href="tel:7473544098" className="bg-blue-600 text-white px-4 py-2 rounded">Llamar</a>
-            <a href="mailto:availablehybrid@gmail.com" className="bg-green-600 text-white px-4 py-2 rounded">Email</a>
+            <a href="tel:7473544098" className="bg-blue-600 text-white px-4 py-2 rounded">
+              Llamar
+            </a>
+            <a href="mailto:availablehybrid@gmail.com" className="bg-green-600 text-white px-4 py-2 rounded">
+              Email
+            </a>
           </div>
         </section>
       </main>
