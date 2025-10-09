@@ -46,21 +46,26 @@ export const inventory: Vehicle[] = [
     ],
   },
   {
-    id: 'cruze-2012',
-    title: 'Chevrolet Cruze 2012',
-    year: 2012,
-    make: 'Chevrolet',
-    model: 'Cruze',
-    mileage: 121800,
-    transmission: 'Automática',
-    fuel: 'Gasolina',
-    exterior: 'Azul',
-    interior: 'Negro',
-    price: 3500,
-    description:
-      'Chevrolet Cruze 2012 en excelentes condiciones mecánicas. Motor eficiente y transmisión suave. Aire acondicionado frío, interior bien cuidado y título limpio. Perfecto como primer vehículo o para transporte diario a bajo costo.',
-    photos: ['/car1.jpg', '/car2.jpg', '/car3.jpg'],
-  },
+  id: 'cruze-2012',
+  title: 'Chevrolet Cruze 2012',
+  year: 2012,
+  make: 'Chevrolet',
+  model: 'Cruze',
+  mileage: 145000,
+  transmission: 'Automática',
+  fuel: 'Gasolina',
+  exterior: 'Azul',
+  interior: 'Negro',
+  price: 3500,
+  description:
+    'Sedán confiable y económico en excelente estado mecánico. Aire acondicionado frío, transmisión suave y motor eficiente. Perfecto para transporte diario o primer vehículo. Título limpio y listo para transferir.',
+  photos: [
+    '/WhatsApp Image 2025-10-09 at 12.18.18 AM.jpeg',
+    '/WhatsApp Image 2025-10-09 at 12.18.19 AM.jpeg',
+    '/WhatsApp Image 2025-10-09 at 12.18.20 AM.jpeg'
+  ],
+},
+
   {
     id: 'prius-2015',
     title: 'Toyota Prius 2015',
