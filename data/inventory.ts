@@ -12,30 +12,38 @@ export type Vehicle = {
   vin?: string;
   exterior?: string;
   interior?: string;
-  trim?: string;
   price?: number;
   description?: string;
-  photos: string[]; // garantizado por el normalizador
+  photos: string[];
 };
 
-// Debe existir en /public
 export const PLACEHOLDER_IMG = '/placeholder-car.jpg';
 
-const rawInventory: Array<Omit<Vehicle, 'photos'> & { photos?: string[] }> = [
+// ----------------------------------------------------
+// INVENTARIO COMPLETO (5 VEHÍCULOS)
+// ----------------------------------------------------
+export const inventory: Vehicle[] = [
   {
-    id: 'prius-2013',
-    title: 'Toyota Prius 2013',
+    id: 'priusc-2013',
+    title: 'Toyota Prius C 2013',
     year: 2013,
     make: 'Toyota',
-    model: 'Prius',
-    mileage: 128_500,
+    model: 'Prius C',
+    mileage: 172000,
     transmission: 'Automática',
     fuel: 'Híbrido',
-    exterior: 'Gris',
-    interior: 'Tela negra',
-    price: 8990,
-    photos: ['/car1.jpg', '/car2.jpg'],
-    description: 'Muy económico, mantenimiento al día.',
+    exterior: 'Blanco',
+    interior: 'Gris claro',
+    price: 6000,
+    description:
+      'Excelente opción económica y confiable. Este Toyota Prius C 2013 combina eficiencia híbrida con bajo mantenimiento. Interior limpio, aire acondicionado frío y manejo suave. Ideal para uso diario o trabajo de transporte gracias a su excelente rendimiento de gasolina (hasta 50 MPG). Título limpio y listo para transferir.',
+    photos: [
+      '/WhatsApp Image 2025-10-08 at 7.39.45 AM.jpeg',
+      '/WhatsApp Image 2025-10-08 at 7.39.45 AM (1).jpeg',
+      '/WhatsApp Image 2025-10-08 at 7.39.46 AM.jpeg',
+      '/WhatsApp Image 2025-10-08 at 7.39.46 AM (1).jpeg',
+      '/WhatsApp Image 2025-10-08 at 7.39.46 AM (2).jpeg'
+    ],
   },
   {
     id: 'cruze-2012',
@@ -43,54 +51,62 @@ const rawInventory: Array<Omit<Vehicle, 'photos'> & { photos?: string[] }> = [
     year: 2012,
     make: 'Chevrolet',
     model: 'Cruze',
-    mileage: 145_300,
+    mileage: 121800,
     transmission: 'Automática',
     fuel: 'Gasolina',
     exterior: 'Azul',
-    interior: 'Tela gris',
-    price: 5990,
-    photos: ['/car3.jpg'],
+    interior: 'Negro',
+    price: 3500,
+    description:
+      'Chevrolet Cruze 2012 en excelentes condiciones mecánicas. Motor eficiente y transmisión suave. Aire acondicionado frío, interior bien cuidado y título limpio. Perfecto como primer vehículo o para transporte diario a bajo costo.',
+    photos: ['/car1.jpg', '/car2.jpg', '/car3.jpg'],
   },
   {
-    id: 'civic-2014',
-    title: 'Honda Civic 2014',
-    year: 2014,
-    make: 'Honda',
-    model: 'Civic',
-    mileage: 138_000,
-    transmission: 'Automática',
-    fuel: 'Gasolina',
-    price: 7990,
-    // sin fotos -> usa placeholder
-  },
-  {
-    id: 'camry-2015',
-    title: 'Toyota Camry 2015',
+    id: 'prius-2015',
+    title: 'Toyota Prius 2015',
     year: 2015,
     make: 'Toyota',
-    model: 'Camry',
-    mileage: 110_200,
+    model: 'Prius',
+    mileage: 203382,
     transmission: 'Automática',
-    fuel: 'Gasolina',
-    exterior: 'Blanco',
-    price: 10_900,
-    // sin fotos -> usa placeholder
+    fuel: 'Híbrido',
+    exterior: 'Negro',
+    interior: 'Gris oscuro',
+    price: 6499,
+    description:
+      'Toyota Prius 2015 híbrido, reconocido por su durabilidad y bajo consumo de combustible. Interior limpio, aire acondicionado y sistema híbrido en excelente estado. Opción ideal para quienes buscan economía y confiabilidad.',
+    photos: ['/car1.jpg', '/car2.jpg', '/car3.jpg'],
   },
   {
-    id: 'accord-2016',
-    title: 'Honda Accord 2016',
-    year: 2016,
-    make: 'Honda',
-    model: 'Accord',
-    mileage: 99_800,
+    id: 'priusv-2014',
+    title: 'Toyota Prius V 2014',
+    year: 2014,
+    make: 'Toyota',
+    model: 'Prius V',
+    mileage: 172000,
     transmission: 'Automática',
-    fuel: 'Gasolina',
-    price: 12_500,
-    // sin fotos -> usa placeholder
+    fuel: 'Híbrido',
+    exterior: 'Blanco',
+    interior: 'Gris claro',
+    price: 6999,
+    description:
+      'Toyota Prius V 2014 con amplio espacio interior y excelente economía de combustible. Aire acondicionado, sistema híbrido eficiente y título limpio. Ideal para uso familiar o de trabajo, con el estilo confiable de Toyota.',
+    photos: ['/car1.jpg', '/car2.jpg', '/car3.jpg'],
+  },
+  {
+    id: 'prius-2010',
+    title: 'Toyota Prius 2010',
+    year: 2010,
+    make: 'Toyota',
+    model: 'Prius',
+    mileage: 198000,
+    transmission: 'Automática',
+    fuel: 'Híbrido',
+    exterior: 'Rojo',
+    interior: 'Beige',
+    price: 5500,
+    description:
+      'Toyota Prius 2010 híbrido en excelentes condiciones para su año. Motor silencioso, consumo muy bajo de gasolina y mantenimiento al día. Ideal para quien busca economía, confiabilidad y un vehículo listo para conducir.',
+    photos: ['/car1.jpg', '/car2.jpg', '/car3.jpg'],
   },
 ];
-
-export const inventory: Vehicle[] = rawInventory.map((v) => ({
-  ...v,
-  photos: v.photos && v.photos.length ? v.photos : [PLACEHOLDER_IMG],
-}));
