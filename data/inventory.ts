@@ -34,7 +34,7 @@ export const inventory: Vehicle[] = [
     fuel: 'Híbrido',
     exterior: 'Blanco',
     interior: 'Gris claro',
-    price: 6000,
+    price: 7000,
     description:
       'Excelente opción económica y confiable. Este Toyota Prius C 2013 combina eficiencia híbrida con bajo mantenimiento. Interior limpio, aire acondicionado frío y manejo suave. Ideal para uso diario o trabajo de transporte gracias a su excelente rendimiento de gasolina (hasta 50 MPG). Título limpio y listo para transferir.',
     photos: [
