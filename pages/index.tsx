@@ -1,6 +1,7 @@
 // pages/index.tsx — Luxury / Legendary style (Next.js + Tailwind)
 import React from "react";
-import invFile from "../data/inventory";
+// 👇 CAMBIO 1: importar TODO el módulo, no “default”
+import * as invMod from "../data/inventory";
 
 type Vehicle = {
   id: string;
@@ -19,11 +20,9 @@ function VehicleCard({ v }: { v: Vehicle }) {
   const photo = v?.photos?.[0] || "/placeholder-car.jpg";
   return (
     <a
-      // Si tus detalles están en /inventory/[id].tsx cambia a href={`/inventory/${v.id}`}
-      href={`/${v.id}`}
+      href={`/${v.id}`} // usa tu [id].tsx en /pages
       className="group relative overflow-hidden rounded-2xl border border-red-600/20 bg-[radial-gradient(100%_100%_at_50%_0%,rgba(255,255,255,0.06),rgba(0,0,0,0.3))] shadow-[0_10px_30px_rgba(0,0,0,0.45)] ring-1 ring-white/5 transition hover:-translate-y-0.5"
     >
-      {/* Top bar */}
       <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between px-3 py-2">
         <span className="rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/80 ring-1 ring-white/10">
           Exclusive Stock
@@ -33,7 +32,6 @@ function VehicleCard({ v }: { v: Vehicle }) {
         </span>
       </div>
 
-      {/* Imagen */}
       <div className="relative aspect-[16/10] w-full">
         <img
           src={photo}
@@ -43,7 +41,6 @@ function VehicleCard({ v }: { v: Vehicle }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70" />
       </div>
 
-      {/* Body */}
       <div className="p-4">
         <div className="flex items-center justify-between gap-2">
           <h3 className="truncate text-base font-semibold tracking-tight text-white">
@@ -66,8 +63,15 @@ export default function Home() {
   const [query, setQuery] = React.useState("");
   const [sortBy, setSortBy] = React.useState<"price_desc" | "price_asc" | "year_desc" | "year_asc">("price_desc");
 
-  // Normaliza export default o named
-  const inventory: Vehicle[] = ((invFile as any)?.default ?? (invFile as any)) as Vehicle[];
+  // 👇 CAMBIO 2: tomar el arreglo sin importar el nombre del export en data/inventory.ts
+  // Acepta: export const inventory | vehicles | rawInventory | default
+  const invAny: any = invMod as any;
+  const inventory: Vehicle[] =
+    (invAny.inventory ??
+      invAny.vehicles ??
+      invAny.rawInventory ??
+      invAny.default ??
+      []) as Vehicle[];
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -89,7 +93,7 @@ export default function Home() {
         case "year_asc":
           return ay - by;
         default:
-          return bp - ap; // price_desc
+          return bp - ap;
       }
     });
     return arr;
@@ -100,7 +104,6 @@ export default function Home() {
       {/* HERO / TOP */}
       <div className="relative isolate">
         <div className="absolute inset-0 -z-10">
-          {/* Si /public/lux-hero.jpg existe, se verá; si no, se oculta y queda el degradado */}
           <img
             src="/lux-hero.jpg"
             alt="Exotic red sports car"
@@ -119,7 +122,7 @@ export default function Home() {
               <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
                 <path
                   fill="currentColor"
-                  d="M5 11l2-4h10l2 4h1a2 2 0 012 2v3a1 1 0 01-1 1h-1v1a1 1 0 01-1 1h-1a1 1 0 01-1-1v-1H7v1a1 1 0 01-1 1H5a1 1 0 01-1-1v-1H3a1 1 0 01-1-1v-3a2 2 0 012-2h1zm3.5 4a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm9 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"
+                  d="M5 11l2-4h10l2 4h1a2 2 0 012 2v3a1 1 0 01-1 1h-1v1a1 1 0 01-1 1h-1a1 1 0 01-1-1v-1H7v1a1 1 0 01-1 1H5a1 1 0 01-1-1v-1H3a1 1 0 01-1-1v-3a2 2 0 012-2h1zm3.5 4a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"
                 />
               </svg>
             </div>
@@ -228,7 +231,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FOOTER */}
       <footer className="border-t border-white/10 py-10 text-sm text-white/60">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 sm:flex-row">
           <p>© {new Date().getFullYear()} Available Hybrid R&M Inc. All rights reserved.</p>
