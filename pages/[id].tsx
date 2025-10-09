@@ -18,10 +18,10 @@ export default function VehiclePage({ vehicle }: Props) {
       <a href="/" style={{display:'inline-block',marginBottom:16}}>← Back</a>
       <h1 style={{fontSize:24,fontWeight:700}}>{vehicle.title}</h1>
       <p style={{opacity:.8}}>
-        {vehicle.year} · {vehicle.make} {vehicle.model} · {vehicle.mileage.toLocaleString()} mi
+        {vehicle.year} · {vehicle.make} {vehicle.model} · {vehicle.mileage?.toLocaleString?.() ?? '—'} mi
       </p>
       <div style={{marginTop:16}}>
-        <img src={photo} alt={vehicle.title} style={{maxWidth:'100%',borderRadius:12}} />
+        <img src={photo} alt={vehicle.title ?? vehicle.id} style={{maxWidth:'100%',borderRadius:12}} />
       </div>
     </main>
   );
