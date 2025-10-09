@@ -1,8 +1,9 @@
 // pages/index.tsx — Luxury / Legendary style (Next.js + Tailwind)
 import React from "react";
-// 👇 CAMBIO 1: importar TODO el módulo, no “default”
+// Importar TODO el módulo (no default), para tolerar distintos exports en data/inventory.ts
 import * as invMod from "../data/inventory";
 
+// -------- Tipos --------
 type Vehicle = {
   id: string;
   title?: string;
@@ -14,15 +15,34 @@ type Vehicle = {
   photos?: string[];
 };
 
-const formatPrice = (p?: number) => (p || p === 0 ? `$${p.toLocaleString()}` : "Consultar");
+// -------- 3A) Helpers para filtros --------
+function unique<T>(arr: T[]) {
+  return Array.from(new Set(arr));
+}
+function getMeta(inv: Vehicle[]) {
+  const makes = unique(inv.map(v => v.make).filter(Boolean) as string[]).sort();
+  const models = unique(
+    inv.map(v => `${v.make ?? ""} ${v.model ?? ""}`.trim()).filter(Boolean)
+  ).sort();
+  const prices = inv.map(v => v.price ?? 0).filter(n => n > 0);
+  const minPrice = prices.length ? Math.min(...prices) : 0;
+  const maxPrice = prices.length ? Math.max(...prices) : 50000;
+  return { makes, models, minPrice, maxPrice };
+}
+
+// -------- Utilidades UI --------
+const formatPrice = (p?: number) =>
+  p || p === 0 ? `$${p.toLocaleString()}` : "Consultar";
 
 function VehicleCard({ v }: { v: Vehicle }) {
   const photo = v?.photos?.[0] || "/placeholder-car.jpg";
   return (
     <a
-      href={`/${v.id}`} // usa tu [id].tsx en /pages
+      // Si mueves tu página de detalle a /inventory/[id], cambia a href={`/inventory/${v.id}`}
+      href={`/${v.id}`}
       className="group relative overflow-hidden rounded-2xl border border-red-600/20 bg-[radial-gradient(100%_100%_at_50%_0%,rgba(255,255,255,0.06),rgba(0,0,0,0.3))] shadow-[0_10px_30px_rgba(0,0,0,0.45)] ring-1 ring-white/5 transition hover:-translate-y-0.5"
     >
+      {/* Top bar */}
       <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between px-3 py-2">
         <span className="rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/80 ring-1 ring-white/10">
           Exclusive Stock
@@ -32,6 +52,7 @@ function VehicleCard({ v }: { v: Vehicle }) {
         </span>
       </div>
 
+      {/* Imagen */}
       <div className="relative aspect-[16/10] w-full">
         <img
           src={photo}
@@ -41,6 +62,7 @@ function VehicleCard({ v }: { v: Vehicle }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70" />
       </div>
 
+      {/* Body */}
       <div className="p-4">
         <div className="flex items-center justify-between gap-2">
           <h3 className="truncate text-base font-semibold tracking-tight text-white">
@@ -60,44 +82,79 @@ function VehicleCard({ v }: { v: Vehicle }) {
 }
 
 export default function Home() {
+  // Búsqueda y orden
   const [query, setQuery] = React.useState("");
-  const [sortBy, setSortBy] = React.useState<"price_desc" | "price_asc" | "year_desc" | "year_asc">("price_desc");
+  const [sortBy, setSortBy] =
+    React.useState<"price_desc" | "price_asc" | "year_desc" | "year_asc">(
+      "price_desc"
+    );
 
-  // 👇 CAMBIO 2: tomar el arreglo sin importar el nombre del export en data/inventory.ts
+  // -------- 3B) Estados de filtros --------
+  const [make, setMake] = React.useState<string>("");   // marca
+  const [model, setModel] = React.useState<string>(""); // modelo (make + model)
+  const [pmin, setPmin] = React.useState<number>(0);    // precio mínimo
+  const [pmax, setPmax] = React.useState<number>(0);    // precio máximo
+
+  // Tomar el arreglo de inventario sin importar el nombre del export en data/inventory.ts
   // Acepta: export const inventory | vehicles | rawInventory | default
   const invAny: any = invMod as any;
-  const inventory: Vehicle[] =
-    (invAny.inventory ??
-      invAny.vehicles ??
-      invAny.rawInventory ??
-      invAny.default ??
-      []) as Vehicle[];
+  const inventory: Vehicle[] = (
+    invAny.inventory ??
+    invAny.vehicles ??
+    invAny.rawInventory ??
+    invAny.default ??
+    []
+  ) as Vehicle[];
 
+  // -------- 3C) Meta de inventario + inicializar rangos de precio --------
+  const meta = React.useMemo(() => getMeta(inventory), [inventory]);
+  React.useEffect(() => {
+    if (!inventory?.length) return;
+    setPmin(meta.minPrice);
+    setPmax(meta.maxPrice);
+  }, [inventory]); // meta depende de inventory
+
+  // -------- 3E) Aplicar filtros + orden --------
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
     let arr = inventory.filter((v) => {
-      if (!q) return true;
-      const text = `${v.title ?? ""} ${v.year ?? ""} ${v.make ?? ""} ${v.model ?? ""}`.toLowerCase();
-      return text.includes(q);
+      // texto
+      const txt = `${v.title ?? ""} ${v.year ?? ""} ${v.make ?? ""} ${v.model ?? ""}`.toLowerCase();
+      if (q && !txt.includes(q)) return false;
+
+      // marca
+      if (make && (v.make ?? "").toLowerCase() !== make.toLowerCase()) return false;
+
+      // modelo (compara "make + model" normalizado)
+      if (model) {
+        const mm = `${v.make ?? ""} ${v.model ?? ""}`.trim().toLowerCase();
+        if (mm !== model.toLowerCase()) return false;
+      }
+
+      // precio
+      const price = v.price ?? 0;
+      const minOk = pmin ? price >= pmin : true;
+      const maxOk = pmax ? price <= pmax : true;
+      if (!(minOk && maxOk)) return false;
+
+      return true;
     });
+
+    // orden
     arr.sort((a, b) => {
       const ap = a?.price ?? 0;
       const bp = b?.price ?? 0;
       const ay = a?.year ?? 0;
       const by = b?.year ?? 0;
       switch (sortBy) {
-        case "price_asc":
-          return ap - bp;
-        case "year_desc":
-          return by - ay;
-        case "year_asc":
-          return ay - by;
-        default:
-          return bp - ap;
+        case "price_asc": return ap - bp;
+        case "year_desc": return by - ay;
+        case "year_asc":  return ay - by;
+        default:          return bp - ap; // price_desc
       }
     });
     return arr;
-  }, [inventory, query, sortBy]);
+  }, [inventory, query, sortBy, make, model, pmin, pmax]);
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
@@ -140,11 +197,12 @@ export default function Home() {
           </a>
         </header>
 
-        {/* SEARCH / SORT BAR */}
+        {/* 3D) SEARCH / FILTER / SORT BAR */}
         <div className="mx-auto -mb-10 max-w-7xl px-4">
           <div className="rounded-2xl border border-white/10 bg-black/50 p-3 ring-1 ring-white/10 backdrop-blur">
-            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-              <div className="flex flex-1 items-center gap-2 rounded-xl bg-white/5 px-3 py-2 ring-1 ring-white/10">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12">
+              {/* Búsqueda */}
+              <div className="lg:col-span-4 flex items-center gap-2 rounded-xl bg-white/5 px-3 py-2 ring-1 ring-white/10">
                 <span className="text-white/60">🔎</span>
                 <input
                   value={query}
@@ -153,7 +211,57 @@ export default function Home() {
                   className="w-full bg-transparent text-sm text-white placeholder-white/40 outline-none"
                 />
               </div>
-              <div className="flex items-center gap-2">
+
+              {/* Marca */}
+              <div className="lg:col-span-2">
+                <select
+                  value={make}
+                  onChange={(e) => { setMake(e.target.value); setModel(""); }}
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none"
+                >
+                  <option value="">All makes</option>
+                  {meta.makes.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Modelo (make + model) */}
+              <div className="lg:col-span-3">
+                <select
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none"
+                >
+                  <option value="">All models</option>
+                  {meta.models
+                    .filter(mm => (make ? mm.toLowerCase().startsWith(make.toLowerCase()) : true))
+                    .map((mm) => (<option key={mm} value={mm}>{mm}</option>))
+                  }
+                </select>
+              </div>
+
+              {/* Precio */}
+              <div className="lg:col-span-3 flex items-center gap-2">
+                <input
+                  type="number"
+                  value={pmin}
+                  onChange={(e) => setPmin(Number(e.target.value || 0))}
+                  placeholder={`Min ${meta.minPrice}`}
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/40 outline-none"
+                />
+                <span className="text-white/50 text-xs">—</span>
+                <input
+                  type="number"
+                  value={pmax}
+                  onChange={(e) => setPmax(Number(e.target.value || 0))}
+                  placeholder={`Max ${meta.maxPrice}`}
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/40 outline-none"
+                />
+              </div>
+
+              {/* Sort */}
+              <div className="lg:col-span-12 flex items-center justify-end gap-2">
                 <label className="text-xs text-white/60">Sort</label>
                 <select
                   value={sortBy}
@@ -199,7 +307,7 @@ export default function Home() {
         <div className="grid gap-8 md:grid-cols-2">
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <h3 className="text-xl font-semibold">Contact</h3>
-            <p className="mt-1 text-sm text-white/75">San Fernando Valley · Los Angeles, CA</p>
+            <p className="mt-1 text-sm text-white/75">Los Angeles, CA</p>
             <div className="mt-6 space-y-3 text-sm">
               <div className="flex items-center gap-3">
                 <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">📞</span>
@@ -231,6 +339,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FOOTER */}
       <footer className="border-t border-white/10 py-10 text-sm text-white/60">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 sm:flex-row">
           <p>© {new Date().getFullYear()} Available Hybrid R&M Inc. All rights reserved.</p>
