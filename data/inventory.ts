@@ -30,7 +30,13 @@ export const inventory: Vehicle[] = [
     interior: "Gris claro",
     description:
       "Excelente opción económica y confiable. Este Toyota Prius C 2013 combina eficiencia híbrida con bajo mantenimiento. Interior limpio, aire acondicionado frío y manejo suave. Ideal para uso diario o trabajo de transporte gracias a su excelente rendimiento de gasolina (hasta 50 MPG). Título limpio y listo para transferir.",
-    photos: ["/car1.jpg", "/car2.jpg", "/car3.jpg"]
+    photos: [
+    "/WhatsApp Image 2025-10-08 at 7.39.45 AM.jpeg",
+    "/WhatsApp Image 2025-10-08 at 7.39.45 AM (1).jpeg",
+    "/WhatsApp Image 2025-10-08 at 7.39.46 AM.jpeg",
+    "/WhatsApp Image 2025-10-08 at 7.39.46 AM (1).jpeg",
+    "/WhatsApp Image 2025-10-08 at 7.39.46 AM (2).jpeg"
+  ]
   },
   {
     id: "cruze-2012",
