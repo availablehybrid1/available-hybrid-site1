@@ -1,4 +1,4 @@
-// pages/index.tsx — Home con botón “Pre-Califícate” y enlace a DealerCenter
+// pages/index.tsx — Home con botón “Pre-Califícate” y enlace oficial de DealerCenter
 import * as React from "react";
 import * as invMod from "../data/inventory";
 
@@ -46,7 +46,6 @@ function statusClasses(s?: Vehicle["status"]) {
   return "bg-black/60 text-white/80 ring-white/10";
 }
 
-// -------- Tarjeta de vehículo --------
 function VehicleCard({ v }: { v: Vehicle }) {
   const photo = v?.photos?.[0] || "/placeholder-car.jpg";
   const prequalUrl = `/financing?vin=${encodeURIComponent(v.vin ?? v.id)}&year=${encodeURIComponent(
@@ -91,7 +90,6 @@ function VehicleCard({ v }: { v: Vehicle }) {
           <span className="uppercase tracking-wide text-white/80">Financing</span>
         </div>
 
-        {/* Botón Pre-Califícate */}
         <a
           href={prequalUrl}
           className="mt-1 inline-flex items-center justify-center rounded-lg bg-red-600 px-3 py-1.5 text-[11px] font-semibold uppercase text-white shadow hover:bg-red-500 transition"
@@ -103,7 +101,6 @@ function VehicleCard({ v }: { v: Vehicle }) {
   );
 }
 
-// -------- Página principal --------
 export default function Home() {
   const invAny: any = invMod as any;
   const inventory: Vehicle[] = (invAny.inventory ?? invAny.default ?? []) as Vehicle[];
@@ -136,10 +133,8 @@ export default function Home() {
     });
 
     arr.sort((a, b) => {
-      const ap = a?.price ?? 0,
-        bp = b?.price ?? 0;
-      const ay = a?.year ?? 0,
-        by = b?.year ?? 0;
+      const ap = a?.price ?? 0, bp = b?.price ?? 0;
+      const ay = a?.year ?? 0, by = b?.year ?? 0;
       switch (sortBy) {
         case "price_asc": return ap - bp;
         case "year_desc": return by - ay;
@@ -159,7 +154,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
-      {/* HEADER */}
       <div className="relative isolate">
         <div className="absolute inset-0 -z-10">
           <img
@@ -172,6 +166,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-neutral-950" />
         </div>
 
+        {/* HEADER */}
         <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <a href="/" className="flex items-center gap-2">
             <div className="grid h-8 w-8 place-content-center rounded-lg bg-white/5 ring-1 ring-white/10">
@@ -191,14 +186,14 @@ export default function Home() {
           </nav>
 
           <div className="flex items-center gap-2">
-            {/* Botón a tu página Financing */}
+            {/* Botón interno */}
             <a href="/financing" className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-red-500">
               Pre-Califícate
             </a>
 
-            {/* 🔗 Botón directo a DealerCenter (reemplaza el enlace con tu URL generada) */}
+            {/* Botón DealerCenter (oficial) */}
             <a
-              href="https://www.dealercenter.net/creditapp/?dealercode=XXXXX"
+              href="https://dwsscecuredforms.dealercenter.net/CreditApplication/index/288160657?theme=color=060606&formtype=8&iframeId=dcws_frame_0&standalone=true&ls=other"
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-red-500"
@@ -206,7 +201,7 @@ export default function Home() {
               Aplicación DealerCenter
             </a>
 
-            {/* Botón Call */}
+            {/* Call */}
             <a href="tel:+18184223567" className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-red-500">
               Call (818) 422-3567
             </a>
@@ -214,7 +209,7 @@ export default function Home() {
         </header>
       </div>
 
-      {/* INVENTARIO */}
+      {/* INVENTORY */}
       <section id="inventory" className="mx-auto max-w-6xl px-4 pb-14 pt-14">
         {pageItems.length === 0 ? (
           <div className="rounded-xl border border-white/10 bg-white/5 p-8 text-center text-white/70">
