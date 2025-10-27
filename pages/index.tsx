@@ -81,7 +81,7 @@ function VehicleCard({ v }: { v: Vehicle }) {
           <span>{v.mileage ? `${v.mileage.toLocaleString()} mi` : "—"}</span>
           <span className="uppercase tracking-wide text-white/80">Financing</span>
         </div>
-        {/* (Sin botón aquí — el único botón vive en el header) */}
+        {/* Sin botón aquí — el único botón vive en el header */}
       </div>
     </div>
   );
@@ -138,7 +138,7 @@ export default function Home() {
   const end = Math.min(start + perPage, total);
   const pageItems = filtered.slice(start, end);
 
-  // URL Standalone de DealerCenter (sin frameId) — abre en nueva pestaña
+  // URL Standalone de DealerCenter (ID 9 dígitos y SIN frameId)
   const DC_URL =
     "https://dwssecuredforms.dealercenter.net/CreditApplication/index/288160657?themecolor=0d0d0d&formtype=l&standalone=true&ls=Other";
 
@@ -176,11 +176,11 @@ export default function Home() {
           </nav>
 
           <div className="flex items-center gap-2">
-            {/* ÚNICO BOTÓN: abre el Standalone de DealerCenter en nueva pestaña */}
+            {/* ÚNICO BOTÓN: abre el Standalone de DealerCenter en nueva pestaña (con referrer) */}
             <a
               href={DC_URL}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener" /* NO usar 'noreferrer' para que se envíe el referrer */
               className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-red-500"
             >
               Pre-Califícate
