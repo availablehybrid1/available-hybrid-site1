@@ -1,51 +1,20 @@
-// pages/financing.tsx — Redirección a DealerCenter enviando referrer
-import * as React from "react";
-import Head from "next/head";
+// pages/financing.tsx — Redirección 302 (server-side) a DealerCenter
 
-export default function FinancingRedirect() {
-  // 🔗 Usa tu URL Standalone (SIN frameId)
+export async function getServerSideProps() {
   const dcUrl =
-    "https://dwssecuredforms.dealercenter.net/CreditApplication/index/28816065?themecolor=0d0d0d&formtype=l&standalone=true&ls=Other";
+    "https://dwssecuredforms.dealercenter.net/CreditApplication/index/28816065?themecolor=0d0d0d&formtype=l&standalone=true&ls=Other"; // SIN frameId
 
-  React.useEffect(() => {
-    // Crea un <a> para asegurar que se envía el "referrer"
-    const a = document.createElement("a");
-    a.href = dcUrl;
-    a.rel = "noopener";
-    a.referrerPolicy = "origin-when-cross-origin";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  }, [dcUrl]);
+  // Redirección HTTP 302; el navegador enviará Referer = /financing
+  return {
+    redirect: {
+      destination: dcUrl,
+      permanent: false,
+    },
+  };
+}
 
-  return (
-    <main className="min-h-screen bg-neutral-950 text-white grid place-items-center px-4">
-      {/* Por si en algún sitio estaba seteado a no-referrer, lo fijamos aquí */}
-      <Head>
-        <meta name="referrer" content="origin-when-cross-origin" />
-      </Head>
-
-      <div className="max-w-lg text-center">
-        <h1 className="text-2xl font-bold text-red-500 mb-2">
-          Redirigiendo a la Aplicación de Crédito…
-        </h1>
-        <p className="text-white/70 mb-6">
-          Estamos enviándote al formulario seguro de DealerCenter. Si no avanza
-          automáticamente, usa el botón de abajo.
-        </p>
-
-        <a
-          href={dcUrl}
-          referrerPolicy="origin-when-cross-origin"
-          className="inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500 transition"
-        >
-          Ir a la Aplicación de Crédito
-        </a>
-
-        <p className="mt-6 text-xs text-white/40">
-          © {new Date().getFullYear()} Available Hybrid R&M Inc.
-        </p>
-      </div>
-    </main>
-  );
+// Este componente nunca se renderiza porque el server redirige antes.
+// Lo dejamos por si Next requiere un default export.
+export default function FinancingRedirect() {
+  return null;
 }
