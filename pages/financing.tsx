@@ -1,13 +1,13 @@
-// pages/financing.tsx — Redirección segura a DealerCenter (con fallback)
+// pages/financing.tsx — Redirección segura a DealerCenter (Plan B)
 import * as React from "react";
 
 export default function FinancingRedirect() {
-  // ⚠️ Pega aquí el enlace correcto (Iframe URL si te funciona; si no, Standalone URL)
+  // 🔗 Enlace oficial que generaste en DealerCenter
   const dcUrl =
     "https://dwssecuredforms.dealercenter.net/CreditApplication/index/28816065?themecolor=060606&formtype=l&frameId=dws_frame_0&standalone=true&ls=Other";
 
   React.useEffect(() => {
-    // Redirección inmediata en la misma pestaña
+    // Redirección automática (misma pestaña)
     window.location.replace(dcUrl);
   }, [dcUrl]);
 
@@ -18,13 +18,13 @@ export default function FinancingRedirect() {
           Redirigiendo a la Aplicación de Crédito…
         </h1>
         <p className="text-white/70 mb-6">
-          Estamos enviándote al formulario seguro de DealerCenter. Si no avanza en
-          unos segundos, usa el botón de abajo.
+          Estamos enviándote al formulario seguro de DealerCenter. Si no avanza
+          automáticamente en unos segundos, haz clic en el botón de abajo.
         </p>
 
         <a
           href={dcUrl}
-          className="inline-flex items-center rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
+          className="inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500 transition"
         >
           Ir a la Aplicación de Crédito
         </a>
