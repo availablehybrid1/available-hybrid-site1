@@ -45,11 +45,6 @@ function statusClasses(s?: Vehicle["status"]) {
 
 function VehicleCard({ v }: { v: Vehicle }) {
   const photo = v?.photos?.[0] || "/placeholder-car.jpg";
-  const prequalUrl = `/financing?vin=${encodeURIComponent(v.vin ?? v.id)}&year=${encodeURIComponent(
-    String(v.year ?? "")
-  )}&make=${encodeURIComponent(v.make ?? "")}&model=${encodeURIComponent(
-    v.model ?? ""
-  )}&price=${encodeURIComponent(String(v.price ?? ""))}`;
 
   return (
     <div className="group relative overflow-hidden rounded-xl border border-red-600/20 bg-[radial-gradient(100%_100%_at_50%_0%,rgba(255,255,255,0.06),rgba(0,0,0,0.3))] shadow-[0_10px_30px_rgba(0,0,0,0.45)] ring-1 ring-white/5 transition hover:-translate-y-0.5">
@@ -86,13 +81,7 @@ function VehicleCard({ v }: { v: Vehicle }) {
           <span>{v.mileage ? `${v.mileage.toLocaleString()} mi` : "—"}</span>
           <span className="uppercase tracking-wide text-white/80">Financing</span>
         </div>
-
-        <a
-          href={prequalUrl}
-          className="mt-1 inline-flex items-center justify-center rounded-lg bg-red-600 px-3 py-1.5 text-[11px] font-semibold uppercase text-white shadow hover:bg-red-500 transition"
-        >
-          Pre-Califícate
-        </a>
+        {/* (Sin botón aquí — el único botón vive en el header) */}
       </div>
     </div>
   );
@@ -149,6 +138,10 @@ export default function Home() {
   const end = Math.min(start + perPage, total);
   const pageItems = filtered.slice(start, end);
 
+  // URL Standalone de DealerCenter (sin frameId) — abre en nueva pestaña
+  const DC_URL =
+    "https://dwssecuredforms.dealercenter.net/CreditApplication/index/288160657?themecolor=0d0d0d&formtype=l&standalone=true&ls=Other";
+
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
       <div className="relative isolate">
@@ -183,9 +176,11 @@ export default function Home() {
           </nav>
 
           <div className="flex items-center gap-2">
-            {/* ÚNICO BOTÓN: lleva al formulario embebido en /financing */}
+            {/* ÚNICO BOTÓN: abre el Standalone de DealerCenter en nueva pestaña */}
             <a
-              href="/financing"
+              href={DC_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-red-500"
             >
               Pre-Califícate
