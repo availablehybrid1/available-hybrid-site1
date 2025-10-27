@@ -21,13 +21,16 @@ type Vehicle = {
   status?: "just_arrived" | "pending_detail";
 };
 
-function unique<T>(arr: T[]) { return Array.from(new Set(arr)); }
-const formatPrice = (p?: number) => (p || p === 0 ? `$${p.toLocaleString()}` : "Consultar");
+function unique<T>(arr: T[]) {
+  return Array.from(new Set(arr));
+}
+const formatPrice = (p?: number) =>
+  p || p === 0 ? `$${p.toLocaleString()}` : "Consultar";
 
 function getMeta(inv: Vehicle[]) {
-  const makes = unique(inv.map(v => v.make).filter(Boolean) as string[]).sort();
+  const makes = unique(inv.map((v) => v.make).filter(Boolean) as string[]).sort();
   const models = unique(
-    inv.map(v => `${v.make ?? ""} ${v.model ?? ""}`.trim()).filter(Boolean)
+    inv.map((v) => `${v.make ?? ""} ${v.model ?? ""}`.trim()).filter(Boolean)
   ).sort();
   return { makes, models };
 }
@@ -38,8 +41,10 @@ function statusLabel(s?: Vehicle["status"]) {
   return "Exclusive Stock";
 }
 function statusClasses(s?: Vehicle["status"]) {
-  if (s === "just_arrived") return "bg-emerald-600/80 text-white ring-emerald-400/30";
-  if (s === "pending_detail") return "bg-yellow-500/80 text-black ring-yellow-300/40";
+  if (s === "just_arrived")
+    return "bg-emerald-600/80 text-white ring-emerald-400/30";
+  if (s === "pending_detail")
+    return "bg-yellow-500/80 text-black ring-yellow-300/40";
   return "bg-black/60 text-white/80 ring-white/10";
 }
 
@@ -50,7 +55,11 @@ function VehicleCard({ v }: { v: Vehicle }) {
     <div className="group relative overflow-hidden rounded-xl border border-red-600/20 bg-[radial-gradient(100%_100%_at_50%_0%,rgba(255,255,255,0.06),rgba(0,0,0,0.3))] shadow-[0_10px_30px_rgba(0,0,0,0.45)] ring-1 ring-white/5 transition hover:-translate-y-0.5">
       <a href={`/${v.id}`}>
         <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between px-2 py-1.5">
-          <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ring-1 ${statusClasses(v.status)}`}>
+          <span
+            className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ring-1 ${statusClasses(
+              v.status
+            )}`}
+          >
             {statusLabel(v.status)}
           </span>
           <span className="rounded bg-red-600/80 px-1.5 py-0.5 text-[10px] font-bold text-white shadow">
@@ -81,7 +90,6 @@ function VehicleCard({ v }: { v: Vehicle }) {
           <span>{v.mileage ? `${v.mileage.toLocaleString()} mi` : "—"}</span>
           <span className="uppercase tracking-wide text-white/80">Financing</span>
         </div>
-        {/* Sin botón aquí — el único botón vive en el header */}
       </div>
     </div>
   );
@@ -93,7 +101,9 @@ export default function Home() {
   const meta = React.useMemo(() => getMeta(inventory), [inventory]);
 
   const [query, setQuery] = React.useState("");
-  const [sortBy, setSortBy] = React.useState<"price_desc" | "price_asc" | "year_desc" | "year_asc">("price_desc");
+  const [sortBy, setSortBy] = React.useState<
+    "price_desc" | "price_asc" | "year_desc" | "year_asc"
+  >("price_desc");
   const [make, setMake] = React.useState<string>("");
   const [model, setModel] = React.useState<string>("");
 
@@ -105,8 +115,10 @@ export default function Home() {
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
-    let arr = inventory.filter(v => {
-      const txt = `${v.title ?? ""} ${v.year ?? ""} ${v.make ?? ""} ${v.model ?? ""}`.toLowerCase();
+    let arr = inventory.filter((v) => {
+      const txt = `${v.title ?? ""} ${v.year ?? ""} ${v.make ?? ""} ${
+        v.model ?? ""
+      }`.toLowerCase();
       if (q && !txt.includes(q)) return false;
       if (make && (v.make ?? "").toLowerCase() !== make.toLowerCase()) return false;
       if (model) {
@@ -119,13 +131,19 @@ export default function Home() {
     });
 
     arr.sort((a, b) => {
-      const ap = a?.price ?? 0, bp = b?.price ?? 0;
-      const ay = a?.year ?? 0, by = b?.year ?? 0;
+      const ap = a?.price ?? 0,
+        bp = b?.price ?? 0;
+      const ay = a?.year ?? 0,
+        by = b?.year ?? 0;
       switch (sortBy) {
-        case "price_asc": return ap - bp;
-        case "year_desc": return by - ay;
-        case "year_asc": return ay - by;
-        default: return bp - ap;
+        case "price_asc":
+          return ap - bp;
+        case "year_desc":
+          return by - ay;
+        case "year_asc":
+          return ay - by;
+        default:
+          return bp - ap;
       }
     });
     return arr;
@@ -133,14 +151,16 @@ export default function Home() {
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
-  React.useEffect(() => { setPage(1); }, [query, make, model, pmin, pmax, sortBy, perPage]);
+  React.useEffect(() => {
+    setPage(1);
+  }, [query, make, model, pmin, pmax, sortBy, perPage]);
   const start = (page - 1) * perPage;
   const end = Math.min(start + perPage, total);
   const pageItems = filtered.slice(start, end);
 
-  // URL Standalone de DealerCenter (ID 9 dígitos y SIN frameId)
+  // 🔗 Enlace mínimo a DealerCenter (sin parámetros conflictivos)
   const DC_URL =
-    "https://dwssecuredforms.dealercenter.net/CreditApplication/index/288160657?themecolor=0d0d0d&formtype=l&standalone=true&ls=Other";
+    "https://dwssecuredforms.dealercenter.net/CreditApplication/index/288160657?formtype=l";
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
@@ -150,7 +170,9 @@ export default function Home() {
             src="/lux-hero.jpg"
             alt="Luxury background"
             className="h-[42vh] w-full object-cover opacity-55"
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).style.display = "none";
+            }}
           />
           <div className="absolute inset-0 bg-[radial-gradient(80%_80%_at_50%_20%,rgba(220,38,38,0.35),transparent_60%)]" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-neutral-950" />
@@ -161,26 +183,35 @@ export default function Home() {
           <a href="/" className="flex items-center gap-2">
             <div className="grid h-8 w-8 place-content-center rounded-lg bg-white/5 ring-1 ring-white/10">
               <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden>
-                <path fill="currentColor" d="M5 11l2-4h10l2 4h1a2 2 0 012 2v3a1 1 0 01-1 1h-1v1a1 1 0 01-1 1h-1a1 1 0 01-1-1v-1H7v1a1 1 0 01-1 1H5a1 1 0 01-1-1v-1H3a1 1 0 01-1-1v-3a2 2 0 012-2h1zm3.5 4a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                <path
+                  fill="currentColor"
+                  d="M5 11l2-4h10l2 4h1a2 2 0 012 2v3a1 1 0 01-1 1h-1v1a1 1 0 01-1 1h-1a1 1 0 01-1-1v-1H7v1a1 1 0 01-1 1H5a1 1 0 01-1-1v-1H3a1 1 0 01-1-1v-3a2 2 0 012-2h1zm3.5 4a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"
+                />
               </svg>
             </div>
             <div className="leading-tight">
-              <p className="text-[10px] tracking-[0.25em] text-white/70">AVAILABLE HYBRID</p>
+              <p className="text-[10px] tracking-[0.25em] text-white/70">
+                AVAILABLE HYBRID
+              </p>
               <p className="text-[15px] font-semibold">R&M Inc.</p>
             </div>
           </a>
 
           <nav className="hidden gap-4 md:flex text-xs">
-            <a className="opacity-80 hover:opacity-100" href="#inventory">Inventory</a>
-            <a className="opacity-80 hover:opacity-100" href="#contact">Contact</a>
+            <a className="opacity-80 hover:opacity-100" href="#inventory">
+              Inventory
+            </a>
+            <a className="opacity-80 hover:opacity-100" href="#contact">
+              Contact
+            </a>
           </nav>
 
           <div className="flex items-center gap-2">
-            {/* ÚNICO BOTÓN: abre el Standalone de DealerCenter en nueva pestaña (con referrer) */}
+            {/* ÚNICO BOTÓN: abre el Standalone DealerCenter en nueva pestaña */}
             <a
               href={DC_URL}
               target="_blank"
-              rel="noopener" /* NO usar 'noreferrer' para que se envíe el referrer */
+              rel="noopener" // 👈 mantiene el referrer
               className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-red-500"
             >
               Pre-Califícate
@@ -205,7 +236,9 @@ export default function Home() {
           </div>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {pageItems.map(v => (<VehicleCard key={v.id} v={v} />))}
+            {pageItems.map((v) => (
+              <VehicleCard key={v.id} v={v} />
+            ))}
           </div>
         )}
       </section>
