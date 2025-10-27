@@ -1,4 +1,4 @@
-// pages/index.tsx — Home con botón “Pre-Califícate” y enlace oficial de DealerCenter
+// pages/index.tsx — Home con botón “Pre-Califícate” (único) en el header
 import * as React from "react";
 import * as invMod from "../data/inventory";
 
@@ -21,11 +21,8 @@ type Vehicle = {
   status?: "just_arrived" | "pending_detail";
 };
 
-function unique<T>(arr: T[]) {
-  return Array.from(new Set(arr));
-}
-const formatPrice = (p?: number) =>
-  p || p === 0 ? `$${p.toLocaleString()}` : "Consultar";
+function unique<T>(arr: T[]) { return Array.from(new Set(arr)); }
+const formatPrice = (p?: number) => (p || p === 0 ? `$${p.toLocaleString()}` : "Consultar");
 
 function getMeta(inv: Vehicle[]) {
   const makes = unique(inv.map(v => v.make).filter(Boolean) as string[]).sort();
@@ -186,23 +183,19 @@ export default function Home() {
           </nav>
 
           <div className="flex items-center gap-2">
-            {/* Botón interno */}
-            <a href="/financing" className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-red-500">
+            {/* ÚNICO BOTÓN: lleva al formulario embebido en /financing */}
+            <a
+              href="/financing"
+              className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-red-500"
+            >
               Pre-Califícate
             </a>
 
-            {/* Botón DealerCenter (oficial) */}
+            {/* Call */}
             <a
-              href="https://dwsscecuredforms.dealercenter.net/CreditApplication/index/288160657?theme=color=060606&formtype=8&iframeId=dcws_frame_0&standalone=true&ls=other"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="tel:+18184223567"
               className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-red-500"
             >
-              Aplicación DealerCenter
-            </a>
-
-            {/* Call */}
-            <a href="tel:+18184223567" className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-red-500">
               Call (818) 422-3567
             </a>
           </div>
