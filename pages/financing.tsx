@@ -1,364 +1,51 @@
-import React, { useState } from "react";
+// pages/financing.tsx — Formulario de crédito (DealerCenter embebido)
+import * as React from "react";
 
-type Lang = "es" | "en";
-
-const phoneDigits = (v: string) => v.replace(/[^0-9]/g, "");
-
-function PhoneInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const d = phoneDigits(value).slice(0, 10);
-  let formatted = d;
-  if (d.length > 6) formatted = `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
-  else if (d.length > 3) formatted = `(${d.slice(0, 3)}) ${d.slice(3)}`;
-  else if (d.length > 0) formatted = `(${d}`;
-  return (
-    <input
-      className="w-full rounded-xl border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/20"
-      inputMode="tel"
-      value={formatted}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder="(555) 123-4567"
-      aria-label="Phone"
-    />
-  );
-}
-
-export default function FinancingPage() {
-  const [loading, setLoading] = useState(false);
-  const [ok, setOk] = useState<string | null>(null);
-  const [err, setErr] = useState<string | null>(null);
-  const [lang, setLang] = useState<Lang>("es");
-
-  const t = (k: string) => {
-    const dict: Record<string, { es: string; en: string }> = {
-      title: { es: "Precalificación de Financiamiento", en: "Financing Pre-Qualification" },
-      subtitle: { es: "En 2–3 minutos. Sin impacto en tu puntaje (consulta suave).", en: "2–3 minutes. No impact to your score (soft check)." },
-      legal: {
-        es: "Al enviar, autorizo a AVAILABLE HYBRID R&M INC. a contactarme por teléfono, texto o email. Esta es una pre-calificación con consulta suave; no es aprobación final. No haremos consulta dura ni pediremos SSN sin permiso.",
-        en: "By submitting, I authorize AVAILABLE HYBRID R&M INC. to contact me via phone, text, or email. This is a soft-check pre-qualification; not a final approval. We will not hard-pull or request SSN without permission.",
-      },
-      submit: { es: "Enviar solicitud", en: "Submit Request" },
-      required: { es: "Requerido", en: "Required" },
-      applicant: { es: "Datos del solicitante", en: "Applicant info" },
-      vehicle: { es: "Vehículo de interés (opcional)", en: "Vehicle of interest (optional)" },
-      income: { es: "Ingresos y vivienda", en: "Income & housing" },
-      employment: { es: "Empleo", en: "Employment" },
-      consent: { es: "Consentimiento y envío", en: "Consent & submit" },
-      fullName: { es: "Nombre completo", en: "Full name" },
-      phone: { es: "Teléfono", en: "Phone" },
-      emailK: { es: "Email (recomendado)", en: "Email (recommended)" },
-      contactPref: { es: "Preferencia de contacto", en: "Preferred contact" },
-      call: { es: "Llamada", en: "Call" },
-      text: { es: "Texto", en: "Text" },
-      emailLbl: { es: "Email", en: "Email" },
-      dl: { es: "¿Tienes licencia válida?", en: "Do you have a valid driver’s license?" },
-      cosigner: { es: "¿Cuentas con co-signer? (opcional)", en: "Co-signer available? (optional)" },
-      yymm: { es: "Fecha de nacimiento (opcional)", en: "Date of birth (optional)" },
-      vinOrStock: { es: "VIN o ID del inventario (opcional)", en: "VIN or stock ID (optional)" },
-      year: { es: "Año", en: "Year" },
-      make: { es: "Marca", en: "Make" },
-      model: { es: "Modelo", en: "Model" },
-      down: { es: "Enganche estimado ($)", en: "Estimated down payment ($)" },
-      budget: { es: "Pago mensual deseado ($)", en: "Desired monthly payment ($)" },
-      grossIncome: { es: "Ingreso mensual bruto ($)", en: "Gross monthly income ($)" },
-      housing: { es: "Tipo de vivienda", en: "Housing" },
-      rent: { es: "Rento", en: "Rent" },
-      own: { es: "Propia", en: "Own" },
-      family: { es: "Con familia", en: "With family" },
-      housingPay: { es: "Pago mensual de vivienda ($)", en: "Monthly housing payment ($)" },
-      empType: { es: "Tipo de empleo", en: "Employment type" },
-      w2: { es: "W-2", en: "W-2" },
-      _1099: { es: "1099", en: "1099" },
-      self: { es: "Independiente", en: "Self-employed" },
-      timeAtJob: { es: "Tiempo en el trabajo", en: "Time at job" },
-      lt6: { es: "< 6 meses", en: "< 6 months" },
-      _612: { es: "6–12 meses", en: "6–12 months" },
-      _1to2: { es: "1–2 años", en: "1–2 years" },
-      _2plus: { es: "> 2 años", en: "> 2 years" },
-      notes: { es: "Notas adicionales (opcional)", en: "Additional notes (optional)" },
-      smsConsent: { es: "Acepto recibir SMS/email para coordinar mi solicitud.", en: "I agree to receive SMS/email to coordinate my request." },
-      softCheck: { es: "Autorizo una consulta suave (NO afecta mi puntaje)", en: "I authorize a soft credit check (NO impact to my score)" },
-      success: { es: "¡Recibido! Te contactaremos en breve.", en: "Received! We’ll be in touch shortly." },
-      error: { es: "Hubo un error. Intenta de nuevo.", en: "Something went wrong. Please try again." },
-      langLabel: { es: "Idioma del formulario", en: "Form language" },
-    };
-    return dict[k]?.[lang] ?? k;
-  };
-
-  const [form, setForm] = useState({
-    fullName: "",
-    phone: "",
-    email: "",
-    contactPref: "text",
-    hasDL: false,
-    coSigner: false,
-    dob: "",
-    vinOrStock: "",
-    year: "",
-    make: "",
-    model: "",
-    down: "",
-    budget: "",
-    grossIncome: "",
-    housing: "rent",
-    housingPay: "",
-    empType: "w2",
-    timeAtJob: "lt6",
-    notes: "",
-    smsOk: false,
-    softOk: true,
-    website: "", // honeypot anti-spam
-  });
-
-  const set = (k: string, v: any) => setForm((s) => ({ ...s, [k]: v }));
-
-  const validate = () => {
-    const errors: string[] = [];
-    if (!form.fullName.trim()) errors.push(`${t("fullName")} ${t("required").toLowerCase()}`);
-    if (phoneDigits(form.phone).length < 10) errors.push(`${t("phone")} ${t("required").toLowerCase()}`);
-    if (!form.smsOk) errors.push(`${t("smsConsent")} ${t("required").toLowerCase()}`);
-    if (!form.grossIncome.trim()) errors.push(`${t("grossIncome")} ${t("required").toLowerCase()}`);
-    if (form.website) errors.push("Spam detected");
-    return errors;
-  };
-
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setOk(null);
-    setErr(null);
-    const v = validate();
-    if (v.length) {
-      setErr(v.join(" • "));
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await fetch("/api/prequal", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, lang }),
-      });
-      if (!res.ok) throw new Error("Bad response");
-      setOk(t("success"));
-      setForm({
-        fullName: "",
-        phone: "",
-        email: "",
-        contactPref: "text",
-        hasDL: false,
-        coSigner: false,
-        dob: "",
-        vinOrStock: "",
-        year: "",
-        make: "",
-        model: "",
-        down: "",
-        budget: "",
-        grossIncome: "",
-        housing: "rent",
-        housingPay: "",
-        empType: "w2",
-        timeAtJob: "lt6",
-        notes: "",
-        smsOk: false,
-        softOk: true,
-        website: "",
-      });
-    } catch {
-      setErr(t("error"));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Prefill por querystring (opcional)
-  React.useEffect(() => {
-    if (typeof window === "undefined") return;
-    const qs = new URLSearchParams(window.location.search);
-    const patch: any = {};
-    ["vinOrStock", "year", "make", "model", "down", "budget"].forEach((k) => {
-      const v = qs.get(k);
-      if (v) patch[k] = v;
-    });
-    if (Object.keys(patch).length) setForm((s) => ({ ...s, ...patch }));
-  }, []);
+export default function FinancingDealerCenter() {
+  // URL oficial que generaste en DealerCenter (déjala tal cual)
+  const dcUrl =
+    "https://dwssecuredforms.dealercenter.net/CreditApplication/index/28816065?themecolor=060606&formtype=l&frameId=dws_frame_0&standalone=true&ls=Other";
 
   return (
-    <div className="mx-auto max-w-3xl p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">{t("title")}</h1>
-        <div className="flex items-center gap-2 text-sm">
-          <label>{t("langLabel")}:</label>
-          <select className="rounded-lg border px-2 py-1" value={lang} onChange={(e) => setLang(e.target.value as Lang)}>
-            <option value="es">Español</option>
-            <option value="en">English</option>
-          </select>
+    <main className="min-h-screen bg-neutral-950 text-white">
+      <div className="mx-auto max-w-6xl px-4 py-6">
+        <h1 className="text-3xl font-bold mb-2 text-red-500">
+          Aplicación de Crédito – Available Hybrid R&M Inc.
+        </h1>
+        <p className="text-white/70 mb-4">
+          Completa la siguiente aplicación segura. Tus datos se enviarán
+          directamente a nuestro sistema de financiamiento (DealerCenter).
+        </p>
+
+        {/* Formulario oficial embebido */}
+        <div className="w-full h-[1650px] rounded-xl overflow-hidden border border-white/10 bg-black">
+          <iframe
+            src={dcUrl}
+            width="100%"
+            height="100%"
+            style={{ border: "none" }}
+            // Permisos útiles por si DealerCenter los solicita
+            allow="clipboard-write; geolocation; microphone; camera"
+          />
         </div>
+
+        {/* Enlace de respaldo por si el iframe no carga en algún navegador */}
+        <p className="mt-4 text-center text-sm text-white/60">
+          ¿Problemas para ver el formulario?{" "}
+          <a
+            href={dcUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-white"
+          >
+            Abrir en una ventana nueva
+          </a>
+        </p>
+
+        <p className="text-xs text-white/40 mt-6 text-center">
+          © {new Date().getFullYear()} Available Hybrid R&M Inc. Todos los derechos reservados.
+        </p>
       </div>
-
-      <p className="mb-4 text-sm text-neutral-600">{t("subtitle")}</p>
-
-      <form onSubmit={onSubmit} className="grid grid-cols-1 gap-4">
-        <Section title={t("applicant")}>
-          <Field label={t("fullName")} required>
-            <input
-              className="w-full rounded-xl border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/20"
-              value={form.fullName}
-              onChange={(e) => set("fullName", e.target.value)}
-              placeholder={lang === "es" ? "Tu nombre y apellido" : "Your first & last name"}
-            />
-          </Field>
-          <Field label={t("phone")} required>
-            <PhoneInput value={form.phone} onChange={(v) => set("phone", v)} />
-          </Field>
-          <Field label={t("emailLbl")}>
-            <input
-              type="email"
-              className="w-full rounded-xl border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/20"
-              value={form.email}
-              onChange={(e) => set("email", e.target.value)}
-              placeholder="you@example.com"
-            />
-          </Field>
-          <Field label={t("contactPref")}>
-            <select className="w-full rounded-xl border px-3 py-2" value={form.contactPref} onChange={(e) => set("contactPref", e.target.value)}>
-              <option value="call">{t("call")}</option>
-              <option value="text">{t("text")}</option>
-              <option value="email">{t("emailLbl")}</option>
-            </select>
-          </Field>
-          <Field label={t("dl")}>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={form.hasDL} onChange={(e) => set("hasDL", e.target.checked)} />
-              <span>{lang === "es" ? "Sí" : "Yes"}</span>
-            </label>
-          </Field>
-          <Field label={t("cosigner")}>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={form.coSigner} onChange={(e) => set("coSigner", e.target.checked)} />
-              <span>{lang === "es" ? "Sí" : "Yes"}</span>
-            </label>
-          </Field>
-          <Field label={t("yymm")}>
-            <input type="date" className="w-full rounded-xl border px-3 py-2" value={form.dob} onChange={(e) => set("dob", e.target.value)} />
-          </Field>
-        </Section>
-
-        <Section title={t("vehicle")}>
-          <Field label={t("vinOrStock")}>
-            <input className="w-full rounded-xl border px-3 py-2" value={form.vinOrStock} onChange={(e) => set("vinOrStock", e.target.value)} />
-          </Field>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Field label={t("year")}>
-              <input className="w-full rounded-xl border px-3 py-2" value={form.year} onChange={(e) => set("year", e.target.value)} />
-            </Field>
-            <Field label={t("make")}>
-              <input className="w-full rounded-xl border px-3 py-2" value={form.make} onChange={(e) => set("make", e.target.value)} />
-            </Field>
-            <Field label={t("model")}>
-              <input className="w-full rounded-xl border px-3 py-2" value={form.model} onChange={(e) => set("model", e.target.value)} />
-            </Field>
-          </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Field label={t("down")}>
-              <input className="w-full rounded-xl border px-3 py-2" value={form.down} onChange={(e) => set("down", e.target.value)} placeholder="$1,000" />
-            </Field>
-            <Field label={t("budget")}>
-              <input className="w-full rounded-xl border px-3 py-2" value={form.budget} onChange={(e) => set("budget", e.target.value)} placeholder="$300" />
-            </Field>
-            <Field label={t("grossIncome")} required>
-              <input className="w-full rounded-xl border px-3 py-2" value={form.grossIncome} onChange={(e) => set("grossIncome", e.target.value)} placeholder="$3,500" />
-            </Field>
-          </div>
-        </Section>
-
-        <Section title={t("income")}>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label={t("housing")}>
-              <select className="w-full rounded-xl border px-3 py-2" value={form.housing} onChange={(e) => set("housing", e.target.value)}>
-                <option value="rent">{t("rent")}</option>
-                <option value="own">{t("own")}</option>
-                <option value="family">{t("family")}</option>
-              </select>
-            </Field>
-            <Field label={t("housingPay")}>
-              <input className="w-full rounded-xl border px-3 py-2" value={form.housingPay} onChange={(e) => set("housingPay", e.target.value)} placeholder="$1,200" />
-            </Field>
-          </div>
-        </Section>
-
-        <Section title={t("employment")}>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label={t("empType")}>
-              <select className="w-full rounded-xl border px-3 py-2" value={form.empType} onChange={(e) => set("empType", e.target.value)}>
-                <option value="w2">{t("w2")}</option>
-                <option value="1099">{t("_1099")}</option>
-                <option value="self">{t("self")}</option>
-              </select>
-            </Field>
-            <Field label={t("timeAtJob")}>
-              <select className="w-full rounded-xl border px-3 py-2" value={form.timeAtJob} onChange={(e) => set("timeAtJob", e.target.value)}>
-                <option value="lt6">{t("lt6")}</option>
-                <option value="6-12">{t("_612")}</option>
-                <option value="1-2">{t("_1to2")}</option>
-                <option value=">2">{t("_2plus")}</option>
-              </select>
-            </Field>
-          </div>
-          <Field label={t("notes")}>
-            <textarea
-              className="w-full rounded-xl border px-3 py-2"
-              rows={4}
-              value={form.notes}
-              onChange={(e) => set("notes", e.target.value)}
-              placeholder={lang === "es" ? "Ej: Comprobante de ingresos por talón de pago" : "Eg: Paystubs available"}
-            />
-          </Field>
-        </Section>
-
-        <Section title={t("consent")}>
-          <input type="text" className="hidden" value={form.website} onChange={(e) => set("website", e.target.value)} tabIndex={-1} autoComplete="off" />
-          <label className="flex items-start gap-3">
-            <input type="checkbox" checked={form.smsOk} onChange={(e) => set("smsOk", e.target.checked)} />
-            <span className="text-sm leading-5">{t("smsConsent")}</span>
-          </label>
-          <label className="flex items-start gap-3">
-            <input type="checkbox" checked={form.softOk} onChange={(e) => set("softOk", e.target.checked)} />
-            <span className="text-sm leading-5">{t("softCheck")}</span>
-          </label>
-          <p className="text-xs text-neutral-600">{t("legal")}</p>
-        </Section>
-
-        {err && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{err}</div>}
-        {ok && <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">{ok}</div>}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-2xl bg-black px-4 py-3 text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {loading ? (lang === "es" ? "Enviando…" : "Submitting…") : t("submit")}
-        </button>
-      </form>
-    </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-2xl border bg-white p-4 shadow-sm">
-      <h2 className="mb-3 text-lg font-medium">{title}</h2>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{children}</div>
-    </section>
-  );
-}
-
-function Field({ label, children, required }: { label: string; children: React.ReactNode; required?: boolean }) {
-  return (
-    <label className="grid gap-2">
-      <span className="text-sm font-medium">
-        {label} {required && <span className="text-rose-600">*</span>}
-      </span>
-      {children}
-    </label>
+    </main>
   );
 }
