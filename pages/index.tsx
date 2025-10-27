@@ -1,8 +1,7 @@
-// pages/index.tsx — Home minimal (barra compacta + precios 0–50,000)
+// pages/index.tsx — Home con botón “Pre-Califícate” y enlace a DealerCenter
 import * as React from "react";
 import * as invMod from "../data/inventory";
 
-// -------- Tipos --------
 type Vehicle = {
   id: string;
   title?: string;
@@ -22,14 +21,12 @@ type Vehicle = {
   status?: "just_arrived" | "pending_detail";
 };
 
-// -------- Helpers --------
 function unique<T>(arr: T[]) {
   return Array.from(new Set(arr));
 }
 const formatPrice = (p?: number) =>
   p || p === 0 ? `$${p.toLocaleString()}` : "Consultar";
 
-// Para combos de marca/modelo
 function getMeta(inv: Vehicle[]) {
   const makes = unique(inv.map(v => v.make).filter(Boolean) as string[]).sort();
   const models = unique(
@@ -38,7 +35,6 @@ function getMeta(inv: Vehicle[]) {
   return { makes, models };
 }
 
-// -------- Card --------
 function statusLabel(s?: Vehicle["status"]) {
   if (s === "just_arrived") return "Just Arrived";
   if (s === "pending_detail") return "Pending Detail";
@@ -50,10 +46,9 @@ function statusClasses(s?: Vehicle["status"]) {
   return "bg-black/60 text-white/80 ring-white/10";
 }
 
+// -------- Tarjeta de vehículo --------
 function VehicleCard({ v }: { v: Vehicle }) {
   const photo = v?.photos?.[0] || "/placeholder-car.jpg";
-
-  // Nueva URL dinámica para financiar este vehículo
   const prequalUrl = `/financing?vin=${encodeURIComponent(v.vin ?? v.id)}&year=${encodeURIComponent(
     String(v.year ?? "")
   )}&make=${encodeURIComponent(v.make ?? "")}&model=${encodeURIComponent(
@@ -64,11 +59,7 @@ function VehicleCard({ v }: { v: Vehicle }) {
     <div className="group relative overflow-hidden rounded-xl border border-red-600/20 bg-[radial-gradient(100%_100%_at_50%_0%,rgba(255,255,255,0.06),rgba(0,0,0,0.3))] shadow-[0_10px_30px_rgba(0,0,0,0.45)] ring-1 ring-white/5 transition hover:-translate-y-0.5">
       <a href={`/${v.id}`}>
         <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between px-2 py-1.5">
-          <span
-            className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ring-1 ${statusClasses(
-              v.status
-            )}`}
-          >
+          <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ring-1 ${statusClasses(v.status)}`}>
             {statusLabel(v.status)}
           </span>
           <span className="rounded bg-red-600/80 px-1.5 py-0.5 text-[10px] font-bold text-white shadow">
@@ -100,7 +91,7 @@ function VehicleCard({ v }: { v: Vehicle }) {
           <span className="uppercase tracking-wide text-white/80">Financing</span>
         </div>
 
-        {/* 🔹 Botón nuevo para pre-calificación */}
+        {/* Botón Pre-Califícate */}
         <a
           href={prequalUrl}
           className="mt-1 inline-flex items-center justify-center rounded-lg bg-red-600 px-3 py-1.5 text-[11px] font-semibold uppercase text-white shadow hover:bg-red-500 transition"
@@ -112,16 +103,14 @@ function VehicleCard({ v }: { v: Vehicle }) {
   );
 }
 
-// -------- Página --------
+// -------- Página principal --------
 export default function Home() {
   const invAny: any = invMod as any;
   const inventory: Vehicle[] = (invAny.inventory ?? invAny.default ?? []) as Vehicle[];
   const meta = React.useMemo(() => getMeta(inventory), [inventory]);
 
   const [query, setQuery] = React.useState("");
-  const [sortBy, setSortBy] = React.useState<
-    "price_desc" | "price_asc" | "year_desc" | "year_asc"
-  >("price_desc");
+  const [sortBy, setSortBy] = React.useState<"price_desc" | "price_asc" | "year_desc" | "year_asc">("price_desc");
   const [make, setMake] = React.useState<string>("");
   const [model, setModel] = React.useState<string>("");
 
@@ -152,14 +141,10 @@ export default function Home() {
       const ay = a?.year ?? 0,
         by = b?.year ?? 0;
       switch (sortBy) {
-        case "price_asc":
-          return ap - bp;
-        case "year_desc":
-          return by - ay;
-        case "year_asc":
-          return ay - by;
-        default:
-          return bp - ap;
+        case "price_asc": return ap - bp;
+        case "year_desc": return by - ay;
+        case "year_asc": return ay - by;
+        default: return bp - ap;
       }
     });
     return arr;
@@ -167,58 +152,77 @@ export default function Home() {
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
-  React.useEffect(() => {
-    setPage(1);
-  }, [query, make, model, pmin, pmax, sortBy, perPage]);
+  React.useEffect(() => { setPage(1); }, [query, make, model, pmin, pmax, sortBy, perPage]);
   const start = (page - 1) * perPage;
   const end = Math.min(start + perPage, total);
   const pageItems = filtered.slice(start, end);
 
-  const chips: Array<{ key: string; label: string; onClear: () => void }> = [];
-  if (query) chips.push({ key: "q", label: `“${query}”`, onClear: () => setQuery("") });
-  if (make) chips.push({ key: "make", label: make, onClear: () => setMake("") });
-  if (model) chips.push({ key: "model", label: model, onClear: () => setModel("") });
-  if (pmin !== 0)
-    chips.push({ key: "pmin", label: `Min $${pmin.toLocaleString()}`, onClear: () => setPmin(0) });
-  if (pmax !== 50000)
-    chips.push({
-      key: "pmax",
-      label: `Max $${pmax.toLocaleString()}`,
-      onClear: () => setPmax(50000),
-    });
-  const clearAll = () => {
-    setQuery("");
-    setMake("");
-    setModel("");
-    setPmin(0);
-    setPmax(50000);
-    setSortBy("price_desc");
-  };
-
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
-      {/* ...todo tu header y filtros igual... */}
-
-      <section id="inventory" className="mx-auto max-w-6xl px-4 pb-14 pt-14">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm text-white/70">
-          {total === 0
-            ? "No vehicles found."
-            : (
-              <>
-                Showing <strong>{start + 1}</strong>–<strong>{end}</strong> of <strong>{total}</strong> vehicles ({totalPages} pages)
-              </>
-            )}
+      {/* HEADER */}
+      <div className="relative isolate">
+        <div className="absolute inset-0 -z-10">
+          <img
+            src="/lux-hero.jpg"
+            alt="Luxury background"
+            className="h-[42vh] w-full object-cover opacity-55"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(80%_80%_at_50%_20%,rgba(220,38,38,0.35),transparent_60%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-neutral-950" />
         </div>
 
+        <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+          <a href="/" className="flex items-center gap-2">
+            <div className="grid h-8 w-8 place-content-center rounded-lg bg-white/5 ring-1 ring-white/10">
+              <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden>
+                <path fill="currentColor" d="M5 11l2-4h10l2 4h1a2 2 0 012 2v3a1 1 0 01-1 1h-1v1a1 1 0 01-1 1h-1a1 1 0 01-1-1v-1H7v1a1 1 0 01-1 1H5a1 1 0 01-1-1v-1H3a1 1 0 01-1-1v-3a2 2 0 012-2h1zm3.5 4a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+              </svg>
+            </div>
+            <div className="leading-tight">
+              <p className="text-[10px] tracking-[0.25em] text-white/70">AVAILABLE HYBRID</p>
+              <p className="text-[15px] font-semibold">R&M Inc.</p>
+            </div>
+          </a>
+
+          <nav className="hidden gap-4 md:flex text-xs">
+            <a className="opacity-80 hover:opacity-100" href="#inventory">Inventory</a>
+            <a className="opacity-80 hover:opacity-100" href="#contact">Contact</a>
+          </nav>
+
+          <div className="flex items-center gap-2">
+            {/* Botón a tu página Financing */}
+            <a href="/financing" className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-red-500">
+              Pre-Califícate
+            </a>
+
+            {/* 🔗 Botón directo a DealerCenter (reemplaza el enlace con tu URL generada) */}
+            <a
+              href="https://www.dealercenter.net/creditapp/?dealercode=XXXXX"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-red-500"
+            >
+              Aplicación DealerCenter
+            </a>
+
+            {/* Botón Call */}
+            <a href="tel:+18184223567" className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-red-500">
+              Call (818) 422-3567
+            </a>
+          </div>
+        </header>
+      </div>
+
+      {/* INVENTARIO */}
+      <section id="inventory" className="mx-auto max-w-6xl px-4 pb-14 pt-14">
         {pageItems.length === 0 ? (
           <div className="rounded-xl border border-white/10 bg-white/5 p-8 text-center text-white/70">
-            No vehicles found. Try different filters.
+            No vehicles found.
           </div>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {pageItems.map(v => (
-              <VehicleCard key={v.id} v={v} />
-            ))}
+            {pageItems.map(v => (<VehicleCard key={v.id} v={v} />))}
           </div>
         )}
       </section>
