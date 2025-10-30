@@ -18,12 +18,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const service_id  = process.env.EMAILJS_SERVICE_ID!;
     const template_id = process.env.EMAILJS_TEMPLATE_ID!;
-    const private_key = process.env.EMAILJS_PRIVATE_KEY!; // Private Key (server-side only)
+    const private_key = process.env.EMAILJS_PRIVATE_KEY!;  // from EmailJS (Account → API Keys)
+    const public_key  = process.env.EMAILJS_PUBLIC_KEY!;   // user_id (Public Key)
 
     const payload = {
       service_id,
       template_id,
-      accessToken: private_key,
+      user_id: public_key,      // ⬅️ IMPORTANTE
+      accessToken: private_key, // ⬅️ IMPORTANTE
       template_params: {
         name, phone, email, language, vehicle, vin,
         downPayment, monthlyBudget, employment, monthlyIncome, housing, notes,
