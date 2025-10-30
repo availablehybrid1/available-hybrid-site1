@@ -16,24 +16,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ ok: false, msg: "Missing required fields" });
     }
 
-    // 👇 Log para confirmar que las ENV llegaron al servidor
+    // Lee ENV y agrega fallbacks para prueba (solo para diagnosticar)
+    const service_id_env  = process.env.EMAILJS_SERVICE_ID;
+    const template_id_env = process.env.EMAILJS_TEMPLATE_ID;
+    const private_key_env = process.env.EMAILJS_PRIVATE_KEY; // Private Key
+    const public_key_env  = process.env.EMAILJS_PUBLIC_KEY;  // Public Key (user_id)
+
+    // ❗️Quita estos fallbacks cuando confirmemos que llegan las ENV
+    const service_id  = service_id_env  || "service_xrb71r7";
+    const template_id = template_id_env || "template_qz2a2ut";
+    const private_key = private_key_env || "OyVS1hiC_4adH5JDVCfI";
+    const public_key  = public_key_env  || "qH7gMIgFjw3WbbX43E";
+
+    // Log de diagnóstico (no imprime las claves reales si usas ENV)
     console.log("ENV CHECK", {
-      has_service: !!process.env.EMAILJS_SERVICE_ID,
-      has_template: !!process.env.EMAILJS_TEMPLATE_ID,
-      has_private: !!process.env.EMAILJS_PRIVATE_KEY,
-      has_public: !!process.env.EMAILJS_PUBLIC_KEY,
+      has_service: !!service_id_env,
+      has_template: !!template_id_env,
+      has_private: !!private_key_env,
+      has_public: !!public_key_env,
+      using_fallbacks: {
+        service: !service_id_env,
+        template: !template_id_env,
+        private: !private_key_env,
+        public: !public_key_env,
+      },
     });
 
-    const service_id  = process.env.EMAILJS_SERVICE_ID!;
-    const template_id = process.env.EMAILJS_TEMPLATE_ID!;
-    const private_key = process.env.EMAILJS_PRIVATE_KEY!;  // Private Key
-    const public_key  = process.env.EMAILJS_PUBLIC_KEY!;   // Public Key (user_id)
+    // Si quieres forzar error si falta alguna ENV (quita fallbacks arriba y descomenta):
+    // if (!service_id_env || !template_id_env || !private_key_env || !public_key_env) {
+    //   return res.status(500).json({ ok: false, msg: "Missing EmailJS ENV variables on server" });
+    // }
 
     const payload = {
       service_id,
       template_id,
-      user_id: public_key,      // necesario en REST
-      accessToken: private_key, // necesario en REST
+      user_id: public_key,      // requerido por EmailJS REST
+      accessToken: private_key, // requerido por EmailJS REST
       template_params: {
         name, phone, email, language, vehicle, vin,
         downPayment, monthlyBudget, employment, monthlyIncome, housing, notes,
