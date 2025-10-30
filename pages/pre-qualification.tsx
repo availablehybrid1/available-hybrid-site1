@@ -1,7 +1,6 @@
 // pages/pre-qualification.tsx
 import * as React from "react";
 import Head from "next/head";
-import emailjs from "@emailjs/browser";
 
 export default function PreQualification() {
   const [submitting, setSubmitting] = React.useState(false);
