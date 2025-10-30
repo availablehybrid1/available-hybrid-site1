@@ -44,16 +44,18 @@ export default function PreQualification() {
       body: JSON.stringify(body),
     })
       .then(async (r) => {
+        // 👇 Lee el JSON para mostrar el texto real del backend
+        const data = await r.json().catch(() => null);
         if (!r.ok) {
-          const t = await r.text();
-          throw new Error(t || "Request failed");
+          const msg = data?.msg || "Request failed";
+          throw new Error(msg);
         }
         setSent(true);
         (e.currentTarget as HTMLFormElement).reset();
       })
       .catch((err) => {
         console.error(err);
-        setError("There was a problem sending your information. Please try again.");
+        setError(err?.message || "There was a problem sending your information. Please try again.");
       })
       .finally(() => setSubmitting(false));
   }
