@@ -12,20 +12,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       downPayment, monthlyBudget, employment, monthlyIncome, housing, notes, page_url
     } = req.body || {};
 
-    // Validación mínima
     if (!name || !phone) {
       return res.status(400).json({ ok: false, msg: "Missing required fields" });
     }
 
-    // EmailJS (REST) con Private Key (server-side, sin límites de dominio)
-    const service_id   = process.env.EMAILJS_SERVICE_ID!;
-    const template_id  = process.env.EMAILJS_TEMPLATE_ID!;
-    const private_key  = process.env.EMAILJS_PRIVATE_KEY!; // "Use Private Key (recommended)" en EmailJS
+    const service_id  = process.env.EMAILJS_SERVICE_ID!;
+    const template_id = process.env.EMAILJS_TEMPLATE_ID!;
+    const private_key = process.env.EMAILJS_PRIVATE_KEY!; // Private Key (server-side only)
 
     const payload = {
       service_id,
       template_id,
-      accessToken: private_key, // <- clave privada, solo desde el servidor
+      accessToken: private_key,
       template_params: {
         name, phone, email, language, vehicle, vin,
         downPayment, monthlyBudget, employment, monthlyIncome, housing, notes,
