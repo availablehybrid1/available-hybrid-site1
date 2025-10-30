@@ -14,20 +14,56 @@ export default function PreQualification() {
   const publicKey  = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!;
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setSubmitting(true);
-    setError(null);
+  e.preventDefault();
+  setSubmitting(true);
+  setError(null);
 
-    const fd = new FormData(e.currentTarget);
+  const fd = new FormData(e.currentTarget);
+  const name  = (fd.get("name")  as string)?.trim();
+  const phone = (fd.get("phone") as string)?.trim();
 
-    // Validación mínima
-    const name  = (fd.get("name")  as string)?.trim();
-    const phone = (fd.get("phone") as string)?.trim();
-    if (!name || !phone) {
-      setSubmitting(false);
-      setError("Please enter at least your name and phone number.");
-      return;
-    }
+  if (!name || !phone) {
+    setSubmitting(false);
+    setError("Please enter at least your name and phone number.");
+    return;
+  }
+
+  const body = {
+    name,
+    phone,
+    email:         (fd.get("email") as string) || "",
+    language:      (fd.get("language") as string) || "EN",
+    vehicle:       (fd.get("vehicle") as string) || "",
+    vin:           (fd.get("vin") as string) || "",
+    downPayment:   (fd.get("downPayment") as string) || "",
+    monthlyBudget: (fd.get("monthlyBudget") as string) || "",
+    employment:    (fd.get("employment") as string) || "",
+    monthlyIncome: (fd.get("monthlyIncome") as string) || "",
+    housing:       (fd.get("housing") as string) || "",
+    notes:         (fd.get("notes") as string) || "",
+    page_url:      typeof window !== "undefined" ? window.location.href : "",
+  };
+
+  fetch("/api/prequal", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  })
+    .then(async (r) => {
+      if (!r.ok) {
+        const t = await r.text();
+        throw new Error(t || "Request failed");
+      }
+      setSent(true);
+      (e.currentTarget as HTMLFormElement).reset();
+    })
+    .catch((err) => {
+      console.error(err);
+      setError("There was a problem sending your information. Please try again.");
+    })
+    .finally(() => setSubmitting(false));
+}
+
 
     // Mapea campos a variables de tu plantilla EmailJS
     const templateParams = {
