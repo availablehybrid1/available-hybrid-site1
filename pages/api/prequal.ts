@@ -16,16 +16,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ ok: false, msg: "Missing required fields" });
     }
 
+    // 👇 Log para confirmar que las ENV llegaron al servidor
+    console.log("ENV CHECK", {
+      has_service: !!process.env.EMAILJS_SERVICE_ID,
+      has_template: !!process.env.EMAILJS_TEMPLATE_ID,
+      has_private: !!process.env.EMAILJS_PRIVATE_KEY,
+      has_public: !!process.env.EMAILJS_PUBLIC_KEY,
+    });
+
     const service_id  = process.env.EMAILJS_SERVICE_ID!;
     const template_id = process.env.EMAILJS_TEMPLATE_ID!;
-    const private_key = process.env.EMAILJS_PRIVATE_KEY!;  // from EmailJS (Account → API Keys)
-    const public_key  = process.env.EMAILJS_PUBLIC_KEY!;   // user_id (Public Key)
+    const private_key = process.env.EMAILJS_PRIVATE_KEY!;  // Private Key
+    const public_key  = process.env.EMAILJS_PUBLIC_KEY!;   // Public Key (user_id)
 
     const payload = {
       service_id,
       template_id,
-      user_id: public_key,      // ⬅️ IMPORTANTE
-      accessToken: private_key, // ⬅️ IMPORTANTE
+      user_id: public_key,      // necesario en REST
+      accessToken: private_key, // necesario en REST
       template_params: {
         name, phone, email, language, vehicle, vin,
         downPayment, monthlyBudget, employment, monthlyIncome, housing, notes,
