@@ -6,13 +6,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ ok: false, msg: "Method not allowed" });
   }
 
-  const service_id = process.env.EMAILJS_SERVICE_ID;
+  // ENV del lado servidor (en Vercel)
+  const service_id  = process.env.EMAILJS_SERVICE_ID;
   const template_id = process.env.EMAILJS_TEMPLATE_ID;
-  const private_key = process.env.EMAILJS_PRIVATE_KEY; // usamos solo esta
-  // const public_key = process.env.EMAILJS_PUBLIC_KEY; // 🔴 ya no se usa aquí
+  const private_key = process.env.EMAILJS_PRIVATE_KEY; // accessToken
+  const public_key  = process.env.EMAILJS_PUBLIC_KEY;  // user_id
 
-  if (!service_id || !template_id || !private_key) {
-    return res.status(500).json({ ok: false, msg: "Missing EmailJS environment variables" });
+  const missing: string[] = [];
+  if (!service_id)  missing.push("EMAILJS_SERVICE_ID");
+  if (!template_id) missing.push("EMAILJS_TEMPLATE_ID");
+  if (!private_key) missing.push("EMAILJS_PRIVATE_KEY");
+  if (!public_key)  missing.push("EMAILJS_PUBLIC_KEY");
+  if (missing.length) {
+    return res.status(500).json({ ok: false, msg: `Missing env: ${missing.join(", ")}` });
   }
 
   const {
@@ -21,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     housing, notes, page_url,
   } = req.body || {};
 
-  const templateParams = {
+  const template_params = {
     name, phone, email, language, vehicle, vin,
     downPayment, monthlyBudget, employment, monthlyIncome,
     housing, notes, page_url,
@@ -34,8 +40,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       body: JSON.stringify({
         service_id,
         template_id,
-        accessToken: private_key, // ✅ Solo esta
-        template_params: templateParams,
+        user_id: public_key,      // ← requerido
+        accessToken: private_key, // ← recomendado en servidor
+        template_params,
       }),
     });
 
@@ -46,7 +53,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(200).json({ ok: true, msg: "Email sent successfully" });
   } catch (err: any) {
-    console.error("❌ EmailJS send failed:", err);
+    console.error("EmailJS send failed:", err);
     return res.status(500).json({ ok: false, msg: err.message || "Server error" });
   }
 }
