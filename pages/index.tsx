@@ -8,15 +8,16 @@ import { motion } from "framer-motion";
  * Elegant, conversion‑focused landing page for Available Hybrid R&M Inc.
  * - Full‑bleed hero with dark gradient over background image (/lux-hero.jpg)
  * - Clean, high‑contrast typography
- * - Primary CTA: Pre‑Qualifícate / Get Pre‑Qualified
+ * - Primary CTA: Pre‑Califícate / Get Pre‑Qualified
  * - Secondary CTAs: Browse Inventory, WhatsApp
  * - Trust bar with quick facts (Hybrid specialists, DMV dealer, Warranty options)
  * - Mobile‑first, accessible, and SEO‑friendly
  */
 
 export default function Home() {
-  const whatsapp = "https://wa.me/18185551234"; // TODO: replace with your WhatsApp number in international format
-  const phone = "+1 (818) 555‑1234"; // TODO: replace with your real phone
+  const whatsapp =
+    "https://wa.me/17473544098?text=Hello!%20I'm%20interested%20in%20one%20of%20the%20vehicles%20you%20have%20available.%20/%20¡Hola!%20Estoy%20interesado%20en%20uno%20de%20los%20vehículos%20disponibles.";
+  const phone = "+1 747-354-4098";
 
   return (
     <>
@@ -24,7 +25,7 @@ export default function Home() {
         <title>Available Hybrid R&M Inc. – Hybrid Specialists in Los Angeles</title>
         <meta
           name="description"
-          content="Hybrid specialists in the San Fernando Valley. Quality Toyota Prius and more. Financing guidance, warranties, and bilingual attention."
+          content="Hybrid, Racing & Motorsport in Los Angeles. Curated Toyota Prius and more. Bilingual service (EN/ES), DMV dealer, and limited warranty options."
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
@@ -91,7 +92,7 @@ export default function Home() {
                 transition={{ duration: 0.6 }}
                 className="text-white text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight"
               >
-                Hybrid Specialists for the Valley
+                Hybrid, Racing & Motorsport
               </motion.h1>
 
               <motion.p
@@ -100,7 +101,7 @@ export default function Home() {
                 transition={{ duration: 0.7, delay: 0.05 }}
                 className="mt-4 text-white/80 text-base sm:text-lg max-w-2xl"
               >
-                We curate reliable Toyota Prius and other fuel‑efficient vehicles, inspected and ready. Bilingual service (EN/ES), DMV dealer, and warranty options available.
+                We specialize in Hybrid, Racing & Motorsport vehicles — blending performance, efficiency, and style. Fully inspected inventory, bilingual service (EN/ES), licensed DMV dealer, and limited warranty options available.
               </motion.p>
 
               <motion.div
@@ -141,7 +142,7 @@ export default function Home() {
                 {[
                   { title: "Hybrid Experts", desc: "Prius and fuel‑efficient models" },
                   { title: "DMV Dealer", desc: "Paperwork guidance & ROS/TLP" },
-                  { title: "Warranty Options", desc: "3‑24 months available" },
+                  { title: "Warranty Options", desc: "Limited coverage — tailored per vehicle" },
                 ].map((item) => (
                   <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur px-4 py-3">
                     <p className="text-white font-medium text-sm">{item.title}</p>
@@ -179,7 +180,7 @@ export default function Home() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-8 text-sm">
             <div>
               <p className="text-white font-semibold">Available Hybrid R&M Inc.</p>
-              <p className="text-white/70">Reseda • San Fernando Valley • Los Angeles</p>
+              <p className="text-white/70">6726 Reseda Blvd Unit A7, Reseda, CA • Los Angeles</p>
             </div>
             <div>
               <p className="text-white/80">Hours</p>
