@@ -7,65 +7,22 @@ export default function PreQualification() {
   const [sent, setSent] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  // IDs desde Vercel (Settings → Environment Variables)
-  const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!;
-  const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!;
-  const publicKey  = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!;
-
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-  e.preventDefault();
-  setSubmitting(true);
-  setError(null);
+    e.preventDefault();
+    setSubmitting(true);
+    setError(null);
 
-  const fd = new FormData(e.currentTarget);
-  const name  = (fd.get("name")  as string)?.trim();
-  const phone = (fd.get("phone") as string)?.trim();
+    const fd = new FormData(e.currentTarget);
+    const name  = (fd.get("name")  as string)?.trim();
+    const phone = (fd.get("phone") as string)?.trim();
 
-  if (!name || !phone) {
-    setSubmitting(false);
-    setError("Please enter at least your name and phone number.");
-    return;
-  }
+    if (!name || !phone) {
+      setSubmitting(false);
+      setError("Please enter at least your name and phone number.");
+      return;
+    }
 
-  const body = {
-    name,
-    phone,
-    email:         (fd.get("email") as string) || "",
-    language:      (fd.get("language") as string) || "EN",
-    vehicle:       (fd.get("vehicle") as string) || "",
-    vin:           (fd.get("vin") as string) || "",
-    downPayment:   (fd.get("downPayment") as string) || "",
-    monthlyBudget: (fd.get("monthlyBudget") as string) || "",
-    employment:    (fd.get("employment") as string) || "",
-    monthlyIncome: (fd.get("monthlyIncome") as string) || "",
-    housing:       (fd.get("housing") as string) || "",
-    notes:         (fd.get("notes") as string) || "",
-    page_url:      typeof window !== "undefined" ? window.location.href : "",
-  };
-
-  fetch("/api/prequal", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  })
-    .then(async (r) => {
-      if (!r.ok) {
-        const t = await r.text();
-        throw new Error(t || "Request failed");
-      }
-      setSent(true);
-      (e.currentTarget as HTMLFormElement).reset();
-    })
-    .catch((err) => {
-      console.error(err);
-      setError("There was a problem sending your information. Please try again.");
-    })
-    .finally(() => setSubmitting(false));
-}
-
-
-    // Mapea campos a variables de tu plantilla EmailJS
-    const templateParams = {
+    const body = {
       name,
       phone,
       email:         (fd.get("email") as string) || "",
@@ -81,15 +38,22 @@ export default function PreQualification() {
       page_url:      typeof window !== "undefined" ? window.location.href : "",
     };
 
-    emailjs
-      .send(serviceId, templateId, templateParams, { publicKey })
-      .then(() => {
+    fetch("/api/prequal", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    })
+      .then(async (r) => {
+        if (!r.ok) {
+          const t = await r.text();
+          throw new Error(t || "Request failed");
+        }
         setSent(true);
         (e.currentTarget as HTMLFormElement).reset();
       })
       .catch((err) => {
         console.error(err);
-        setError(err?.text || err?.message || "There was a problem sending your information.");
+        setError("There was a problem sending your information. Please try again.");
       })
       .finally(() => setSubmitting(false));
   }
@@ -109,22 +73,21 @@ export default function PreQualification() {
 
           {!sent ? (
             <form onSubmit={handleSubmit} className="mt-8 grid gap-5 rounded-2xl bg-white/5 p-6 ring-1 ring-white/10">
-              {/* Contact */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <label className="text-sm text-white/80">Full Name *</label>
-                  <input name="name" required className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="John Doe" />
+                  <input name="name" required className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="John Doe"/>
                 </div>
                 <div className="grid gap-2">
                   <label className="text-sm text-white/80">Phone *</label>
-                  <input name="phone" required className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="(818) 555-1234" />
+                  <input name="phone" required className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="(818) 555-1234"/>
                 </div>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <label className="text-sm text-white/80">Email</label>
-                  <input name="email" type="email" className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="you@email.com" />
+                  <input name="email" type="email" className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="you@email.com"/>
                 </div>
                 <div className="grid gap-2">
                   <label className="text-sm text-white/80">Preferred language</label>
@@ -135,31 +98,28 @@ export default function PreQualification() {
                 </div>
               </div>
 
-              {/* Vehicle */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <label className="text-sm text-white/80">Vehicle of Interest</label>
-                  <input name="vehicle" className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="2013 Toyota Prius" />
+                  <input name="vehicle" className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="2013 Toyota Prius"/>
                 </div>
                 <div className="grid gap-2">
                   <label className="text-sm text-white/80">VIN</label>
-                  <input name="vin" className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="JTDKN3DU..." />
+                  <input name="vin" className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="JTDKN3DU..."/>
                 </div>
               </div>
 
-              {/* Financial */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <label className="text-sm text-white/80">Down Payment</label>
-                  <input name="downPayment" className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="$2,000" />
+                  <input name="downPayment" className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="$2,000"/>
                 </div>
                 <div className="grid gap-2">
                   <label className="text-sm text-white/80">Monthly Budget</label>
-                  <input name="monthlyBudget" className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="$350" />
+                  <input name="monthlyBudget" className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="$350"/>
                 </div>
               </div>
 
-              {/* Employment */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <label className="text-sm text-white/80">Employment</label>
@@ -172,14 +132,13 @@ export default function PreQualification() {
                 </div>
                 <div className="grid gap-2">
                   <label className="text-sm text-white/80">Monthly Income</label>
-                  <input name="monthlyIncome" className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="$4,000" />
+                  <input name="monthlyIncome" className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="$4,000"/>
                 </div>
               </div>
 
-              {/* Notes */}
               <div className="grid gap-2">
                 <label className="text-sm text-white/80">Notes</label>
-                <textarea name="notes" rows={3} className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="Anything else we should know?" />
+                <textarea name="notes" rows={3} className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40" placeholder="Anything else we should know?"/>
               </div>
 
               {error && <p className="text-red-400 text-sm">{error}</p>}
