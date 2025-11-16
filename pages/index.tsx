@@ -4,8 +4,7 @@ import type { GetStaticProps } from "next";
 import Link from "next/link";
 import { getInventory, type Car } from "../lib/getInventory";
 
-// 🖼 EXTRAER FOTOS DESDE LA COLUMNA `photos` (separadas por ;) Y
-// CONVERTIR LINKS DE GOOGLE DRIVE A IMAGEN DIRECTA
+// 🖼 EXTRAER FOTOS Y CONVERTIR LINKS DE GOOGLE DRIVE A IMAGEN DIRECTA
 function parsePhotos(raw?: string | null): string[] {
   if (!raw || typeof raw !== "string") return [];
 
@@ -18,19 +17,18 @@ function parsePhotos(raw?: string | null): string[] {
       let cleaned = u.replace(/[).,]+$/g, "");
 
       if (cleaned.includes("drive.google.com")) {
-        // 1) formato: https://drive.google.com/file/d/ID/view...
+        // formato: https://drive.google.com/file/d/ID/view?...
         const byD = cleaned.match(/\/d\/([^/?]+)/);
-        // 2) formato: https://drive.google.com/open?id=ID&...
+        // formato: https://drive.google.com/open?id=ID&...
         const byId = cleaned.match(/[?&]id=([^&]+)/);
-
         const id = (byD && byD[1]) || (byId && byId[1]);
+
         if (id) {
-          // link directo a la imagen
+          // link directo que sí sirve en <img src="...">
           return `https://drive.google.com/uc?export=view&id=${id}`;
         }
       }
 
-      // si no es de drive o no pudimos sacar ID, lo dejamos igual
       return cleaned;
     });
 }
@@ -214,17 +212,17 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   );
 
   const inventory: Vehicle[] = cleaned.map((c, index) => {
-    // 1) Fotos: intentamos varios nombres de columna
-    const rawPhotos =
-      (c as any).photos ||
-      (c as any).Photos ||
-      (c as any).photo ||
-      (c as any).Photo ||
-      (c as any).images ||
-      (c as any).Images ||
-      (c as any).photoLinks ||
-      (c as any).PhotoLinks ||
-      "";
+    // 1) Buscar cualquier columna que empiece por "photo"
+    const photoStrings = Object.entries(c as any)
+      .filter(
+        ([key, value]) =>
+          key &&
+          typeof key === "string" &&
+          key.toLowerCase().startsWith("photo") &&
+          value != null
+      )
+      .map(([, value]) => String(value));
+    const rawPhotos = photoStrings.join(" ");
     const photos = parsePhotos(rawPhotos);
 
     // 2) Descripción SIN links
