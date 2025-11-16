@@ -1,10 +1,10 @@
-// pages/index.tsx 
+// pages/index.tsx
 import * as React from "react";
 import type { GetStaticProps } from "next";
 import Link from "next/link";
 import { getInventory, type Car } from "../lib/getInventory";
 
-// 🖼 Lee la columna `photos` (links Drive separados por ;) y los convierte a links de imagen
+// 🖼 Convierte links de Drive (separados por ; o espacios) en links válidos de imagen
 function parsePhotos(raw?: string | null): string[] {
   if (!raw || typeof raw !== "string") return [];
 
@@ -54,17 +54,60 @@ type HomeProps = {
   inventory: Vehicle[];
 };
 
-// ✅ Componente principal de la página Home
 export default function Home({ inventory }: HomeProps) {
+  // ---------- ESTIMADOR BHPH ----------
+  const [selectedId, setSelectedId] = React.useState(
+    inventory[0]?.id ?? ""
+  );
+  const [creditTier, setCreditTier] = React.useState<
+    "low" | "midLow" | "midHigh" | "high"
+  >("low");
+  const [downPayment, setDownPayment] = React.useState(2000);
+  const [termMonths, setTermMonths] = React.useState(24);
+
+  const selectedCar = inventory.find((c) => c.id === selectedId) ?? inventory[0];
+
+  // APR según score
+  const apr =
+    creditTier === "low"
+      ? 22
+      : creditTier === "midLow"
+      ? 17.99
+      : creditTier === "midHigh"
+      ? 12.99
+      : 6.99;
+
+  const price = selectedCar?.price ?? 0;
+  const cleanDown = isNaN(downPayment) ? 0 : Math.max(downPayment, 0);
+  const financed = Math.max(price - cleanDown, 0);
+  const months = Math.max(termMonths, 1);
+
+  let monthlyPayment = 0;
+  if (financed > 0) {
+    const monthlyRate = apr / 100 / 12;
+    if (monthlyRate > 0) {
+      monthlyPayment =
+        (financed * monthlyRate) /
+        (1 - Math.pow(1 + monthlyRate, -months));
+    } else {
+      monthlyPayment = financed / months;
+    }
+  }
+
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
       {/* HEADER */}
       <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
         <div>
-          <p className="text-[10px] tracking-[0.25em] text-red-500">
-            AVAILABLE HYBRID
-          </p>
-          <h1 className="text-xl font-semibold">R&amp;M Inc.</h1>
+          {/* 🔙 LOGO / TEXTO AZUL CLICABLE QUE REGRESA AL HOME */}
+          <Link href="/" className="group inline-block">
+            <p className="text-[10px] tracking-[0.25em] text-red-500 group-hover:text-red-400">
+              AVAILABLE HYBRID
+            </p>
+            <h1 className="text-xl font-semibold group-hover:underline">
+              R&amp;M Inc.
+            </h1>
+          </Link>
           <p className="text-sm text-neutral-400">
             Hybrid &amp; fuel-efficient vehicles in Reseda, CA.
           </p>
@@ -85,6 +128,203 @@ export default function Home({ inventory }: HomeProps) {
 
       {/* CONTENIDO PRINCIPAL */}
       <section className="mx-auto max-w-5xl px-4 pb-12">
+        {/* ---------- PORTADA / HERO SIMPLE ---------- */}
+        <div className="mb-6 rounded-lg border border-neutral-800 bg-gradient-to-r from-neutral-900/90 to-neutral-900/40 p-5">
+          <h2 className="text-lg font-semibold">
+            Buy Here Pay Here · Easy financing for hybrid vehicles
+          </h2>
+          <p className="mt-2 text-sm text-neutral-300">
+            Escoge tu vehículo, calcula un pago estimado según tu crédito y
+            contáctanos para una aprobación rápida. Todos los cálculos son
+            aproximados y sujetos a aprobación final.
+          </p>
+        </div>
+
+        {/* ---------- ESTIMADOR BHPH ---------- */}
+        {inventory.length > 0 && (
+          <div className="mb-8 grid gap-4 rounded-lg border border-neutral-800 bg-neutral-900/70 p-4 text-xs sm:grid-cols-[1.4fr,1fr] sm:p-5">
+            <div className="space-y-3">
+              <p className="text-[11px] font-semibold text-neutral-200">
+                BHPH Payment Estimator
+              </p>
+
+              {/* Selección de vehículo */}
+              <div className="space-y-1">
+                <label className="block text-[11px] text-neutral-400">
+                  Select vehicle
+                </label>
+                <select
+                  value={selectedId}
+                  onChange={(e) => setSelectedId(e.target.value)}
+                  className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                >
+                  {inventory.map((car) => (
+                    <option key={car.id} value={car.id}>
+                      {car.year} {car.make} {car.model}{" "}
+                      {car.price != null ? `- $${car.price.toLocaleString()}` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Crédito */}
+              <div className="space-y-1">
+                <label className="block text-[11px] text-neutral-400">
+                  Approx. credit score
+                </label>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="creditTier"
+                      value="low"
+                      checked={creditTier === "low"}
+                      onChange={() => setCreditTier("low")}
+                    />
+                    <span className="text-[11px]">
+                      &lt; 600 or no credit · 22% APR
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="creditTier"
+                      value="midLow"
+                      checked={creditTier === "midLow"}
+                      onChange={() => setCreditTier("midLow")}
+                    />
+                    <span className="text-[11px]">
+                      600–649 · 17.99% APR
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="creditTier"
+                      value="midHigh"
+                      checked={creditTier === "midHigh"}
+                      onChange={() => setCreditTier("midHigh")}
+                    />
+                    <span className="text-[11px]">
+                      650–699 · 12.99% APR
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="creditTier"
+                      value="high"
+                      checked={creditTier === "high"}
+                      onChange={() => setCreditTier("high")}
+                    />
+                    <span className="text-[11px]">
+                      700+ · 6.99% APR
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Down + plazo */}
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <label className="block text-[11px] text-neutral-400">
+                    Down payment (USD)
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={downPayment}
+                    onChange={(e) =>
+                      setDownPayment(parseFloat(e.target.value) || 0)
+                    }
+                    className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[11px] text-neutral-400">
+                    Term (months)
+                  </label>
+                  <input
+                    type="number"
+                    min={6}
+                    value={termMonths}
+                    onChange={(e) =>
+                      setTermMonths(parseInt(e.target.value || "0", 10) || 1)
+                    }
+                    className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Resultado */}
+            <div className="space-y-2 rounded-lg border border-neutral-800 bg-neutral-950/70 p-3">
+              <p className="text-[11px] font-semibold text-neutral-200">
+                Estimated terms
+              </p>
+
+              <dl className="space-y-1 text-[11px] text-neutral-300">
+                <div className="flex justify-between">
+                  <dt className="text-neutral-400">Vehicle price</dt>
+                  <dd>
+                    {price > 0
+                      ? `$${price.toLocaleString()}`
+                      : "Ask dealer"}
+                  </dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-neutral-400">Down payment</dt>
+                  <dd>${cleanDown.toLocaleString()}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-neutral-400">Amount financed</dt>
+                  <dd>${financed.toLocaleString()}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-neutral-400">APR (estimated)</dt>
+                  <dd>{apr.toFixed(2)}%</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-neutral-400">Term</dt>
+                  <dd>{months} months</dd>
+                </div>
+                <div className="mt-2 flex justify-between text-[12px] font-semibold">
+                  <dt>Estimated monthly payment</dt>
+                  <dd>
+                    {monthlyPayment > 0
+                      ? `$${monthlyPayment.toFixed(2)}`
+                      : "$0.00"}
+                  </dd>
+                </div>
+              </dl>
+
+              <p className="mt-2 text-[10px] text-neutral-500">
+                * This is only an estimate and does not constitute a final
+                offer. Payments and interest may change after full credit
+                review and approval.
+              </p>
+
+              <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
+                <a
+                  href="https://wa.me/14352564487"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded bg-emerald-500 px-3 py-1 font-medium text-neutral-900 hover:bg-emerald-400"
+                >
+                  Pre-qualify by WhatsApp
+                </a>
+                <a
+                  href="tel:+17473544098"
+                  className="rounded bg-neutral-800 px-3 py-1 font-medium text-neutral-100 hover:bg-neutral-700"
+                >
+                  Call dealer
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ---------- INVENTARIO ---------- */}
         <h2 className="mb-4 text-lg font-semibold">Available Inventory</h2>
 
         {inventory.length === 0 ? (
@@ -206,7 +446,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   );
 
   const inventory: Vehicle[] = cleaned.map((c, index) => {
-    // 1) Tomamos la/s columna/s `photo*`
+    // Tomamos columnas que empiecen por "photo"
     const photoStrings = Object.entries(c as any)
       .filter(
         ([key, value]) =>
@@ -218,7 +458,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
     const rawPhotos = photoStrings.join(" ");
     const photos = parsePhotos(rawPhotos);
 
-    // 2) Descripción SIN links
+    // Descripción SIN links
     const rawDescription = (c as any).description ?? "";
     let description =
       typeof rawDescription === "string"
