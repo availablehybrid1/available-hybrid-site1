@@ -1,17 +1,12 @@
 import * as React from "react";
 import type { GetStaticProps } from "next";
-import { getSheetInventory, type Car } from "../lib/getInventory";
+import { getInventory, type Car } from "../lib/getInventory";
 
-// Tipo de vehículo que usaremos en la UI
+// Tipo muy simple para lo que mostramos en Home
 type Vehicle = {
   id: string;
   title: string;
   price: number | null;
-  mileage: number | null;
-  exterior: string;
-  status: string;
-  description: string;
-  photo: string | null;
 };
 
 type HomeProps = {
@@ -63,53 +58,18 @@ export default function Home({ inventory }: HomeProps) {
             </p>
           </div>
         ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {inventory.map((car) => (
               <article
                 key={car.id}
-                className="flex flex-col rounded-lg border border-neutral-800 bg-neutral-900/60 p-4"
+                className="rounded-lg border border-neutral-800 bg-neutral-900/60 p-4"
               >
-                {/* FOTO */}
-                {car.photo && (
-                  <div className="mb-3 aspect-[4/3] overflow-hidden rounded-md border border-neutral-800 bg-black/40">
-                    <img
-                      src={car.photo}
-                      alt={car.title}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                )}
-
-                {/* TÍTULO Y PRECIO */}
                 <h3 className="text-sm font-semibold">{car.title}</h3>
-                <p className="mt-1 text-xs text-neutral-300">
+                <p className="mt-1 text-xs text-neutral-400">
                   {car.price != null
                     ? `$${car.price.toLocaleString()}`
                     : "Consultar precio"}
                 </p>
-
-                {/* MILLAS / COLOR / ESTADO */}
-                <div className="mt-2 space-y-1 text-[11px] text-neutral-400">
-                  {car.mileage != null && (
-                    <p>{car.mileage.toLocaleString()} miles (aprox.)</p>
-                  )}
-                  {car.exterior && <p>Color exterior: {car.exterior}</p>}
-                  {car.status && (
-                    <p>
-                      <span className="inline-flex rounded-full bg-green-700/30 px-2 py-[1px] text-[10px] font-medium text-green-300">
-                        {car.status}
-                      </span>
-                    </p>
-                  )}
-                </div>
-
-                {/* DESCRIPCIÓN CORTA */}
-                {car.description && (
-                  <p className="mt-3 line-clamp-3 text-[11px] text-neutral-300">
-                    {car.description}
-                  </p>
-                )}
               </article>
             ))}
           </div>
@@ -124,7 +84,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   let cars: Car[] = [];
 
   try {
-    cars = await getSheetInventory();
+    cars = await getInventory();
   } catch (err) {
     console.error("Error leyendo Google Sheet:", err);
   }
@@ -141,29 +101,11 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
 
     const titleBase = `${c.year ?? ""} ${c.make ?? ""} ${c.model ?? ""}`.trim();
 
-    // Sacar primera foto de la columna `photos`
-    const rawPhotos = c.photos ?? "";
-    const photoList = String(rawPhotos)
-      .split(/\s+/)
-      .map((p) => p.trim())
-      .filter(Boolean);
-    const firstPhoto = photoList.length > 0 ? photoList[0] : null;
-
     return {
       id: safeId,
       title: titleBase || String(c.id ?? `Vehicle ${index + 1}`),
       price:
-        c.price !== undefined && c.price !== null
-          ? Number(c.price)
-          : null,
-      mileage:
-        c.mileage !== undefined && c.mileage !== null && c.mileage !== ""
-          ? Number(c.mileage)
-          : null,
-      exterior: c.exterior ? String(c.exterior) : "",
-      status: c.status ? String(c.status) : "",
-      description: c.description ? String(c.description) : "",
-      photo: firstPhoto,
+        c.price !== undefined && c.price !== null ? Number(c.price) : null,
     };
   });
 
