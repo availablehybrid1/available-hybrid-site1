@@ -60,33 +60,32 @@ type DetailProps = {
   car: Vehicle | null;
 };
 
-type CreditTier = "UNDER_600" | "C600_649" | "C650_699" | "C700_PLUS";
-
 export default function VehicleDetail({ car }: DetailProps) {
   const [current, setCurrent] = React.useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false);
 
-  // estado para zoom dentro del modal
+  // zoom dentro del modal
   const [isZoomed, setIsZoomed] = React.useState(false);
   const [zoomOrigin, setZoomOrigin] = React.useState<{ x: string; y: string }>({
     x: "50%",
     y: "50%",
   });
 
+  // VIN decoding
   const [vinInfo, setVinInfo] = React.useState<VinDecoded | null>(null);
   const [vinLoading, setVinLoading] = React.useState(false);
   const [vinError, setVinError] = React.useState<string | null>(null);
 
-  // BHPH estimator
-  const [showEstimator, setShowEstimator] = React.useState(false);
-  const [creditTier, setCreditTier] = React.useState<CreditTier>("UNDER_600");
-  const [downPayment, setDownPayment] = React.useState<number>(
-    car?.price ? 2000 : 0
-  );
-  const [termMonths, setTermMonths] = React.useState<number>(24);
+  // BHPH estimator UI
+  const [showBhph, setShowBhph] = React.useState(false);
+  const [creditTier, setCreditTier] = React.useState<
+    "low" | "midLow" | "midHigh" | "high"
+  >("low");
+  const [termMonths, setTermMonths] = React.useState(24);
+  const [downPayment, setDownPayment] = React.useState(2000);
 
-  // Make an Offer form
-  const [showOfferForm, setShowOfferForm] = React.useState(false);
+  // Make an offer UI
+  const [showOffer, setShowOffer] = React.useState(false);
 
   // ⌨️ Navegación con flechas izquierda/derecha y cerrar con ESC
   React.useEffect(() => {
@@ -151,6 +150,35 @@ export default function VehicleDetail({ car }: DetailProps) {
 
   const mainPhoto = car.photos[current] ?? "";
 
+  // APR según rango de crédito
+  const apr = React.useMemo(() => {
+    switch (creditTier) {
+      case "low":
+        return 22.0;
+      case "midLow":
+        return 17.99;
+      case "midHigh":
+        return 12.99;
+      case "high":
+        return 6.99;
+      default:
+        return 22.0;
+    }
+  }, [creditTier]);
+
+  const vehiclePrice = car.price ?? 0;
+  const amountFinanced = Math.max(vehiclePrice - downPayment, 0);
+
+  const monthlyPayment = React.useMemo(() => {
+    if (!vehiclePrice || !amountFinanced || termMonths <= 0 || apr <= 0)
+      return 0;
+
+    const r = apr / 100 / 12; // interés mensual
+    const n = termMonths;
+    const payment = (amountFinanced * r) / (1 - Math.pow(1 + r, -n));
+    return payment;
+  }, [amountFinanced, termMonths, apr, vehiclePrice]);
+
   // 💰 Manejar submit de "Make an Offer"
   const handleMakeOfferSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -211,52 +239,21 @@ export default function VehicleDetail({ car }: DetailProps) {
     setIsZoomed(false);
   };
 
-  // ----- BHPH ESTIMATOR LOGIC -----
-  const getApr = (tier: CreditTier): number => {
-    switch (tier) {
-      case "UNDER_600":
-        return 22.0;
-      case "C600_649":
-        return 17.99;
-      case "C650_699":
-        return 12.99;
-      case "C700_PLUS":
-        return 6.99;
-      default:
-        return 22.0;
-    }
-  };
-
-  const vehiclePrice = car.price ?? 0;
-  const apr = getApr(creditTier);
-  const safeDown = Number.isFinite(downPayment) ? downPayment : 0;
-  const financed = Math.max(vehiclePrice - safeDown, 0);
-  const monthlyRate = apr / 100 / 12;
-  const months = termMonths > 0 ? termMonths : 0;
-
-  let monthlyPayment = 0;
-  if (financed > 0 && monthlyRate > 0 && months > 0) {
-    monthlyPayment =
-      (financed * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months));
-  }
-
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
       {/* HEADER */}
       <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-        <div>
-          <Link href="/" className="group inline-block">
-            <p className="text-[10px] tracking-[0.25em] text-red-500 group-hover:text-red-400">
-              AVAILABLE HYBRID
-            </p>
-            <h1 className="text-xl font-semibold group-hover:underline">
-              R&amp;M Inc.
-            </h1>
-          </Link>
-          <p className="text-sm text-neutral-400">
+        <Link href="/" className="group">
+          <p className="text-[10px] tracking-[0.25em] text-red-500 group-hover:text-red-400">
+            AVAILABLE HYBRID
+          </p>
+          <h1 className="text-xl font-semibold group-hover:text-neutral-50">
+            R&amp;M Inc.
+          </h1>
+          <p className="text-sm text-neutral-400 group-hover:text-neutral-300">
             Hybrid &amp; fuel-efficient vehicles in Reseda, CA.
           </p>
-        </div>
+        </Link>
 
         <div className="flex flex-col items-end gap-1 text-right text-xs">
           <a
@@ -282,7 +279,7 @@ export default function VehicleDetail({ car }: DetailProps) {
           </Link>
 
           <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70">
-            {/* FOTO PRINCIPAL */}
+            {/* FOTO PRINCIPAL - COMPLETA (object-contain) + CLICK PARA ABRIR MODAL */}
             <div className="relative w-full bg-neutral-800 h-[260px] sm:h-[420px] flex items-center justify-center">
               {mainPhoto ? (
                 <button
@@ -343,8 +340,7 @@ export default function VehicleDetail({ car }: DetailProps) {
                 {car.year} {car.make} {car.model}
               </h1>
               <p className="mt-1 text-[11px] text-neutral-400">
-                Hybrid vehicle · In-house BHPH & bank/credit union financing
-                options available.
+                Marca n/a · Prius V
               </p>
             </div>
             {car.price != null && (
@@ -479,145 +475,203 @@ export default function VehicleDetail({ car }: DetailProps) {
             </Link>
             <button
               type="button"
-              onClick={() => setShowEstimator((prev) => !prev)}
-              className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-blue-400 hover:text-blue-300"
+              onClick={() => {
+                setShowBhph((prev) => !prev);
+                setShowOffer(false);
+              }}
+              className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-blue-500 hover:text-blue-400"
             >
               BHPH Estimate
             </button>
             <button
               type="button"
-              onClick={() => setShowOfferForm((prev) => !prev)}
-              className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-red-400 hover:text-red-300"
+              onClick={() => {
+                setShowOffer((prev) => !prev);
+                setShowBhph(false);
+              }}
+              className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-red-500 hover:text-red-400"
             >
               Make an Offer
             </button>
           </div>
 
-          {/* ESTIMADOR BHPH */}
-          {showEstimator && (
-            <div className="mt-4 space-y-3 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px]">
-              <p className="font-semibold text-neutral-200">
-                BHPH Payment Estimator (for this vehicle)
-              </p>
-              <p className="text-[10px] text-neutral-400">
-                These numbers are approximate and for illustration only. Final
-                approval, APR and terms may change after full credit review.
+          {/* PANEL BHPH */}
+          {showBhph && (
+            <div className="mt-5 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 space-y-4">
+              <p className="text-[11px] font-semibold text-neutral-200">
+                BHPH Payment Estimator (this vehicle)
               </p>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                {/* credit score */}
-                <div className="space-y-1">
-                  <p className="text-[11px] text-neutral-400">
-                    Approx. credit score
-                  </p>
-                  <div className="space-y-1 text-[11px] text-neutral-200">
-                    <label className="flex items-center gap-1">
-                      <input
-                        type="radio"
-                        className="h-3 w-3"
-                        checked={creditTier === "UNDER_600"}
-                        onChange={() => setCreditTier("UNDER_600")}
-                      />
-                      <span>&lt; 600 or no credit · 22% APR</span>
-                    </label>
-                    <label className="flex items-center gap-1">
-                      <input
-                        type="radio"
-                        className="h-3 w-3"
-                        checked={creditTier === "C600_649"}
-                        onChange={() => setCreditTier("C600_649")}
-                      />
-                      <span>600–649 · 17.99% APR</span>
-                    </label>
-                    <label className="flex items-center gap-1">
-                      <input
-                        type="radio"
-                        className="h-3 w-3"
-                        checked={creditTier === "C650_699"}
-                        onChange={() => setCreditTier("C650_699")}
-                      />
-                      <span>650–699 · 12.99% APR</span>
-                    </label>
-                    <label className="flex items-center gap-1">
-                      <input
-                        type="radio"
-                        className="h-3 w-3"
-                        checked={creditTier === "C700_PLUS"}
-                        onChange={() => setCreditTier("C700_PLUS")}
-                      />
-                      <span>700+ · 6.99% APR</span>
-                    </label>
-                  </div>
-                </div>
+              {!vehiclePrice ? (
+                <p className="text-[11px] text-neutral-400">
+                  Price is not set for this vehicle. Please contact the dealer
+                  for BHPH options.
+                </p>
+              ) : (
+                <>
+                  <div className="grid gap-3 sm:grid-cols-2 text-[11px]">
+                    <div className="space-y-2">
+                      <div>
+                        <p className="text-neutral-500">Vehicle price</p>
+                        <p className="font-semibold text-neutral-100">
+                          ${vehiclePrice.toLocaleString()}
+                        </p>
+                      </div>
 
-                {/* inputs: down payment + term */}
-                <div className="grid gap-3 sm:grid-cols-1">
-                  <div className="space-y-1">
-                    <label className="block text-[11px] text-neutral-400">
-                      Down payment (USD)
-                    </label>
-                    <input
-                      type="number"
-                      min={0}
-                      step={100}
-                      value={downPayment}
-                      onChange={(e) =>
-                        setDownPayment(Number(e.target.value) || 0)
-                      }
-                      className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="block text-[11px] text-neutral-400">
-                      Term (months)
-                    </label>
-                    <input
-                      type="number"
-                      min={6}
-                      step={6}
-                      value={termMonths}
-                      onChange={(e) =>
-                        setTermMonths(Number(e.target.value) || 0)
-                      }
-                      className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
-                    />
-                  </div>
-                </div>
-              </div>
+                      <div className="space-y-1">
+                        <p className="text-neutral-500">Approx. credit score</p>
+                        <div className="space-y-1">
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="creditTier"
+                              className="h-3 w-3"
+                              checked={creditTier === "low"}
+                              onChange={() => setCreditTier("low")}
+                            />
+                            <span>
+                              {"<"} 600 or no credit · 22% APR
+                            </span>
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="creditTier"
+                              className="h-3 w-3"
+                              checked={creditTier === "midLow"}
+                              onChange={() => setCreditTier("midLow")}
+                            />
+                            <span>600–649 · 17.99% APR</span>
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="creditTier"
+                              className="h-3 w-3"
+                              checked={creditTier === "midHigh"}
+                              onChange={() => setCreditTier("midHigh")}
+                            />
+                            <span>650–699 · 12.99% APR</span>
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="creditTier"
+                              className="h-3 w-3"
+                              checked={creditTier === "high"}
+                              onChange={() => setCreditTier("high")}
+                            />
+                            <span>700+ · 6.99% APR</span>
+                          </label>
+                        </div>
+                      </div>
 
-              {/* resumen */}
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1 text-neutral-300">
-                  <p className="text-neutral-500">Vehicle price</p>
-                  <p>${vehiclePrice.toLocaleString()}</p>
-                  <p className="text-neutral-500 mt-2">Down payment</p>
-                  <p>${safeDown.toLocaleString()}</p>
-                  <p className="text-neutral-500 mt-2">Amount financed</p>
-                  <p>${financed.toLocaleString()}</p>
-                </div>
-                <div className="space-y-1 text-neutral-300">
-                  <p className="text-neutral-500">APR (estimated)</p>
-                  <p>{apr.toFixed(2)}%</p>
-                  <p className="text-neutral-500 mt-2">Term</p>
-                  <p>{months} months</p>
-                  <p className="text-neutral-500 mt-2">
-                    Estimated monthly payment
-                  </p>
-                  <p className="text-lg font-semibold text-emerald-400">
-                    {monthlyPayment > 0
-                      ? `$${monthlyPayment.toFixed(2)}`
-                      : "--"}
-                  </p>
-                </div>
-              </div>
+                      <div className="space-y-1">
+                        <label className="block text-neutral-500">
+                          Down payment (USD)
+                        </label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={downPayment}
+                          onChange={(e) =>
+                            setDownPayment(
+                              Number(e.target.value) >= 0
+                                ? Number(e.target.value)
+                                : 0
+                            )
+                          }
+                          className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-neutral-500">
+                          Term (months)
+                        </label>
+                        <input
+                          type="number"
+                          min={6}
+                          max={60}
+                          value={termMonths}
+                          onChange={(e) =>
+                            setTermMonths(
+                              Number(e.target.value) > 0
+                                ? Number(e.target.value)
+                                : 1
+                            )
+                          }
+                          className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 rounded border border-neutral-800 bg-neutral-950/80 p-3">
+                      <p className="text-[11px] font-semibold text-neutral-200">
+                        Estimated terms
+                      </p>
+                      <div className="space-y-1 text-[11px] text-neutral-300">
+                        <div className="flex justify-between">
+                          <span>Vehicle price</span>
+                          <span>
+                            ${vehiclePrice.toLocaleString(undefined, {
+                              maximumFractionDigits: 2,
+                            })}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Down payment</span>
+                          <span>
+                            -$
+                            {downPayment.toLocaleString(undefined, {
+                              maximumFractionDigits: 2,
+                            })}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Amount financed</span>
+                          <span>
+                            $
+                            {amountFinanced.toLocaleString(undefined, {
+                              maximumFractionDigits: 2,
+                            })}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>APR (estimated)</span>
+                          <span>{apr.toFixed(2)}%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Term</span>
+                          <span>{termMonths} months</span>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 rounded bg-neutral-900 p-3 text-[11px]">
+                        <p className="text-neutral-500">Estimated payment</p>
+                        <p className="text-lg font-semibold text-emerald-400">
+                          {monthlyPayment
+                            ? `$${monthlyPayment.toFixed(2)} / mo`
+                            : "--"}
+                        </p>
+                        <p className="mt-1 text-[10px] text-neutral-500">
+                          This is only an estimate and does not constitute a
+                          final offer. Payments and interest may change after
+                          full credit review and approval.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
-          {/* FORMULARIO MAKE AN OFFER (solo cuando showOfferForm es true) */}
-          {showOfferForm && (
+          {/* FORMULARIO MAKE AN OFFER */}
+          {showOffer && (
             <form
               onSubmit={handleMakeOfferSubmit}
-              className="mt-6 space-y-3 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4"
+              className="mt-5 space-y-3 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4"
             >
               <p className="text-[11px] font-semibold text-neutral-200">
                 Make an Offer
