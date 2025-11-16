@@ -4,13 +4,12 @@ import type { GetStaticProps } from "next";
 import Link from "next/link";
 import { getInventory, type Car } from "../lib/getInventory";
 
-// Helper para limpiar y separar las fotos
+// Helper para extraer SOLO URLs (aunque estén pegadas)
 function parsePhotos(raw?: string | null): string[] {
   if (!raw || typeof raw !== "string") return [];
-  return raw
-    .split(/\s+/)        // separa por espacios / saltos de línea
-    .map((p) => p.trim())
-    .filter(Boolean);
+  // Busca cualquier http/https seguido de caracteres no espacio
+  const urls = raw.match(/https?:\/\/\S+/g) || [];
+  return urls.map((u) => u.trim());
 }
 
 // Tipo de vehículo que usamos en la UI
@@ -192,7 +191,16 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   );
 
   const inventory: Vehicle[] = cleaned.map((c, index) => {
-    const photos = parsePhotos((c as any).photos);
+    const rawPhotos =
+      (c as any).photos || (c as any).images || (c as any).photoLinks || "";
+    const photos = parsePhotos(rawPhotos);
+
+    // Limpiamos la descripción para quitar cualquier URL
+    const rawDescription = (c as any).description ?? "";
+    const description =
+      typeof rawDescription === "string"
+        ? rawDescription.replace(/https?:\/\/\S+/g, "").trim()
+        : "";
 
     const safeId =
       (c.id && String(c.id).trim()) ||
@@ -221,7 +229,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
       exterior: c.exterior ?? "",
       vin: c.vin ?? "",
       status: (c as any).status ?? "",
-      description: c.description ?? "",
+      description,
       photos,
     };
   });
