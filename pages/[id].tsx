@@ -4,7 +4,7 @@ import type { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
 import { getInventory, type Car } from "../lib/getInventory";
 
-// misma función que en index.tsx
+// misma función que en index.tsx para convertir links de Drive a imágenes
 function parsePhotos(raw?: string | null): string[] {
   if (!raw || typeof raw !== "string") return [];
 
@@ -341,10 +341,10 @@ export default function VehicleDetail({ car }: DetailProps) {
               Call Dealer
             </a>
             <Link
-              href={`/financing?id=${encodeURIComponent(car.id)}`}
-              className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-red-500 hover:text-red-400"
+              href={`/pre-qualification?id=${encodeURIComponent(car.id)}`}
+              className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-emerald-500 hover:text-emerald-400"
             >
-              Apply for Financing
+              Pre-Qualify
             </Link>
           </div>
         </section>
