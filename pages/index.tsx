@@ -163,22 +163,22 @@ export default function Home({ inventory }: HomeProps) {
                     )}
 
                     {/* BOTONES */}
-                    <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
-                      <Link
-                        href={`/financing?id=${encodeURIComponent(car.id)}`}
-                        className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-red-500 hover:text-red-400"
-                      >
-                        Financing
-                      </Link>
-                      <Link
-                        href={`/pre-qualification?id=${encodeURIComponent(
-                          car.id
-                        )}`}
-                        className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-emerald-500 hover:text-emerald-400"
-                      >
-                        Pre-Qualify
-                      </Link>
-                      <Link
+                   <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
+  <Link
+    href={`/pre-qualification?id=${encodeURIComponent(car.id)}`}
+    className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-emerald-500 hover:text-emerald-400"
+  >
+    Pre-Qualify
+  </Link>
+
+  <Link
+    href={`/${encodeURIComponent(car.id)}`}
+    className="rounded bg-red-600 px-3 py-1 font-medium text-white hover:bg-red-500"
+  >
+    Details
+  </Link>
+</div>
+
                         href={`/${encodeURIComponent(car.id)}`}
                         className="rounded bg-red-600 px-3 py-1 font-medium text-white hover:bg-red-500"
                       >
