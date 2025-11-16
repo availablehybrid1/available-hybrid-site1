@@ -85,6 +85,9 @@ export default function VehicleDetail({ car }: DetailProps) {
   );
   const [termMonths, setTermMonths] = React.useState<number>(24);
 
+  // Make an Offer form
+  const [showOfferForm, setShowOfferForm] = React.useState(false);
+
   // ⌨️ Navegación con flechas izquierda/derecha y cerrar con ESC
   React.useEffect(() => {
     if (!car || !car.photos.length) return;
@@ -481,9 +484,16 @@ export default function VehicleDetail({ car }: DetailProps) {
             >
               BHPH Estimate
             </button>
+            <button
+              type="button"
+              onClick={() => setShowOfferForm((prev) => !prev)}
+              className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-red-400 hover:text-red-300"
+            >
+              Make an Offer
+            </button>
           </div>
 
-          {/* ESTIMADOR BHPH (solo se muestra si se hace click en el botón) */}
+          {/* ESTIMADOR BHPH */}
           {showEstimator && (
             <div className="mt-4 space-y-3 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px]">
               <p className="font-semibold text-neutral-200">
@@ -494,8 +504,8 @@ export default function VehicleDetail({ car }: DetailProps) {
                 approval, APR and terms may change after full credit review.
               </p>
 
-              {/* credit score */}
               <div className="grid gap-3 sm:grid-cols-2">
+                {/* credit score */}
                 <div className="space-y-1">
                   <p className="text-[11px] text-neutral-400">
                     Approx. credit score
@@ -603,74 +613,76 @@ export default function VehicleDetail({ car }: DetailProps) {
             </div>
           )}
 
-          {/* FORMULARIO MAKE AN OFFER */}
-          <form
-            onSubmit={handleMakeOfferSubmit}
-            className="mt-6 space-y-3 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4"
-          >
-            <p className="text-[11px] font-semibold text-neutral-200">
-              Make an Offer
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1">
-                <label className="block text-[11px] text-neutral-400">
-                  Name
-                </label>
-                <input
-                  name="name"
-                  required
-                  className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="block text-[11px] text-neutral-400">
-                  Phone
-                </label>
-                <input
-                  name="phone"
-                  required
-                  className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="block text-[11px] text-neutral-400">
-                  Email (optional)
-                </label>
-                <input
-                  name="email"
-                  type="email"
-                  className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="block text-[11px] text-neutral-400">
-                  Offer amount (USD)
-                </label>
-                <input
-                  name="offer"
-                  type="number"
-                  min={0}
-                  className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
-                />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <label className="block text-[11px] text-neutral-400">
-                Message
-              </label>
-              <textarea
-                name="message"
-                rows={3}
-                className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
-              />
-            </div>
-            <button
-              type="submit"
-              className="mt-2 rounded bg-red-600 px-3 py-1 text-[11px] font-medium text-white hover:bg-red-500"
+          {/* FORMULARIO MAKE AN OFFER (solo cuando showOfferForm es true) */}
+          {showOfferForm && (
+            <form
+              onSubmit={handleMakeOfferSubmit}
+              className="mt-6 space-y-3 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4"
             >
-              Send Offer
-            </button>
-          </form>
+              <p className="text-[11px] font-semibold text-neutral-200">
+                Make an Offer
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <label className="block text-[11px] text-neutral-400">
+                    Name
+                  </label>
+                  <input
+                    name="name"
+                    required
+                    className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[11px] text-neutral-400">
+                    Phone
+                  </label>
+                  <input
+                    name="phone"
+                    required
+                    className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[11px] text-neutral-400">
+                    Email (optional)
+                  </label>
+                  <input
+                    name="email"
+                    type="email"
+                    className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[11px] text-neutral-400">
+                    Offer amount (USD)
+                  </label>
+                  <input
+                    name="offer"
+                    type="number"
+                    min={0}
+                    className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="block text-[11px] text-neutral-400">
+                  Message
+                </label>
+                <textarea
+                  name="message"
+                  rows={3}
+                  className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                />
+              </div>
+              <button
+                type="submit"
+                className="mt-2 rounded bg-red-600 px-3 py-1 text-[11px] font-medium text-white hover:bg-red-500"
+              >
+                Send Offer
+              </button>
+            </form>
+          )}
         </section>
       </div>
 
