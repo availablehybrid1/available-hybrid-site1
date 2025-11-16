@@ -1,20 +1,33 @@
+// pages/index.tsx
 import * as React from "react";
 import type { GetStaticProps } from "next";
+import Link from "next/link";
 import { getInventory, type Car } from "../lib/getInventory";
+
+// Helper para limpiar y separar las fotos
+function parsePhotos(raw?: string | null): string[] {
+  if (!raw || typeof raw !== "string") return [];
+  return raw
+    .split(/\s+/)        // separa por espacios / saltos de línea
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
 
 // Tipo de vehículo que usamos en la UI
 type Vehicle = {
   id: string;
   title: string;
-  price: number | null;
   year: number | null;
+  make: string;
+  model: string;
   mileage: number | null;
-  fuel: string;
+  price: number | null;
   transmission: string;
+  fuel: string;
   exterior: string;
   vin: string;
-  description: string;
   status: string;
+  description: string;
   photos: string[];
 };
 
@@ -22,11 +35,11 @@ type HomeProps = {
   inventory: Vehicle[];
 };
 
-// ✅ Componente principal de la página
+// ✅ Componente principal de la página Home
 export default function Home({ inventory }: HomeProps) {
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
-      {/* HEADER SIMPLE */}
+      {/* HEADER */}
       <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
         <div>
           <p className="text-[10px] tracking-[0.25em] text-red-500">
@@ -53,7 +66,7 @@ export default function Home({ inventory }: HomeProps) {
 
       {/* CONTENIDO PRINCIPAL */}
       <section className="mx-auto max-w-5xl px-4 pb-12">
-        <h2 className="mb-3 text-lg font-semibold">Available Inventory</h2>
+        <h2 className="mb-4 text-lg font-semibold">Available Inventory</h2>
 
         {inventory.length === 0 ? (
           <div className="rounded-lg border border-neutral-800 bg-neutral-900/60 p-6 text-sm text-neutral-300">
@@ -67,85 +80,91 @@ export default function Home({ inventory }: HomeProps) {
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
             {inventory.map((car) => {
               const mainPhoto = car.photos[0] ?? "";
 
               return (
                 <article
                   key={car.id}
-                  className="flex flex-col rounded-lg border border-neutral-800 bg-neutral-900/60 p-4"
+                  className="flex flex-col overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70"
                 >
-                  {/* FOTO PRINCIPAL */}
-                  {mainPhoto && (
-                    <div className="mb-3 aspect-video w-full overflow-hidden rounded-md bg-neutral-800">
+                  {/* IMAGEN */}
+                  <div className="relative h-40 w-full bg-neutral-800">
+                    {mainPhoto ? (
                       <img
                         src={mainPhoto}
                         alt={car.title}
                         className="h-full w-full object-cover"
+                        loading="lazy"
                       />
-                    </div>
-                  )}
-
-                  {/* TÍTULO Y PRECIO */}
-                  <h3 className="text-sm font-semibold">{car.title}</h3>
-                  <p className="mt-1 text-xs text-neutral-300">
-                    {car.price != null
-                      ? `$${car.price.toLocaleString()}`
-                      : "Consultar precio"}
-                  </p>
-
-                  {/* INFO RÁPIDA */}
-                  <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-neutral-400">
-                    {car.mileage != null && (
-                      <span>{car.mileage.toLocaleString()} mi</span>
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
+                        Foto próximamente
+                      </div>
                     )}
-                    {car.fuel && <span>• {car.fuel}</span>}
-                    {car.transmission && <span>• {car.transmission}</span>}
-                    {car.exterior && <span>• {car.exterior}</span>}
                   </div>
 
-                  {/* STATUS */}
-                  {car.status && (
-                    <span className="mt-2 inline-flex w-fit items-center rounded-full border border-emerald-700/60 bg-emerald-900/40 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
-                      {car.status}
-                    </span>
-                  )}
+                  {/* CONTENIDO CARD */}
+                  <div className="flex flex-1 flex-col p-4 text-xs">
+                    <div className="flex items-baseline justify-between">
+                      <h3 className="text-sm font-semibold">{car.title}</h3>
+                      {car.price != null && (
+                        <p className="text-sm font-semibold text-green-400">
+                          ${car.price.toLocaleString()}
+                        </p>
+                      )}
+                    </div>
 
-                  {/* DESCRIPCIÓN CORTA */}
-                  {car.description && (
-                    <p className="mt-2 line-clamp-2 text-[11px] text-neutral-400">
-                      {car.description}
+                    <p className="mt-1 text-[11px] text-neutral-400">
+                      {car.mileage != null
+                        ? `${car.mileage.toLocaleString()} mi`
+                        : "Mileage n/a"}{" "}
+                      · {car.fuel || "Fuel n/a"} ·{" "}
+                      {car.transmission || "Transmission n/a"} ·{" "}
+                      {car.exterior || "Color n/a"}
                     </p>
-                  )}
 
-                  {/* VIN + ACCIONES */}
-                  <div className="mt-3 flex flex-col gap-2 text-[11px] text-neutral-400">
-                    {car.vin && (
-                      <span className="text-neutral-500">VIN: {car.vin}</span>
+                    {car.status && (
+                      <span className="mt-2 inline-flex w-fit items-center rounded-full bg-emerald-600/15 px-2 py-[2px] text-[10px] font-medium text-emerald-400">
+                        {car.status}
+                      </span>
                     )}
 
-                    <div className="flex flex-wrap gap-2">
-                      <a
+                    {car.description && (
+                      <p className="mt-2 line-clamp-2 text-[11px] text-neutral-300">
+                        {car.description}
+                      </p>
+                    )}
+
+                    {car.vin && (
+                      <p className="mt-2 text-[10px] uppercase tracking-wide text-neutral-500">
+                        VIN: {car.vin}
+                      </p>
+                    )}
+
+                    {/* BOTONES */}
+                    <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
+                      <Link
                         href={`/financing?id=${encodeURIComponent(car.id)}`}
-                        className="rounded border border-neutral-700 px-2 py-1 hover:bg-neutral-800"
+                        className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-red-500 hover:text-red-400"
                       >
                         Financing
-                      </a>
-                      <a
+                      </Link>
+                      <Link
                         href={`/pre-qualification?id=${encodeURIComponent(
                           car.id
                         )}`}
-                        className="rounded border border-neutral-700 px-2 py-1 hover:bg-neutral-800"
+                        className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-emerald-500 hover:text-emerald-400"
                       >
                         Pre-Qualify
-                      </a>
-                      <a
+                      </Link>
+                      <Link
                         href={`/${encodeURIComponent(car.id)}`}
-                        className="rounded bg-red-600 px-2 py-1 font-medium text-white hover:bg-red-500"
+                        className="rounded bg-red-600 px-3 py-1 font-medium text-white hover:bg-red-500"
                       >
                         Details
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </article>
@@ -158,7 +177,7 @@ export default function Home({ inventory }: HomeProps) {
   );
 }
 
-// ✅ getStaticProps: lee la hoja y asegura que nada sea `undefined`
+// ✅ getStaticProps: lee la hoja y asegura que no haya `undefined`
 export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   let cars: Car[] = [];
 
@@ -173,6 +192,8 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   );
 
   const inventory: Vehicle[] = cleaned.map((c, index) => {
+    const photos = parsePhotos((c as any).photos);
+
     const safeId =
       (c.id && String(c.id).trim()) ||
       `${c.year ?? ""}-${c.make ?? ""}-${c.model ?? ""}` ||
@@ -180,30 +201,27 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
 
     const titleBase = `${c.year ?? ""} ${c.make ?? ""} ${c.model ?? ""}`.trim();
 
-    const photos =
-      c.photos
-        ?.toString()
-        .split(/\s+/)
-        .map((p) => p.trim())
-        .filter(Boolean) ?? [];
-
     return {
       id: safeId,
       title: titleBase || String(c.id ?? `Vehicle ${index + 1}`),
-      price:
-        c.price !== undefined && c.price !== null ? Number(c.price) : null,
       year:
         c.year !== undefined && c.year !== null ? Number(c.year) : null,
+      make: c.make ?? "",
+      model: c.model ?? "",
       mileage:
         c.mileage !== undefined && c.mileage !== null
           ? Number(c.mileage)
           : null,
-      fuel: c.fuel ?? "",
+      price:
+        c.price !== undefined && c.price !== null
+          ? Number(c.price)
+          : null,
       transmission: c.transmission ?? "",
+      fuel: c.fuel ?? "",
       exterior: c.exterior ?? "",
       vin: c.vin ?? "",
+      status: (c as any).status ?? "",
       description: c.description ?? "",
-      status: c.status ?? "",
       photos,
     };
   });
