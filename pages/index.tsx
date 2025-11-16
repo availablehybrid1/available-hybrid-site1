@@ -4,35 +4,31 @@ import type { GetStaticProps } from "next";
 import Link from "next/link";
 import { getInventory, type Car } from "../lib/getInventory";
 
-// 🖼 EXTRAER FOTOS Y CONVERTIR LINKS DE GOOGLE DRIVE A IMAGEN DIRECTA
+// 🖼 Lee la columna `photos` (links Drive separados por ;) y los convierte a links de imagen
 function parsePhotos(raw?: string | null): string[] {
   if (!raw || typeof raw !== "string") return [];
 
   return raw
     .split(/[\s;]+/) // separa por ; y espacios
     .map((u) => u.trim())
-    .filter((u) => u.length > 0)
+    .filter((u) => u.length > 0 && u.startsWith("http"))
     .map((u) => {
-      // si falta el http por algún motivo, lo ignoramos
-      if (!u.startsWith("http")) return u;
+      // si ya es link directo de lh3, se deja igual
+      if (u.includes("lh3.googleusercontent.com")) return u;
 
-      // quitar punticos / comas / paréntesis al final
-      let cleaned = u.replace(/[).,]+$/g, "");
-
-      if (cleaned.includes("drive.google.com")) {
+      // si es link de Google Drive, lo convertimos
+      if (u.includes("drive.google.com")) {
         // formato: https://drive.google.com/file/d/ID/view?...
-        const byD = cleaned.match(/\/d\/([^/?]+)/);
-        // formato: https://drive.google.com/open?id=ID&...
-        const byId = cleaned.match(/[?&]id=([^&]+)/);
-        const id = (byD && byD[1]) || (byId && byId[1]);
-
+        const byD = u.match(/\/d\/([^/]+)/);
+        const id = byD?.[1];
         if (id) {
-          // link directo que sí sirve en <img src="...">
-          return `https://drive.google.com/uc?export=view&id=${id}`;
+          // link directo que sirve en <img>
+          return `https://lh3.googleusercontent.com/d/${id}=w1600`;
         }
       }
 
-      return cleaned;
+      // cualquier otro link se deja igual
+      return u;
     });
 }
 
@@ -166,13 +162,6 @@ export default function Home({ inventory }: HomeProps) {
                       </p>
                     )}
 
-                    {/* DEBUG: mostrar la URL de la primera foto (puedes borrar esto luego) */}
-                    {car.photos[0] && (
-                      <p className="mt-2 text-[9px] text-neutral-500 break-all">
-                        DEBUG photo: {car.photos[0]}
-                      </p>
-                    )}
-
                     {/* BOTONES */}
                     <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
                       <Link
@@ -222,7 +211,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   );
 
   const inventory: Vehicle[] = cleaned.map((c, index) => {
-    // 1) Buscar cualquier columna cuyo nombre empiece por "photo"
+    // 1) Tomamos la columna `photos` (o cualquier columna que empiece por "photo")
     const photoStrings = Object.entries(c as any)
       .filter(
         ([key, value]) =>
