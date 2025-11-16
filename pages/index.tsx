@@ -4,11 +4,14 @@ import type { GetStaticProps } from "next";
 import Link from "next/link";
 import { getInventory, type Car } from "../lib/getInventory";
 
-// 🖼 EXTRAER SOLO URLs (aunque estén pegadas)
+// 🖼 EXTRAER FOTOS DESDE LA COLUMNA `photos` (separadas por ;)
 function parsePhotos(raw?: string | null): string[] {
   if (!raw || typeof raw !== "string") return [];
-  const urls = raw.match(/https?:\/\/\S+/g) || [];
-  return urls.map((u) => u.trim());
+
+  return raw
+    .split(/[\s;]+/)            // ⬅️ SEPARA POR ESPACIOS O POR ;
+    .map((u) => u.trim())
+    .filter((u) => u.startsWith("http"));
 }
 
 // Tipo de vehículo que usamos en la UI
@@ -190,23 +193,23 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   );
 
   const inventory: Vehicle[] = cleaned.map((c, index) => {
-    // 1) De aquí sacamos las fotos (donde sea que estén)
+    // 1) Fotos: SOLO de la columna `photos` (y similares), ya no de `description`
     const rawPhotos =
       (c as any).photos ||
       (c as any).images ||
       (c as any).photoLinks ||
-      (c as any).description ||
       "";
     const photos = parsePhotos(rawPhotos);
 
     // 2) Descripción SIN links
     const rawDescription = (c as any).description ?? "";
     let description =
-      typeof rawDescription === "string" ? rawDescription : String(rawDescription ?? "");
+      typeof rawDescription === "string"
+        ? rawDescription
+        : String(rawDescription ?? "");
 
-    // quitamos cualquier url, restos de usp=drive_link y espacios dobles
     description = description
-      .replace(/https?:\/\/\S+/g, "")
+      .replace(/https?:\/\/\S+/g, "")  // quita cualquier URL
       .replace(/usp=drive_link/gi, "")
       .replace(/\s{2,}/g, " ")
       .trim();
