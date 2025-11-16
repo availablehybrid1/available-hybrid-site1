@@ -1,7 +1,8 @@
 import * as React from "react";
 import type { GetStaticProps } from "next";
+import { getSheetInventory, type Car } from "../lib/getInventory";
 
-// Tipos básicos
+// Tipo muy simple para lo que mostramos en Home
 type Vehicle = {
   id: string;
   title: string;
@@ -65,7 +66,9 @@ export default function Home({ inventory }: HomeProps) {
               >
                 <h3 className="text-sm font-semibold">{car.title}</h3>
                 <p className="mt-1 text-xs text-neutral-400">
-                  {car.price != null ? `$${car.price.toLocaleString()}` : "Consultar precio"}
+                  {car.price != null
+                    ? `$${car.price.toLocaleString()}`
+                    : "Consultar precio"}
                 </p>
               </article>
             ))}
@@ -76,11 +79,42 @@ export default function Home({ inventory }: HomeProps) {
   );
 }
 
-// ✅ Datos estáticos (por ahora inventario vacío, para evitar errores)
+// ✅ getStaticProps: lee la hoja y asegura que nada sea `undefined`
 export const getStaticProps: GetStaticProps<HomeProps> = async () => {
+  let cars: Car[] = [];
+
+  try {
+    cars = await getSheetInventory();
+  } catch (err) {
+    console.error("Error leyendo Google Sheet:", err);
+  }
+
+  const cleaned = (cars || []).filter(
+    (c) => c && (c.id || c.make || c.model || c.year)
+  );
+
+  const inventory: Vehicle[] = cleaned.map((c, index) => {
+    const safeId =
+      (c.id && String(c.id).trim()) ||
+      `${c.year ?? ""}-${c.make ?? ""}-${c.model ?? ""}` ||
+      `vehicle-${index}`;
+
+    const titleBase = `${c.year ?? ""} ${c.make ?? ""} ${c.model ?? ""}`.trim();
+
+    return {
+      id: safeId,
+      title: titleBase || String(c.id ?? `Vehicle ${index + 1}`),
+      price:
+        c.price !== undefined && c.price !== null
+          ? Number(c.price)
+          : null,
+    };
+  });
+
   return {
     props: {
-      inventory: [], // luego lo conectamos a Google Sheets
+      // 👇 Nunca mandamos `undefined` a los props (solo string / number / null)
+      inventory,
     },
     revalidate: 60,
   };
