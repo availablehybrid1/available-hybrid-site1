@@ -1,27 +1,49 @@
 export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   const cars: Car[] = await getSheetInventory();
 
-  const inventory: Vehicle[] = cars.map((c) => ({
-    id: c?.id ?? "",
-    title: `${c?.year ?? ""} ${c?.make ?? ""} ${c?.model ?? ""}`.trim() || c?.id ?? "",
-    year: c?.year ? Number(c.year) : null,
-    make: c?.make ?? null,
-    model: c?.model ?? null,
-    mileage: c?.mileage ? Number(c.mileage) : null,
-    transmission: c?.transmission ?? null,
-    fuel: c?.fuel ?? null,
-    vin: c?.vin ?? null,
-    exterior: c?.exterior ?? null,
-    price: c?.price ? Number(c.price) : null,
-    description: c?.description ?? null,
-    photos: c?.photos ? c.photos.split(/\s+/) : [],
-    status: null
+  // Filtramos filas totalmente vacías (por si hay renglones en blanco en la hoja)
+  const cleaned = (cars || []).filter(
+    (c) => c && (c.id || c.make || c.model || c.year)
+  );
+
+  const inventory: Vehicle[] = cleaned.map((c) => ({
+    id: c.id ?? `${c.year ?? ""}-${c.make ?? ""}-${c.model ?? ""}` || "no-id",
+
+    title:
+      `${c.year ?? ""} ${c.make ?? ""} ${c.model ?? ""}`
+        .trim()
+        || c.id
+        || "Vehicle",
+
+    // Números o null (nunca undefined)
+    year: c.year !== undefined && c.year !== null ? Number(c.year) : null,
+    mileage:
+      c.mileage !== undefined && c.mileage !== null
+        ? Number(c.mileage)
+        : null,
+    price:
+      c.price !== undefined && c.price !== null ? Number(c.price) : null,
+
+    // Strings o "" (nunca undefined)
+    make: c.make ?? "",
+    model: c.model ?? "",
+    transmission: c.transmission ?? "",
+    fuel: c.fuel ?? "",
+    vin: c.vin ?? "",
+    exterior: c.exterior ?? "",
+    description: c.description ?? "",
+
+    // Array de fotos (nunca undefined)
+    photos: c.photos ? c.photos.toString().split(/\s+/) : [],
+
+    // Puedes cambiar esto si luego agregas una columna "status" en la hoja
+    status: null,
   }));
 
   return {
     props: {
-      inventory
+      inventory,
     },
-    revalidate: 60
+    revalidate: 60,
   };
 };
