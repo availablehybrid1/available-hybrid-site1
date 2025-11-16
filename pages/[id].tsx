@@ -165,22 +165,22 @@ export default function VehicleDetail({ car }: DetailProps) {
           </Link>
 
           <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70">
-            <div className="relative h-64 w-full bg-neutral-800 sm:h-80">
-              <div className="relative w-full bg-neutral-800 h-[260px] sm:h-[420px] flex items-center justify-center">
-  {mainPhoto ? (
-    <img
-      src={mainPhoto}
-      alt={car.title}
-      className="max-h-full max-w-full object-contain"
-    />
-  ) : (
-    <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
-      Foto próximamente
-    </div>
-  )}
-</div>
+            {/* FOTO PRINCIPAL - COMPLETA (object-contain) */}
+            <div className="relative w-full bg-neutral-800 h-[260px] sm:h-[420px] flex items-center justify-center">
+              {mainPhoto ? (
+                <img
+                  src={mainPhoto}
+                  alt={car.title}
+                  className="max-h-full max-w-full object-contain"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
+                  Foto próximamente
+                </div>
+              )}
+            </div>
 
-
+            {/* MINIATURAS */}
             {car.photos.length > 1 && (
               <div className="flex gap-2 overflow-x-auto border-t border-neutral-800 bg-neutral-900/80 p-2">
                 {car.photos.map((photo, idx) => (
