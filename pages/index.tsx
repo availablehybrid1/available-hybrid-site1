@@ -11,8 +11,11 @@ function parsePhotos(raw?: string | null): string[] {
   return raw
     .split(/[\s;]+/) // separa por ; y espacios
     .map((u) => u.trim())
-    .filter((u) => u.length > 0 && u.startsWith("http"))
+    .filter((u) => u.length > 0)
     .map((u) => {
+      // si falta el http por algún motivo, lo ignoramos
+      if (!u.startsWith("http")) return u;
+
       // quitar punticos / comas / paréntesis al final
       let cleaned = u.replace(/[).,]+$/g, "");
 
@@ -163,6 +166,13 @@ export default function Home({ inventory }: HomeProps) {
                       </p>
                     )}
 
+                    {/* DEBUG: mostrar la URL de la primera foto (puedes borrar esto luego) */}
+                    {car.photos[0] && (
+                      <p className="mt-2 text-[9px] text-neutral-500 break-all">
+                        DEBUG photo: {car.photos[0]}
+                      </p>
+                    )}
+
                     {/* BOTONES */}
                     <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
                       <Link
@@ -212,11 +222,10 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   );
 
   const inventory: Vehicle[] = cleaned.map((c, index) => {
-    // 1) Buscar cualquier columna que empiece por "photo"
+    // 1) Buscar cualquier columna cuyo nombre empiece por "photo"
     const photoStrings = Object.entries(c as any)
       .filter(
         ([key, value]) =>
-          key &&
           typeof key === "string" &&
           key.toLowerCase().startsWith("photo") &&
           value != null
