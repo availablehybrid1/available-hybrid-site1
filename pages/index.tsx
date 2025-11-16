@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { GetStaticProps } from "next";
-import { getSheetInventory, type Car } from "../lib/getInventory";
+import { getInventory, type Car } from "../lib/getInventory";
 
 // Tipo muy simple para lo que mostramos en Home
 type Vehicle = {
@@ -84,7 +84,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   let cars: Car[] = [];
 
   try {
-    cars = await getSheetInventory();
+    cars = await getInventory();
   } catch (err) {
     console.error("Error leyendo Google Sheet:", err);
   }
@@ -105,9 +105,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
       id: safeId,
       title: titleBase || String(c.id ?? `Vehicle ${index + 1}`),
       price:
-        c.price !== undefined && c.price !== null
-          ? Number(c.price)
-          : null,
+        c.price !== undefined && c.price !== null ? Number(c.price) : null,
     };
   });
 
