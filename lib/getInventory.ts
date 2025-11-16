@@ -26,8 +26,14 @@ export async function getInventory(): Promise<Car[]> {
   const res = await fetch(url);
   const text = await res.text();
 
-  // Google devuelve texto extra antes del json
-  const json = JSON.parse(text.substring(47).slice(0, -2));
+  // Buscamos el primer bloque de JSON dentro del texto de respuesta
+  const match = text.match(/\{.*\}/s);
+  if (!match) {
+    console.error("No se encontró JSON en la respuesta de Google Sheets");
+    return [];
+  }
+
+  const json = JSON.parse(match[0]);
 
   const headers = json.table.cols.map((col: any) =>
     (col.label || "").toLowerCase()
