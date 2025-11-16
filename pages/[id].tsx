@@ -62,12 +62,13 @@ type DetailProps = {
 
 export default function VehicleDetail({ car }: DetailProps) {
   const [current, setCurrent] = React.useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = React.useState(false);
 
   const [vinInfo, setVinInfo] = React.useState<VinDecoded | null>(null);
   const [vinLoading, setVinLoading] = React.useState(false);
   const [vinError, setVinError] = React.useState<string | null>(null);
 
-  // ⌨️ Navegación con flechas izquierda/derecha
+  // ⌨️ Navegación con flechas izquierda/derecha y cerrar con ESC
   React.useEffect(() => {
     if (!car || !car.photos.length) return;
 
@@ -78,6 +79,8 @@ export default function VehicleDetail({ car }: DetailProps) {
         setCurrent((prev) =>
           prev === 0 ? car.photos.length - 1 : prev - 1
         );
+      } else if (e.key === "Escape") {
+        setIsLightboxOpen(false);
       }
     };
 
@@ -165,14 +168,23 @@ export default function VehicleDetail({ car }: DetailProps) {
           </Link>
 
           <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70">
-            {/* FOTO PRINCIPAL - COMPLETA (object-contain) */}
+            {/* FOTO PRINCIPAL - COMPLETA (object-contain) + CLICK PARA EXPANDIR */}
             <div className="relative w-full bg-neutral-800 h-[260px] sm:h-[420px] flex items-center justify-center">
               {mainPhoto ? (
-                <img
-                  src={mainPhoto}
-                  alt={car.title}
-                  className="max-h-full max-w-full object-contain"
-                />
+                <button
+                  type="button"
+                  onClick={() => setIsLightboxOpen(true)}
+                  className="group flex h-full w-full items-center justify-center"
+                >
+                  <img
+                    src={mainPhoto}
+                    alt={car.title}
+                    className="max-h-full max-w-full object-contain transition group-hover:opacity-90"
+                  />
+                  <span className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
+                    Click to enlarge
+                  </span>
+                </button>
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
                   Foto próximamente
@@ -349,6 +361,32 @@ export default function VehicleDetail({ car }: DetailProps) {
           </div>
         </section>
       </div>
+
+      {/* LIGHTBOX / MODAL DE IMAGEN GRANDE */}
+      {isLightboxOpen && mainPhoto && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4"
+          onClick={() => setIsLightboxOpen(false)}
+        >
+          <div
+            className="relative max-h-[90vh] max-w-[90vw]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setIsLightboxOpen(false)}
+              className="absolute -top-3 -right-3 rounded-full bg-black/80 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
+            >
+              ✕
+            </button>
+            <img
+              src={mainPhoto}
+              alt={car.title}
+              className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain"
+            />
+          </div>
+        </div>
+      )}
     </main>
   );
 }
