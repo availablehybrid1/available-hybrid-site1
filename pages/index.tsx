@@ -4,14 +4,32 @@ import type { GetStaticProps } from "next";
 import Link from "next/link";
 import { getInventory, type Car } from "../lib/getInventory";
 
-// 🖼 EXTRAER FOTOS DESDE LA COLUMNA `photos` (separadas por ;)
+// 🖼 EXTRAER FOTOS DESDE LA COLUMNA `photos` (separadas por ;) Y
+// CONVERTIR LINKS DE GOOGLE DRIVE A IMAGEN DIRECTA
 function parsePhotos(raw?: string | null): string[] {
   if (!raw || typeof raw !== "string") return [];
 
   return raw
-    .split(/[\s;]+/)            // ⬅️ SEPARA POR ESPACIOS O POR ;
+    .split(/[\s;]+/)            // separa por espacios o ;
     .map((u) => u.trim())
-    .filter((u) => u.startsWith("http"));
+    .filter((u) => u.startsWith("http"))
+    .map((u) => {
+      // quitar puntos, comas o paréntesis al final
+      const cleaned = u.replace(/[).,]+$/g, "");
+
+      // si es un link de Google Drive tipo /file/d/ID/...
+      const m = cleaned.match(
+        /^https?:\/\/drive\.google\.com\/file\/d\/([^/]+)\//
+      );
+      if (m) {
+        const id = m[1];
+        // link directo a la imagen
+        return `https://drive.google.com/uc?export=view&id=${id}`;
+      }
+
+      // si no es de drive, lo dejamos igual
+      return cleaned;
+    });
 }
 
 // Tipo de vehículo que usamos en la UI
