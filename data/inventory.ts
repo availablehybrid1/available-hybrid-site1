@@ -51,28 +51,7 @@ export const inventory: Vehicle[] = [
     tags: ["Hybrid", "Clean Title"],
     status: "just_arrived",
   },
-  {
-    id: "cruze-2012",
-    title: "Chevrolet Cruze 2012 Azul",
-    year: 2012,
-    make: "Chevrolet",
-    model: "Cruze",
-    mileage: 145000,
-    transmission: "Automática",
-    fuel: "Gasolina",
-    exterior: "Azul",
-    interior: "Negro",
-    price: 3500,
-    description:
-      "Sedán confiable y económico. A/C frío, transmisión suave y motor eficiente. Perfecto para diario. Título limpio.",
-    photos: [
-      "/ChatGPT Image Oct 9, 2025, 12_22_52 AM.png",
-      "/WhatsApp Image 2025-10-09 at 12.18.18 AM.jpeg",
-      "/WhatsApp Image 2025-10-09 at 12.18.19 AM.jpeg",
-    ],
-    tags: ["Budget"],
-    status: "pending_detail",
-  },
+ 
   {
     id: "prius-2015",
     title: "Toyota Prius 2015",
