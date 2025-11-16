@@ -2,6 +2,7 @@
 import * as React from "react";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { getInventory, type Car } from "../lib/getInventory";
 
 // misma función que en index.tsx para convertir links de Drive a imágenes
@@ -68,6 +69,8 @@ export default function VehicleDetail({ car }: DetailProps) {
   const [vinLoading, setVinLoading] = React.useState(false);
   const [vinError, setVinError] = React.useState<string | null>(null);
 
+  const router = useRouter();
+
   // ⌨️ Navegación con flechas izquierda/derecha y cerrar con ESC
   React.useEffect(() => {
     if (!car || !car.photos.length) return;
@@ -130,6 +133,42 @@ export default function VehicleDetail({ car }: DetailProps) {
 
   const mainPhoto = car.photos[current] ?? "";
 
+  // 💰 Manejar submit de "Make an Offer"
+  const handleMakeOfferSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    const name = (formData.get("name") || "").toString();
+    const phone = (formData.get("phone") || "").toString();
+    const email = (formData.get("email") || "").toString();
+    const offer = (formData.get("offer") || "").toString();
+    const message = (formData.get("message") || "").toString();
+
+    const subject = `Offer for ${car.year ?? ""} ${car.make} ${
+      car.model
+    } (ID: ${car.id})`;
+    const bodyLines = [
+      `Vehicle: ${car.year ?? ""} ${car.make} ${car.model}`,
+      `ID: ${car.id}`,
+      car.vin ? `VIN: ${car.vin}` : "",
+      "",
+      `Name: ${name}`,
+      `Phone: ${phone}`,
+      email ? `Email: ${email}` : "",
+      `Offer: ${offer ? `$${offer}` : "Not specified"}`,
+      "",
+      "Message:",
+      message || "(No message)",
+    ].filter(Boolean);
+
+    const mailto = `mailto:availablehybrid@gmail.com?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
+
+    window.location.href = mailto;
+  };
+
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
       {/* HEADER */}
@@ -179,7 +218,7 @@ export default function VehicleDetail({ car }: DetailProps) {
                   <img
                     src={mainPhoto}
                     alt={car.title}
-                    className="max-h-full max-w-full object-contain transition group-hover:opacity-90"
+                    className="max-h-full max-w-full object-contain transition group-hover:scale-[1.02]"
                   />
                   <span className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
                     Click to enlarge
@@ -337,6 +376,7 @@ export default function VehicleDetail({ car }: DetailProps) {
             </p>
           )}
 
+          {/* ACCIONES */}
           <div className="mt-5 flex flex-wrap gap-2 text-[11px]">
             <a
               href="https://wa.me/14352564487"
@@ -358,18 +398,93 @@ export default function VehicleDetail({ car }: DetailProps) {
             >
               Pre-Qualify
             </Link>
+            <Link
+              href={`/compare?base=${encodeURIComponent(car.id)}`}
+              className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-red-500 hover:text-red-400"
+            >
+              Compare with another vehicle
+            </Link>
           </div>
+
+          {/* FORMULARIO MAKE AN OFFER */}
+          <form
+            onSubmit={handleMakeOfferSubmit}
+            className="mt-6 space-y-3 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4"
+          >
+            <p className="text-[11px] font-semibold text-neutral-200">
+              Make an Offer
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <label className="block text-[11px] text-neutral-400">
+                  Name
+                </label>
+                <input
+                  name="name"
+                  required
+                  className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="block text-[11px] text-neutral-400">
+                  Phone
+                </label>
+                <input
+                  name="phone"
+                  required
+                  className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="block text-[11px] text-neutral-400">
+                  Email (optional)
+                </label>
+                <input
+                  name="email"
+                  type="email"
+                  className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="block text-[11px] text-neutral-400">
+                  Offer amount (USD)
+                </label>
+                <input
+                  name="offer"
+                  type="number"
+                  min={0}
+                  className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="block text-[11px] text-neutral-400">
+                Message
+              </label>
+              <textarea
+                name="message"
+                rows={3}
+                className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+              />
+            </div>
+            <button
+              type="submit"
+              className="mt-2 rounded bg-red-600 px-3 py-1 text-[11px] font-medium text-white hover:bg-red-500"
+            >
+              Send Offer
+            </button>
+          </form>
         </section>
       </div>
 
-      {/* LIGHTBOX / MODAL DE IMAGEN GRANDE */}
+      {/* LIGHTBOX / MODAL DE IMAGEN GRANDE CON ZOOM SUAVE */}
       {isLightboxOpen && mainPhoto && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4"
           onClick={() => setIsLightboxOpen(false)}
         >
           <div
-            className="relative max-h-[90vh] max-w-[90vw]"
+            className="relative max-h-[90vh] max-w-[90vw] group overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -382,7 +497,7 @@ export default function VehicleDetail({ car }: DetailProps) {
             <img
               src={mainPhoto}
               alt={car.title}
-              className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain"
+              className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain transition-transform duration-300 group-hover:scale-110"
             />
           </div>
         </div>
