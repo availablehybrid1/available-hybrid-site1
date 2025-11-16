@@ -2,7 +2,6 @@
 import * as React from "react";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { getInventory, type Car } from "../lib/getInventory";
 
 // misma función que en index.tsx para convertir links de Drive a imágenes
@@ -65,11 +64,16 @@ export default function VehicleDetail({ car }: DetailProps) {
   const [current, setCurrent] = React.useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false);
 
+  // estado para zoom dentro del modal
+  const [isZoomed, setIsZoomed] = React.useState(false);
+  const [zoomOrigin, setZoomOrigin] = React.useState<{ x: string; y: string }>({
+    x: "50%",
+    y: "50%",
+  });
+
   const [vinInfo, setVinInfo] = React.useState<VinDecoded | null>(null);
   const [vinLoading, setVinLoading] = React.useState(false);
   const [vinError, setVinError] = React.useState<string | null>(null);
-
-  const router = useRouter();
 
   // ⌨️ Navegación con flechas izquierda/derecha y cerrar con ESC
   React.useEffect(() => {
@@ -84,6 +88,7 @@ export default function VehicleDetail({ car }: DetailProps) {
         );
       } else if (e.key === "Escape") {
         setIsLightboxOpen(false);
+        setIsZoomed(false);
       }
     };
 
@@ -169,6 +174,30 @@ export default function VehicleDetail({ car }: DetailProps) {
     window.location.href = mailto;
   };
 
+  // 👆 Click en la imagen dentro del modal: zoom al punto exacto
+  const handleLightboxImageClick = (
+    e: React.MouseEvent<HTMLImageElement, MouseEvent>
+  ) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+
+    const xPercent = (offsetX / rect.width) * 100;
+    const yPercent = (offsetY / rect.height) * 100;
+
+    setZoomOrigin({
+      x: `${xPercent.toFixed(1)}%`,
+      y: `${yPercent.toFixed(1)}%`,
+    });
+
+    setIsZoomed((prev) => !prev);
+  };
+
+  const closeLightbox = () => {
+    setIsLightboxOpen(false);
+    setIsZoomed(false);
+  };
+
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
       {/* HEADER */}
@@ -207,7 +236,7 @@ export default function VehicleDetail({ car }: DetailProps) {
           </Link>
 
           <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70">
-            {/* FOTO PRINCIPAL - COMPLETA (object-contain) + CLICK PARA EXPANDIR */}
+            {/* FOTO PRINCIPAL - COMPLETA (object-contain) + CLICK PARA ABRIR MODAL */}
             <div className="relative w-full bg-neutral-800 h-[260px] sm:h-[420px] flex items-center justify-center">
               {mainPhoto ? (
                 <button
@@ -218,7 +247,7 @@ export default function VehicleDetail({ car }: DetailProps) {
                   <img
                     src={mainPhoto}
                     alt={car.title}
-                    className="max-h-full max-w-full object-contain transition group-hover:scale-[1.02]"
+                    className="max-h-full max-w-full object-contain"
                   />
                   <span className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
                     Click to enlarge
@@ -238,7 +267,10 @@ export default function VehicleDetail({ car }: DetailProps) {
                   <button
                     key={idx}
                     type="button"
-                    onClick={() => setCurrent(idx)}
+                    onClick={() => {
+                      setCurrent(idx);
+                      setIsZoomed(false);
+                    }}
                     className={`h-14 w-20 flex-none overflow-hidden rounded border ${
                       idx === current
                         ? "border-red-500"
@@ -477,19 +509,19 @@ export default function VehicleDetail({ car }: DetailProps) {
         </section>
       </div>
 
-      {/* LIGHTBOX / MODAL DE IMAGEN GRANDE CON ZOOM SUAVE */}
+      {/* LIGHTBOX / MODAL DE IMAGEN GRANDE CON ZOOM POR CLICK */}
       {isLightboxOpen && mainPhoto && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4"
-          onClick={() => setIsLightboxOpen(false)}
+          onClick={closeLightbox}
         >
           <div
-            className="relative max-h-[90vh] max-w-[90vw] group overflow-hidden"
+            className="relative max-h-[90vh] max-w-[90vw] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
-              onClick={() => setIsLightboxOpen(false)}
+              onClick={closeLightbox}
               className="absolute -top-3 -right-3 rounded-full bg-black/80 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
             >
               ✕
@@ -497,7 +529,13 @@ export default function VehicleDetail({ car }: DetailProps) {
             <img
               src={mainPhoto}
               alt={car.title}
-              className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain transition-transform duration-300 group-hover:scale-110"
+              onClick={handleLightboxImageClick}
+              className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain transition-transform duration-300"
+              style={{
+                transformOrigin: `${zoomOrigin.x} ${zoomOrigin.y}`,
+                transform: isZoomed ? "scale(2)" : "scale(1)",
+                cursor: isZoomed ? "zoom-out" : "zoom-in",
+              }}
             />
           </div>
         </div>
@@ -579,8 +617,7 @@ export const getStaticProps: GetStaticProps<DetailProps> = async (ctx) => {
         : null,
     price:
       raw.price !== undefined && raw.price !== null
-        ? Number(raw.price)
-        : null,
+        ? Number(raw.price) : null,
     transmission: raw.transmission ?? "",
     fuel: raw.fuel ?? "",
     exterior: raw.exterior ?? "",
