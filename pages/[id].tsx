@@ -4,7 +4,7 @@ import type { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
 import { getInventory, type Car } from "../lib/getInventory";
 
-// misma función de antes
+// misma función que en index.tsx
 function parsePhotos(raw?: string | null): string[] {
   if (!raw || typeof raw !== "string") return [];
 
@@ -44,12 +44,70 @@ type Vehicle = {
   photos: string[];
 };
 
+type VinDecoded = {
+  make?: string | null;
+  model?: string | null;
+  modelYear?: string | null;
+  trim?: string | null;
+  bodyClass?: string | null;
+  engineCylinders?: string | null;
+  engineDisplacementL?: string | null;
+  transmission?: string | null;
+  driveType?: string | null;
+};
+
 type DetailProps = {
   car: Vehicle | null;
 };
 
 export default function VehicleDetail({ car }: DetailProps) {
   const [current, setCurrent] = React.useState(0);
+
+  const [vinInfo, setVinInfo] = React.useState<VinDecoded | null>(null);
+  const [vinLoading, setVinLoading] = React.useState(false);
+  const [vinError, setVinError] = React.useState<string | null>(null);
+
+  // ⌨️ Navegación con flechas izquierda/derecha
+  React.useEffect(() => {
+    if (!car || !car.photos.length) return;
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        setCurrent((prev) => (prev + 1) % car.photos.length);
+      } else if (e.key === "ArrowLeft") {
+        setCurrent((prev) =>
+          prev === 0 ? car.photos.length - 1 : prev - 1
+        );
+      }
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [car]);
+
+  // 🧠 Decodificar VIN automáticamente
+  React.useEffect(() => {
+    if (!car?.vin) return;
+
+    setVinLoading(true);
+    setVinError(null);
+
+    fetch(`/api/decode-vin?vin=${encodeURIComponent(car.vin)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.error) {
+          setVinError(data.error);
+        } else {
+          setVinInfo(data);
+        }
+      })
+      .catch(() => {
+        setVinError("Could not decode VIN");
+      })
+      .finally(() => {
+        setVinLoading(false);
+      });
+  }, [car?.vin]);
 
   if (!car) {
     return (
@@ -198,6 +256,66 @@ export default function VehicleDetail({ car }: DetailProps) {
               </dd>
             </div>
           </dl>
+
+          {/* BLOQUE: Info extra desde el VIN */}
+          <div className="mt-4 rounded border border-neutral-800 bg-neutral-900/80 p-3 text-[11px]">
+            <p className="mb-2 text-[11px] font-semibold text-neutral-200">
+              Info decodificada del VIN
+            </p>
+
+            {vinLoading && (
+              <p className="text-neutral-400">Decoding VIN…</p>
+            )}
+
+            {vinError && (
+              <p className="text-red-400 text-[11px]">{vinError}</p>
+            )}
+
+            {!vinLoading && !vinError && vinInfo && (
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-neutral-300">
+                {vinInfo.trim && (
+                  <div>
+                    <dt className="text-neutral-500">Trim</dt>
+                    <dd>{vinInfo.trim}</dd>
+                  </div>
+                )}
+                {vinInfo.bodyClass && (
+                  <div>
+                    <dt className="text-neutral-500">Body</dt>
+                    <dd>{vinInfo.bodyClass}</dd>
+                  </div>
+                )}
+                {vinInfo.engineCylinders && (
+                  <div>
+                    <dt className="text-neutral-500">Engine</dt>
+                    <dd>
+                      {vinInfo.engineCylinders} cyl
+                      {vinInfo.engineDisplacementL &&
+                        ` · ${vinInfo.engineDisplacementL}L`}
+                    </dd>
+                  </div>
+                )}
+                {vinInfo.transmission && (
+                  <div>
+                    <dt className="text-neutral-500">Transmission</dt>
+                    <dd>{vinInfo.transmission}</dd>
+                  </div>
+                )}
+                {vinInfo.driveType && (
+                  <div>
+                    <dt className="text-neutral-500">Drive</dt>
+                    <dd>{vinInfo.driveType}</dd>
+                  </div>
+                )}
+              </dl>
+            )}
+
+            {!vinLoading && !vinError && !vinInfo && (
+              <p className="text-neutral-500">
+                No extra VIN data available.
+              </p>
+            )}
+          </div>
 
           {car.description && (
             <p className="mt-4 text-[11px] leading-relaxed text-neutral-300">
