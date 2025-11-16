@@ -2,11 +2,20 @@ import * as React from "react";
 import type { GetStaticProps } from "next";
 import { getInventory, type Car } from "../lib/getInventory";
 
-// Tipo muy simple para lo que mostramos en Home
+// Tipo de vehículo que usamos en la UI
 type Vehicle = {
   id: string;
   title: string;
   price: number | null;
+  year: number | null;
+  mileage: number | null;
+  fuel: string;
+  transmission: string;
+  exterior: string;
+  vin: string;
+  description: string;
+  status: string;
+  photos: string[];
 };
 
 type HomeProps = {
@@ -23,7 +32,7 @@ export default function Home({ inventory }: HomeProps) {
           <p className="text-[10px] tracking-[0.25em] text-red-500">
             AVAILABLE HYBRID
           </p>
-          <h1 className="text-xl font-semibold">R&M Inc.</h1>
+          <h1 className="text-xl font-semibold">R&amp;M Inc.</h1>
           <p className="text-sm text-neutral-400">
             Hybrid &amp; fuel-efficient vehicles in Reseda, CA.
           </p>
@@ -59,19 +68,89 @@ export default function Home({ inventory }: HomeProps) {
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {inventory.map((car) => (
-              <article
-                key={car.id}
-                className="rounded-lg border border-neutral-800 bg-neutral-900/60 p-4"
-              >
-                <h3 className="text-sm font-semibold">{car.title}</h3>
-                <p className="mt-1 text-xs text-neutral-400">
-                  {car.price != null
-                    ? `$${car.price.toLocaleString()}`
-                    : "Consultar precio"}
-                </p>
-              </article>
-            ))}
+            {inventory.map((car) => {
+              const mainPhoto = car.photos[0] ?? "";
+
+              return (
+                <article
+                  key={car.id}
+                  className="flex flex-col rounded-lg border border-neutral-800 bg-neutral-900/60 p-4"
+                >
+                  {/* FOTO PRINCIPAL */}
+                  {mainPhoto && (
+                    <div className="mb-3 aspect-video w-full overflow-hidden rounded-md bg-neutral-800">
+                      <img
+                        src={mainPhoto}
+                        alt={car.title}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  )}
+
+                  {/* TÍTULO Y PRECIO */}
+                  <h3 className="text-sm font-semibold">{car.title}</h3>
+                  <p className="mt-1 text-xs text-neutral-300">
+                    {car.price != null
+                      ? `$${car.price.toLocaleString()}`
+                      : "Consultar precio"}
+                  </p>
+
+                  {/* INFO RÁPIDA */}
+                  <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-neutral-400">
+                    {car.mileage != null && (
+                      <span>{car.mileage.toLocaleString()} mi</span>
+                    )}
+                    {car.fuel && <span>• {car.fuel}</span>}
+                    {car.transmission && <span>• {car.transmission}</span>}
+                    {car.exterior && <span>• {car.exterior}</span>}
+                  </div>
+
+                  {/* STATUS */}
+                  {car.status && (
+                    <span className="mt-2 inline-flex w-fit items-center rounded-full border border-emerald-700/60 bg-emerald-900/40 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
+                      {car.status}
+                    </span>
+                  )}
+
+                  {/* DESCRIPCIÓN CORTA */}
+                  {car.description && (
+                    <p className="mt-2 line-clamp-2 text-[11px] text-neutral-400">
+                      {car.description}
+                    </p>
+                  )}
+
+                  {/* VIN + ACCIONES */}
+                  <div className="mt-3 flex flex-col gap-2 text-[11px] text-neutral-400">
+                    {car.vin && (
+                      <span className="text-neutral-500">VIN: {car.vin}</span>
+                    )}
+
+                    <div className="flex flex-wrap gap-2">
+                      <a
+                        href={`/financing?id=${encodeURIComponent(car.id)}`}
+                        className="rounded border border-neutral-700 px-2 py-1 hover:bg-neutral-800"
+                      >
+                        Financing
+                      </a>
+                      <a
+                        href={`/pre-qualification?id=${encodeURIComponent(
+                          car.id
+                        )}`}
+                        className="rounded border border-neutral-700 px-2 py-1 hover:bg-neutral-800"
+                      >
+                        Pre-Qualify
+                      </a>
+                      <a
+                        href={`/${encodeURIComponent(car.id)}`}
+                        className="rounded bg-red-600 px-2 py-1 font-medium text-white hover:bg-red-500"
+                      >
+                        Details
+                      </a>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </section>
@@ -101,11 +180,31 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
 
     const titleBase = `${c.year ?? ""} ${c.make ?? ""} ${c.model ?? ""}`.trim();
 
+    const photos =
+      c.photos
+        ?.toString()
+        .split(/\s+/)
+        .map((p) => p.trim())
+        .filter(Boolean) ?? [];
+
     return {
       id: safeId,
       title: titleBase || String(c.id ?? `Vehicle ${index + 1}`),
       price:
         c.price !== undefined && c.price !== null ? Number(c.price) : null,
+      year:
+        c.year !== undefined && c.year !== null ? Number(c.year) : null,
+      mileage:
+        c.mileage !== undefined && c.mileage !== null
+          ? Number(c.mileage)
+          : null,
+      fuel: c.fuel ?? "",
+      transmission: c.transmission ?? "",
+      exterior: c.exterior ?? "",
+      vin: c.vin ?? "",
+      description: c.description ?? "",
+      status: c.status ?? "",
+      photos,
     };
   });
 
