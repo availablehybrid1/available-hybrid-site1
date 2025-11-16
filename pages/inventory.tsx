@@ -1,6 +1,7 @@
 // pages/index.tsx — Home con botón “Pre-Califícate” (único) en el header
 import * as React from "react";
-import * as invMod from "../data/inventory";
+import type { GetStaticProps } from "next";
+import { getInventory as getSheetInventory, Car } from "../lib/getInventory";
 
 type Vehicle = {
   id: string;
@@ -95,9 +96,11 @@ function VehicleCard({ v }: { v: Vehicle }) {
   );
 }
 
-export default function Home() {
-  const invAny: any = invMod as any;
-  const inventory: Vehicle[] = (invAny.inventory ?? invAny.default ?? []) as Vehicle[];
+type HomeProps = {
+  inventory: Vehicle[];
+};
+
+export default function Home({ inventory }: HomeProps) {
   const meta = React.useMemo(() => getMeta(inventory), [inventory]);
 
   const [query, setQuery] = React.useState("");
@@ -219,7 +222,7 @@ export default function Home() {
 
             {/* Call */}
             <a
-              href="tel:+18184223567"
+              href="tel:+17473544098"
               className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-red-500"
             >
               Call (747) 354-4098
@@ -245,3 +248,31 @@ export default function Home() {
     </main>
   );
 }
+
+export const getStaticProps: GetStaticProps<HomeProps> = async () => {
+  const cars: Car[] = await getSheetInventory();
+
+  const inventory: Vehicle[] = cars.map((c) => ({
+    id: c.id,
+    title: `${c.year ?? ""} ${c.make ?? ""} ${c.model ?? ""}`.trim() || c.id,
+    year: c.year ? Number(c.year) : undefined,
+    make: c.make || undefined,
+    model: c.model || undefined,
+    mileage: c.mileage ? Number(c.mileage) : undefined,
+    transmission: c.transmission || undefined,
+    fuel: c.fuel || undefined,
+    vin: c.vin || undefined,
+    exterior: c.exterior || undefined,
+    price: c.price ? Number(c.price) : undefined,
+    description: c.description || undefined,
+    photos: c.photos ? c.photos.split(/\s+/) : undefined, // links separados por espacio
+    status: undefined, // o mapea desde c.status si quieres usar just_arrived/pending_detail
+  }));
+
+  return {
+    props: {
+      inventory,
+    },
+    revalidate: 60, // se refresca cada 60 segundos
+  };
+};
