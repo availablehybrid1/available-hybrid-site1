@@ -10,24 +10,27 @@ function parsePhotos(raw?: string | null): string[] {
   if (!raw || typeof raw !== "string") return [];
 
   return raw
-    .split(/[\s;]+/)            // separa por espacios o ;
+    .split(/[\s;]+/) // separa por ; y espacios
     .map((u) => u.trim())
-    .filter((u) => u.startsWith("http"))
+    .filter((u) => u.length > 0 && u.startsWith("http"))
     .map((u) => {
-      // quitar puntos, comas o paréntesis al final
-      const cleaned = u.replace(/[).,]+$/g, "");
+      // quitar punticos / comas / paréntesis al final
+      let cleaned = u.replace(/[).,]+$/g, "");
 
-      // si es un link de Google Drive tipo /file/d/ID/...
-      const m = cleaned.match(
-        /^https?:\/\/drive\.google\.com\/file\/d\/([^/]+)\//
-      );
-      if (m) {
-        const id = m[1];
-        // link directo a la imagen
-        return `https://drive.google.com/uc?export=view&id=${id}`;
+      if (cleaned.includes("drive.google.com")) {
+        // 1) formato: https://drive.google.com/file/d/ID/view...
+        const byD = cleaned.match(/\/d\/([^/?]+)/);
+        // 2) formato: https://drive.google.com/open?id=ID&...
+        const byId = cleaned.match(/[?&]id=([^&]+)/);
+
+        const id = (byD && byD[1]) || (byId && byId[1]);
+        if (id) {
+          // link directo a la imagen
+          return `https://drive.google.com/uc?export=view&id=${id}`;
+        }
       }
 
-      // si no es de drive, lo dejamos igual
+      // si no es de drive o no pudimos sacar ID, lo dejamos igual
       return cleaned;
     });
 }
@@ -211,11 +214,16 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   );
 
   const inventory: Vehicle[] = cleaned.map((c, index) => {
-    // 1) Fotos: SOLO de la columna `photos` (y similares), ya no de `description`
+    // 1) Fotos: intentamos varios nombres de columna
     const rawPhotos =
       (c as any).photos ||
+      (c as any).Photos ||
+      (c as any).photo ||
+      (c as any).Photo ||
       (c as any).images ||
+      (c as any).Images ||
       (c as any).photoLinks ||
+      (c as any).PhotoLinks ||
       "";
     const photos = parsePhotos(rawPhotos);
 
@@ -227,7 +235,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
         : String(rawDescription ?? "");
 
     description = description
-      .replace(/https?:\/\/\S+/g, "")  // quita cualquier URL
+      .replace(/https?:\/\/\S+/g, "") // quita cualquier URL
       .replace(/usp=drive_link/gi, "")
       .replace(/\s{2,}/g, " ")
       .trim();
