@@ -222,7 +222,7 @@ export default function Home() {
               href="tel:+18184223567"
               className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-red-500"
             >
-              Call (818) 422-3567
+              Call (747) 354-4098
             </a>
           </div>
         </header>
