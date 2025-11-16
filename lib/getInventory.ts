@@ -44,7 +44,7 @@ export async function getInventory(): Promise<Car[]> {
   }
 
   // Intentar encontrar el primer bloque de JSON dentro del texto
-  const match = text.match(/\{.*\}/s);
+ const match = text.match(/{[\s\S]*}/);
   if (!match) {
     console.error(
       "No se encontró un bloque JSON válido en la respuesta de Google Sheets."
