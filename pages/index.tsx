@@ -4,10 +4,9 @@ import type { GetStaticProps } from "next";
 import Link from "next/link";
 import { getInventory, type Car } from "../lib/getInventory";
 
-// Helper para extraer SOLO URLs (aunque estén pegadas)
+// 🖼 EXTRAER SOLO URLs (aunque estén pegadas)
 function parsePhotos(raw?: string | null): string[] {
   if (!raw || typeof raw !== "string") return [];
-  // Busca cualquier http/https seguido de caracteres no espacio
   const urls = raw.match(/https?:\/\/\S+/g) || [];
   return urls.map((u) => u.trim());
 }
@@ -176,7 +175,7 @@ export default function Home({ inventory }: HomeProps) {
   );
 }
 
-// ✅ getStaticProps: lee la hoja y asegura que no haya `undefined`
+// ✅ getStaticProps: lee la hoja, saca fotos y limpia descripción
 export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   let cars: Car[] = [];
 
@@ -191,16 +190,26 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   );
 
   const inventory: Vehicle[] = cleaned.map((c, index) => {
+    // 1) De aquí sacamos las fotos (donde sea que estén)
     const rawPhotos =
-      (c as any).photos || (c as any).images || (c as any).photoLinks || "";
+      (c as any).photos ||
+      (c as any).images ||
+      (c as any).photoLinks ||
+      (c as any).description ||
+      "";
     const photos = parsePhotos(rawPhotos);
 
-    // Limpiamos la descripción para quitar cualquier URL
+    // 2) Descripción SIN links
     const rawDescription = (c as any).description ?? "";
-    const description =
-      typeof rawDescription === "string"
-        ? rawDescription.replace(/https?:\/\/\S+/g, "").trim()
-        : "";
+    let description =
+      typeof rawDescription === "string" ? rawDescription : String(rawDescription ?? "");
+
+    // quitamos cualquier url, restos de usp=drive_link y espacios dobles
+    description = description
+      .replace(/https?:\/\/\S+/g, "")
+      .replace(/usp=drive_link/gi, "")
+      .replace(/\s{2,}/g, " ")
+      .trim();
 
     const safeId =
       (c.id && String(c.id).trim()) ||
