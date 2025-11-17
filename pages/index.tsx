@@ -1,281 +1,197 @@
-// pages/index.tsx
 import * as React from "react";
-import type { GetStaticProps } from "next";
+import Head from "next/head";
+import Image from "next/image";
 import Link from "next/link";
-import { getInventory, type Car } from "../lib/getInventory";
+import { motion } from "framer-motion";
 
-// Lee la(s) columna(s) de fotos y convierte links de Drive a imágenes
-function parsePhotos(raw?: string | null): string[] {
-  if (!raw || typeof raw !== "string") return [];
+export default function Home() {
+  const whatsapp =
+    "https://wa.me/17473544098?text=Hola!%20Estoy%20interesado%20en%20un%20veh%C3%ADculo,%20podr%C3%ADamos%20hablar%20m%C3%A1s.%20/%20Hello!%20I'd%20like%20more%20info%20on%20one%20of%20your%20vehicles.";
+  const phone = "+1 747-354-4098";
 
-  return raw
-    .split(/[\s;]+/) // separa por ; y espacios
-    .map((u) => u.trim())
-    .filter((u) => u.length > 0 && u.startsWith("http"))
-    .map((u) => {
-      // si ya es link directo de lh3, se deja igual
-      if (u.includes("lh3.googleusercontent.com")) return u;
-
-      // si es link de Google Drive, lo convertimos
-      if (u.includes("drive.google.com")) {
-        // formato: https://drive.google.com/file/d/ID/view?...
-        const byD = u.match(/\/d\/([^/]+)/);
-        const id = byD?.[1];
-        if (id) {
-          // link directo que sirve en <img>
-          return `https://lh3.googleusercontent.com/d/${id}=w1600`;
-        }
-      }
-
-      // cualquier otro link se deja igual
-      return u;
-    });
-}
-
-// Tipo de vehículo que usamos en la UI
-type Vehicle = {
-  id: string;
-  title: string;
-  year: number | null;
-  make: string;
-  model: string;
-  mileage: number | null;
-  price: number | null;
-  transmission: string;
-  fuel: string;
-  exterior: string;
-  vin: string;
-  status: string;
-  description: string;
-  photos: string[];
-};
-
-type HomeProps = {
-  inventory: Vehicle[];
-};
-
-// ✅ Componente principal de la página Home
-export default function Home({ inventory }: HomeProps) {
   return (
-    <main className="min-h-screen bg-neutral-950 text-neutral-100">
-      {/* HEADER */}
-      <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-        <div>
-          <Link href="/" className="group inline-block">
-            <p className="text-[10px] tracking-[0.25em] text-red-500 group-hover:text-red-400">
-              AVAILABLE HYBRID
-            </p>
-            <h1 className="text-xl font-semibold group-hover:underline">
-              R&amp;M Inc.
-            </h1>
-          </Link>
-          <p className="text-sm text-neutral-400">
-            Hybrid &amp; fuel-efficient vehicles in Reseda, CA.
-          </p>
-        </div>
+    <>
+      <Head>
+        <title>AVAILABLE HYBRID R&M INC. – Hybrid & Fuel Efficient Vehicles</title>
+        <meta
+          name="description"
+          content="Specialized in hybrid and fuel-efficient vehicles in Reseda, CA. DMV licensed dealer with BHPH and pre-qualification options. Bilingual service and ROS/TLP online plates."
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
 
-        <div className="flex flex-col items-end gap-1 text-right text-xs">
-          <a
-            href="tel:+17473544098"
-            className="rounded bg-red-600 px-3 py-1 font-semibold text-white hover:bg-red-500"
-          >
-            Call (747) 354-4098
-          </a>
-          <span className="text-[11px] text-neutral-400">
-            6726 Reseda Blvd Suite A7 · Reseda, CA 91335
-          </span>
+      {/* HEADER */}
+      <header className="fixed inset-x-0 top-0 z-40 backdrop-blur bg-black/30 border-b border-white/10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="h-9 w-9 rounded-xl bg-white/10 ring-1 ring-white/20 grid place-items-center group-hover:bg-white/15 transition">
+              <span className="text-white text-[10px] tracking-widest font-semibold">AH</span>
+            </div>
+            <div className="leading-tight">
+              <p className="text-white font-semibold text-sm sm:text-base">AVAILABLE HYBRID</p>
+              <p className="text-white/70 text-[11px] sm:text-xs">R&M INC.</p>
+            </div>
+          </Link>
+
+          <nav className="hidden md:flex items-center gap-6 text-sm">
+            <Link href="/inventory" className="text-white/80 hover:text-white">Inventory</Link>
+            <Link href="/pre-qualification" className="text-white/80 hover:text-white">Pre-Qualify</Link>
+            <a href={`tel:${phone.replace(/[^+\d]/g, "")}`} className="text-white/80 hover:text-white">{phone}</a>
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <Link
+              href="/pre-qualification"
+              className="hidden sm:inline-flex items-center justify-center rounded-2xl bg-white text-gray-900 px-4 py-2 font-semibold shadow-sm hover:shadow transition"
+            >
+              Pre-Califícate
+            </Link>
+            <a
+              href={whatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-2xl border border-white/30 text-white px-3 py-2 text-sm hover:bg-white/10 transition"
+            >
+              WhatsApp
+            </a>
+          </div>
         </div>
       </header>
 
-      {/* CONTENIDO PRINCIPAL */}
-      <section className="mx-auto max-w-5xl px-4 pb-12">
-        <h2 className="mb-4 text-lg font-semibold">Available Inventory</h2>
-
-        {inventory.length === 0 ? (
-          <div className="rounded-lg border border-neutral-800 bg-neutral-900/60 p-6 text-sm text-neutral-300">
-            <p>
-              El inventario en línea está en preparación. Muy pronto podrás ver
-              aquí todos los vehículos disponibles.
-            </p>
-            <p className="mt-2">
-              Mientras tanto, llámanos o envíanos un mensaje para consultar el
-              inventario actual.
-            </p>
+      {/* HERO */}
+      <main className="relative">
+        <section className="relative min-h-[88vh] flex items-stretch">
+          {/* Background image with dark gradient */}
+          <div className="absolute inset-0 -z-10">
+            <Image
+              src="/lux-hero.jpg"
+              alt="Hybrid vehicles in Los Angeles"
+              fill
+              priority
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" />
+            <div className="absolute inset-0 bg-[radial-gradient(60%_50%_at_70%_10%,rgba(255,255,255,0.12),transparent)]" />
           </div>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
-            {inventory.map((car) => {
-              const mainPhoto = car.photos[0] ?? "";
 
-              return (
-                <article
-                  key={car.id}
-                  className="flex flex-col overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70"
+          <div className="relative w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid lg:grid-cols-12 gap-10 items-center pt-28 pb-20">
+            <div className="lg:col-span-7">
+              <motion.h1
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="text-white text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight"
+              >
+                Hybrid & Fuel-Efficient Vehicles
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.05 }}
+                className="mt-4 text-white/80 text-base sm:text-lg max-w-2xl"
+              >
+                Experience the best selection of hybrid vehicles in Los Angeles. DMV licensed dealer, bilingual service, BHPH and pre-qualification options in minutes.
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.12 }}
+                className="mt-8 flex flex-col sm:flex-row gap-3"
+              >
+                <Link
+                  href="/inventory"
+                  className="inline-flex items-center justify-center rounded-2xl bg-white text-gray-900 px-5 py-3 font-semibold shadow hover:shadow-lg transition"
                 >
-                  {/* IMAGEN */}
-                  <div className="relative h-40 w-full bg-neutral-800">
-                    {mainPhoto ? (
-                      <img
-                        src={mainPhoto}
-                        alt={car.title}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
-                        Foto próximamente
-                      </div>
-                    )}
+                  Ver Inventario
+                </Link>
+                <Link
+                  href="/pre-qualification"
+                  className="inline-flex items-center justify-center rounded-2xl border border-white/30 text-white px-5 py-3 font-semibold hover:bg-white/10 transition"
+                >
+                  Pre-Calificación
+                </Link>
+                <a
+                  href={whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center rounded-2xl border border-white/30 text-white px-5 py-3 font-semibold hover:bg-white/10 transition"
+                >
+                  WhatsApp
+                </a>
+              </motion.div>
+
+              {/* Trust bar */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+                className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3"
+              >
+                {[
+                  { title: "Hybrid Specialists", desc: "Toyota Prius · Lexus CT200h · Más" },
+                  { title: "DMV Dealer", desc: "Placas temporales, ROS virtual" },
+                  { title: "Opciones BHPH", desc: "Plan de pagos in-house" },
+                ].map((item) => (
+                  <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur px-4 py-3">
+                    <p className="text-white font-medium text-sm">{item.title}</p>
+                    <p className="text-white/70 text-xs">{item.desc}</p>
                   </div>
+                ))}
+              </motion.div>
+            </div>
 
-                  {/* CONTENIDO CARD */}
-                  <div className="flex flex-1 flex-col p-4 text-xs">
-                    <div className="flex items-baseline justify-between">
-                      <h3 className="text-sm font-semibold">{car.title}</h3>
-                      {car.price != null && (
-                        <p className="text-sm font-semibold text-green-400">
-                          ${car.price.toLocaleString()}
-                        </p>
-                      )}
-                    </div>
-
-                    <p className="mt-1 text-[11px] text-neutral-400">
-                      {car.mileage != null
-                        ? `${car.mileage.toLocaleString()} mi`
-                        : "Mileage n/a"}{" "}
-                      · {car.fuel || "Fuel n/a"} ·{" "}
-                      {car.transmission || "Transmission n/a"} ·{" "}
-                      {car.exterior || "Color n/a"}
-                    </p>
-
-                    {car.status && (
-                      <span className="mt-2 inline-flex w-fit items-center rounded-full bg-emerald-600/15 px-2 py-[2px] text-[10px] font-medium text-emerald-400">
-                        {car.status}
-                      </span>
-                    )}
-
-                    {car.description && (
-                      <p className="mt-2 line-clamp-2 text-[11px] text-neutral-300">
-                        {car.description}
-                      </p>
-                    )}
-
-                    {car.vin && (
-                      <p className="mt-2 text-[10px] uppercase tracking-wide text-neutral-500">
-                        VIN: {car.vin}
-                      </p>
-                    )}
-
-                    {/* BOTONES */}
-                    <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
-                      <Link
-                        href={`/pre-qualification?id=${encodeURIComponent(
-                          car.id
-                        )}`}
-                        className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-emerald-500 hover:text-emerald-400"
-                      >
-                        Pre-Qualify
-                      </Link>
-
-                      <Link
-                        href={`/${encodeURIComponent(car.id)}`}
-                        className="rounded bg-red-600 px-3 py-1 font-medium text-white hover:bg-red-500"
-                      >
-                        Details
-                      </Link>
-                    </div>
-
-                    <p className="mt-2 text-[10px] text-neutral-500">
-                      In-house BHPH financing and bank/credit union financing
-                      options available. Full details inside “Details”.
-                    </p>
+            {/* Featured vehicle */}
+            <div className="lg:col-span-5">
+              <div className="rounded-3xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur p-4 sm:p-5 shadow-2xl">
+                <div className="relative h-64 sm:h-72 w-full rounded-2xl overflow-hidden">
+                  <Image src="/placeholder-car.jpg" alt="Featured vehicle" fill className="object-cover" />
+                </div>
+                <div className="mt-4 flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-white font-semibold text-lg">Destacado: Toyota Prius</h3>
+                    <p className="text-white/70 text-sm">Clean title • 50+ MPG • Listo hoy</p>
                   </div>
-                </article>
-              );
-            })}
+                  <Link
+                    href="/inventory"
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-xl bg-white text-gray-900 px-4 py-2 text-sm font-semibold shadow hover:shadow-md transition"
+                  >
+                    Ver más
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
-        )}
-      </section>
-    </main>
+        </section>
+
+        {/* FOOTER */}
+        <footer className="border-t border-white/10 bg-black">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-8 text-sm">
+            <div>
+              <p className="text-white font-semibold">AVAILABLE HYBRID R&M INC.</p>
+              <p className="text-white/70">6726 Reseda Blvd Unit A7, Reseda, CA 91335</p>
+            </div>
+            <div>
+              <p className="text-white/80">Hours</p>
+              <p className="text-white/60">Mon–Sat • 10:00–6:00</p>
+            </div>
+            <div className="sm:text-right">
+              <a href={`tel:${phone.replace(/[^+\d]/g, "")}`} className="text-white block hover:underline">
+                {phone}
+              </a>
+              <a
+                href={whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/80 hover:text-white"
+              >
+                WhatsApp
+              </a>
+            </div>
+          </div>
+        </footer>
+      </main>
+    </>
   );
 }
-
-// ✅ getStaticProps: lee la hoja, saca fotos y limpia descripción
-export const getStaticProps: GetStaticProps<HomeProps> = async () => {
-  let cars: Car[] = [];
-
-  try {
-    cars = await getInventory();
-  } catch (err) {
-    console.error("Error leyendo Google Sheet:", err);
-  }
-
-  const cleaned = (cars || []).filter(
-    (c) => c && (c.id || c.make || c.model || c.year)
-  );
-
-  const inventory: Vehicle[] = cleaned.map((c, index) => {
-    // 1) Tomamos las columnas que empiezan por "photo"
-    const photoStrings = Object.entries(c as any)
-      .filter(
-        ([key, value]) =>
-          typeof key === "string" &&
-          key.toLowerCase().startsWith("photo") &&
-          value != null
-      )
-      .map(([, value]) => String(value));
-    const rawPhotos = photoStrings.join(" ");
-    const photos = parsePhotos(rawPhotos);
-
-    // 2) Descripción SIN links
-    const rawDescription = (c as any).description ?? "";
-    let description =
-      typeof rawDescription === "string"
-        ? rawDescription
-        : String(rawDescription ?? "");
-
-    description = description
-      .replace(/https?:\/\/\S+/g, "") // quita cualquier URL
-      .replace(/usp=drive_link/gi, "")
-      .replace(/\s{2,}/g, " ")
-      .trim();
-
-    const safeId =
-      (c.id && String(c.id).trim()) ||
-      `${c.year ?? ""}-${c.make ?? ""}-${c.model ?? ""}` ||
-      `vehicle-${index}`;
-
-    const titleBase = `${c.year ?? ""} ${c.make ?? ""} ${c.model ?? ""}`.trim();
-
-    return {
-      id: safeId,
-      title: titleBase || String(c.id ?? `Vehicle ${index + 1}`),
-      year:
-        c.year !== undefined && c.year !== null ? Number(c.year) : null,
-      make: c.make ?? "",
-      model: c.model ?? "",
-      mileage:
-        c.mileage !== undefined && c.mileage !== null
-          ? Number(c.mileage)
-          : null,
-      price:
-        c.price !== undefined && c.price !== null
-          ? Number(c.price)
-          : null,
-      transmission: c.transmission ?? "",
-      fuel: c.fuel ?? "",
-      exterior: c.exterior ?? "",
-      vin: c.vin ?? "",
-      status: (c as any).status ?? "",
-      description,
-      photos,
-    };
-  });
-
-  return {
-    props: {
-      inventory,
-    },
-    revalidate: 60,
-  };
-};
