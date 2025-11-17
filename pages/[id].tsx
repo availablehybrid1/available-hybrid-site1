@@ -175,7 +175,7 @@ export default function VehicleDetail({ car }: DetailProps) {
       return 0;
 
     const r = apr / 100 / 12; // interés mensual
-    const n = termMonths;
+       const n = termMonths;
     const payment = (amountFinanced * r) / (1 - Math.pow(1 + r, -n));
     return payment;
   }, [amountFinanced, termMonths, apr, vehiclePrice]);
@@ -344,8 +344,8 @@ export default function VehicleDetail({ car }: DetailProps) {
             </Link>
 
             <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70">
-              {/* Foto principal */}
-              <div className="relative flex h-[260px] w-full items-center justify-center bg-neutral-800 sm:h-[360px]">
+              {/* Foto principal (ajustada) */}
+              <div className="relative flex h-[220px] w-full items-center justify-center bg-neutral-800 sm:h-[280px] lg:h-[320px]">
                 {mainPhoto ? (
                   <button
                     type="button"
@@ -355,7 +355,7 @@ export default function VehicleDetail({ car }: DetailProps) {
                     <img
                       src={mainPhoto}
                       alt={car.title}
-                      className="max-h-full max-w-full object-contain"
+                      className="max-h-full max-w-full max-w-[520px] object-contain"
                     />
                     <span className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
                       Click to enlarge
@@ -469,7 +469,9 @@ export default function VehicleDetail({ car }: DetailProps) {
                   key={tab.id}
                   type="button"
                   onClick={() =>
-                    setActivePanel(tab.id as "availability" | "estimate" | "offer")
+                    setActivePanel(
+                      tab.id as "availability" | "estimate" | "offer"
+                    )
                   }
                   className={`rounded-sm px-2 py-1.5 text-center font-semibold ${
                     activePanel === tab.id
@@ -795,7 +797,7 @@ export default function VehicleDetail({ car }: DetailProps) {
           </section>
         </div>
 
-        {/* SECCIONES INFERIORES: similar a “Basic information / Description / Location” */}
+        {/* SECCIONES INFERIORES */}
         <section className="space-y-4">
           {/* Basic information + VIN extra */}
           <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
