@@ -44,6 +44,8 @@ export default function Inventory({ inventory }: InventoryProps) {
   );
   const [search, setSearch] = React.useState("");
 
+  const phone = "+1 747-354-4098";
+
   // lista de marcas únicas
   const makes = React.useMemo(() => {
     const set = new Set<string>();
@@ -95,40 +97,44 @@ export default function Inventory({ inventory }: InventoryProps) {
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100 pb-12">
-      {/* HEADER tipo portada: franja completa con logo + botón CALL */}
-      <header className="w-full border-b border-neutral-800 bg-neutral-950/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+      {/* HEADER TIPO PORTADA: FRANJA CON LOGO GRANDE + DIRECCIÓN + CALL */}
+      <header className="border-b border-white/5 bg-black/40">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
+          {/* LOGO (220x70 aprox, como en la portada) */}
           <Link href="/" className="flex items-center">
             <img
               src="/logo. available hybrid premium.png"
-              alt="Available Hybrid R&M Inc."
+              alt="Available Hybrid R&M Inc. logo"
               className="h-[70px] w-[220px] object-contain"
-              draggable={false}
             />
           </Link>
 
-          <a
-            href="tel:+17473544098"
-            className="hidden rounded-full border border-neutral-600 px-4 py-1.5 text-[11px] font-medium text-neutral-100 hover:border-emerald-400 hover:text-emerald-300 sm:inline-flex"
-          >
-            CALL +1 747-354-4098
-          </a>
+          <div className="flex flex-col items-end text-right text-[11px] text-neutral-400">
+            <span>6726 Reseda Blvd Suite A7 · Reseda, CA 91335</span>
+            <a
+              href={`tel:${phone.replace(/[^+\d]/g, "")}`}
+              className="mt-2 inline-flex items-center justify-center rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white hover:bg-white/10 hover:border-white/40"
+            >
+              Call {phone}
+            </a>
+          </div>
         </div>
       </header>
 
       <div className="mx-auto max-w-6xl px-4 pt-6">
-        {/* Resumen + filtros superiores */}
-        <div className="mb-5 flex flex-col gap-3 text-sm text-neutral-400 md:flex-row md:items-center md:justify-between">
+        {/* Resumen superior */}
+        <div className="mb-4 flex flex-col gap-3 text-sm text-neutral-400 md:flex-row md:items-center md:justify-between">
           <span>
             {visible.length} vehicle{visible.length === 1 ? "" : "s"} available
           </span>
 
+          {/* Filtros + búsqueda en una fila */}
           <div className="flex flex-wrap items-center gap-2 md:justify-end">
             {/* Make */}
             <select
               value={makeFilter}
               onChange={(e) => setMakeFilter(e.target.value)}
-              className="h-8 rounded-full border border-neutral-700 bg-neutral-900/80 px-3 text-xs text-neutral-100 outline-none focus:border-emerald-400"
+              className="h-9 rounded-full border border-neutral-700 bg-neutral-900/80 px-3 text-xs text-neutral-100 outline-none focus:border-emerald-400"
             >
               <option value="ALL">All makes</option>
               {makes.map((mk) => (
@@ -144,14 +150,14 @@ export default function Inventory({ inventory }: InventoryProps) {
               onChange={(e) =>
                 setSortBy(e.target.value as "priceDesc" | "priceAsc")
               }
-              className="h-8 rounded-full border border-neutral-700 bg-neutral-900/80 px-3 text-xs text-neutral-100 outline-none focus:border-emerald-400"
+              className="h-9 rounded-full border border-neutral-700 bg-neutral-900/80 px-3 text-xs text-neutral-100 outline-none focus:border-emerald-400"
             >
               <option value="priceDesc">Price · High to Low</option>
               <option value="priceAsc">Price · Low to High</option>
             </select>
 
             {/* Search */}
-            <div className="relative h-8 w-full max-w-xs">
+            <div className="relative w-full max-w-xs">
               <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[11px] text-neutral-500">
                 🔍
               </span>
@@ -159,14 +165,14 @@ export default function Inventory({ inventory }: InventoryProps) {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Model, year, VIN..."
-                className="h-full w-full rounded-full border border-neutral-700 bg-neutral-900/80 pl-7 pr-3 text-xs text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-emerald-400"
+                className="h-9 w-full rounded-full border border-neutral-800 bg-neutral-900/80 pl-7 pr-3 text-xs text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-emerald-400"
               />
             </div>
           </div>
         </div>
 
         {/* GRID DE VEHÍCULOS */}
-        <section className="grid gap-4 md:grid-cols-2">
+        <section className="grid gap-4 sm:grid-cols-2">
           {visible.length === 0 ? (
             <p className="text-sm text-neutral-400">
               No vehicles found with the selected filters. Try changing your
@@ -186,7 +192,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                   href={`/${encodeURIComponent(car.id)}`}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900/70 transition hover:border-emerald-500/70 hover:bg-neutral-900"
                 >
-                  {/* Badging superior */}
+                  {/* badging superior */}
                   <div className="flex items-center justify-between px-4 pt-3 text-[10px] uppercase tracking-[0.18em] text-neutral-400">
                     <span className="inline-flex items-center gap-1 rounded-full border border-neutral-700 bg-black/40 px-2 py-0.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
@@ -198,7 +204,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                   </div>
 
                   {/* IMAGEN */}
-                  <div className="mt-2 h-44 w-full overflow-hidden bg-neutral-800">
+                  <div className="mt-2 h-40 w-full overflow-hidden bg-neutral-800">
                     {mainPhoto ? (
                       <img
                         src={mainPhoto}
