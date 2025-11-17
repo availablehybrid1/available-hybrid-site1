@@ -7,7 +7,7 @@ export default function PreQualification() {
   const [sent, setSent] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  // 🔹 Si el usuario viene desde /inventory?id=xxxx autollenamos el vehículo
+  // Autollenar vehículo cuando viene desde /pre-qualification?id=...
   React.useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
@@ -68,7 +68,9 @@ export default function PreQualification() {
       })
       .catch((err) => {
         console.error(err);
-        setError(err?.message || "There was a problem sending your info.");
+        setError(
+          err?.message || "There was a problem sending your info. Please try again."
+        );
       })
       .finally(() => setSubmitting(false));
   }
@@ -81,28 +83,49 @@ export default function PreQualification() {
 
       <main className="min-h-screen bg-neutral-950 text-white px-4 py-10">
         <div className="mx-auto max-w-3xl">
-          <h1 className="text-3xl font-bold tracking-tight">
-            Get Pre-Qualified
-          </h1>
-          <p className="mt-2 text-white/70">
-            Fill out this short form and we’ll handle your application in
-            DealerCenter. <b>Bilingual EN/ES</b>. No hard credit pull.
-          </p>
+          <header className="space-y-2">
+            <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-neutral-500">
+              PRE-QUALIFICATION
+            </p>
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Get Pre-Qualified
+            </h1>
+            <p className="text-sm text-neutral-400">
+              Fill out this short form and we’ll review your application in DealerCenter.{" "}
+              <span className="font-medium text-neutral-200">Bilingual EN/ES.</span>{" "}
+              No hard credit pull.
+            </p>
+          </header>
 
           {!sent ? (
             <form
               onSubmit={handleSubmit}
-              className="mt-8 grid gap-5 rounded-2xl bg-white/5 p-6 ring-1 ring-white/10"
+              className="mt-8 grid gap-5 rounded-3xl border border-neutral-800 bg-neutral-900/80 p-6 shadow-xl sm:p-8"
             >
               {/* NAME + PHONE */}
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Full Name *" name="name" required placeholder="John Doe" />
-                <Field label="Phone *" name="phone" required placeholder="(818) 555-1234" />
+                <Field
+                  label="Full Name *"
+                  name="name"
+                  required
+                  placeholder="John Doe"
+                />
+                <Field
+                  label="Phone *"
+                  name="phone"
+                  required
+                  placeholder="(818) 555-1234"
+                />
               </div>
 
               {/* EMAIL + LANGUAGE */}
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Email" name="email" type="email" placeholder="you@email.com" />
+                <Field
+                  label="Email"
+                  name="email"
+                  type="email"
+                  placeholder="you@email.com"
+                />
                 <Select
                   label="Preferred Language"
                   name="language"
@@ -112,14 +135,30 @@ export default function PreQualification() {
 
               {/* VEHICLE + VIN */}
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Vehicle of Interest" name="vehicle" placeholder="2013 Toyota Prius" />
-                <Field label="VIN" name="vin" placeholder="JTDKN3DU..." />
+                <Field
+                  label="Vehicle of Interest"
+                  name="vehicle"
+                  placeholder="2013 Toyota Prius"
+                />
+                <Field
+                  label="VIN"
+                  name="vin"
+                  placeholder="JTDKN3DU..."
+                />
               </div>
 
               {/* DOWNPAYMENT + BUDGET */}
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Down Payment" name="downPayment" placeholder="$2,000" />
-                <Field label="Monthly Budget" name="monthlyBudget" placeholder="$350" />
+                <Field
+                  label="Down Payment"
+                  name="downPayment"
+                  placeholder="$2,000"
+                />
+                <Field
+                  label="Monthly Budget"
+                  name="monthlyBudget"
+                  placeholder="$350"
+                />
               </div>
 
               {/* EMPLOYMENT + INCOME */}
@@ -134,7 +173,11 @@ export default function PreQualification() {
                     "Unemployed",
                   ]}
                 />
-                <Field label="Monthly Income" name="monthlyIncome" placeholder="$4,000" />
+                <Field
+                  label="Monthly Income"
+                  name="monthlyIncome"
+                  placeholder="$4,000"
+                />
               </div>
 
               {/* NEW FIELDS */}
@@ -160,23 +203,32 @@ export default function PreQualification() {
 
               {/* NOTES */}
               <div className="grid gap-2">
-                <label className="text-sm text-white/80">Notes</label>
+                <label className="text-sm text-neutral-200">Notes</label>
                 <textarea
                   name="notes"
                   rows={3}
-                  className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40"
-                  placeholder="Anything else we should know?"
+                  className="rounded-2xl border border-neutral-700 bg-neutral-900/80 px-3 py-2.5 text-sm text-white placeholder:text-neutral-500 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 transition"
+                  placeholder="Anything else we should know? (Co-signer, job type, schedule, etc.)"
                 />
               </div>
 
-              {error && <p className="text-red-400 text-sm">{error}</p>}
+              {error && (
+                <p className="rounded-xl border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+                  {error}
+                </p>
+              )}
 
               <button
                 disabled={submitting}
-                className="rounded-2xl bg-white text-gray-900 px-5 py-3 font-semibold shadow hover:shadow-lg disabled:opacity-60"
+                className="mt-2 inline-flex items-center justify-center rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-semibold text-neutral-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {submitting ? "Sending…" : "Send my info"}
               </button>
+
+              <p className="text-[11px] text-neutral-500">
+                By submitting this form you agree to be contacted by phone, text,
+                WhatsApp or email based on your preferred contact method.
+              </p>
             </form>
           ) : (
             <SuccessBox />
@@ -200,13 +252,13 @@ function Field({
 }: any) {
   return (
     <div className="grid gap-2">
-      <label className="text-sm text-white/80">{label}</label>
+      <label className="text-sm text-neutral-200">{label}</label>
       <input
         name={name}
         required={required}
         type={type}
         placeholder={placeholder}
-        className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40"
+        className="rounded-2xl border border-neutral-700 bg-neutral-900/80 px-3 py-2.5 text-sm text-white placeholder:text-neutral-500 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 transition"
       />
     </div>
   );
@@ -215,10 +267,10 @@ function Field({
 function Select({ label, name, options }: any) {
   return (
     <div className="grid gap-2">
-      <label className="text-sm text-white/80">{label}</label>
+      <label className="text-sm text-neutral-200">{label}</label>
       <select
         name={name}
-        className="rounded-xl bg-white/10 px-3 py-2 outline-none ring-1 ring-white/20 focus:ring-white/40"
+        className="rounded-2xl border border-neutral-700 bg-neutral-900 text-sm text-white px-3 py-2.5 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 transition"
       >
         <option value="">Select…</option>
         {options.map((v: string) => (
@@ -233,16 +285,17 @@ function Select({ label, name, options }: any) {
 
 function SuccessBox() {
   return (
-    <div className="mt-10 rounded-2xl bg-emerald-600/10 p-8 text-center ring-1 ring-emerald-500/30">
+    <div className="mt-10 rounded-3xl border border-emerald-500/40 bg-emerald-900/20 p-8 text-center shadow-lg">
       <h2 className="text-2xl font-bold text-emerald-400">
         ✅ Information Sent!
       </h2>
-      <p className="mt-3 text-white/80">
-        Thank you! We’ve received your information. We will contact you shortly.
+      <p className="mt-3 text-sm text-neutral-100">
+        Thank you! We’ve received your information and will contact you shortly
+        with the next steps.
       </p>
       <a
         href="/pre-qualification"
-        className="mt-5 inline-block rounded-xl bg-white/10 px-5 py-2 text-sm hover:bg-white/20"
+        className="mt-5 inline-block rounded-2xl border border-emerald-400 bg-transparent px-5 py-2 text-sm font-medium text-emerald-300 hover:bg-emerald-500/10"
       >
         Send another request
       </a>
