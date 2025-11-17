@@ -241,16 +241,19 @@ export default function Inventory({ inventory }: InventoryProps) {
           <div className="flex flex-col items-end text-right text-[11px] text-neutral-400 gap-2">
             <span>6726 Reseda Blvd Suite A7 · Reseda, CA 91335</span>
             <div className="flex items-center gap-3">
-              {/* WhatsApp solo icono */}
+              {/* WhatsApp con logo (guarda el ícono como /public/whatsapp-green.png) */}
               <a
                 href={`https://wa.me/${whatsappDigits}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-emerald-500 bg-emerald-500 text-[14px] font-semibold text-black shadow hover:bg-emerald-400 hover:border-emerald-400"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-transparent"
                 aria-label="WhatsApp"
               >
-                {/* pseudo-logo simple */}
-                🟢
+                <img
+                  src="/whatsapp-green.png"
+                  alt="WhatsApp"
+                  className="h-full w-full object-contain"
+                />
               </a>
 
               {/* Teléfono solo número */}
@@ -565,7 +568,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                               </p>
                             </div>
 
-                            {/* Icono ? con tooltip */}
+                            {/* Icono ? con tooltip (ahora encima y más legible) */}
                             <div className="relative group/payment">
                               <button
                                 type="button"
@@ -574,18 +577,18 @@ export default function Inventory({ inventory }: InventoryProps) {
                               >
                                 ?
                               </button>
-                              <div className="pointer-events-none absolute right-0 top-full z-20 mt-2 w-64 rounded-md border border-neutral-700 bg-black px-3 py-2 text-[11px] opacity-0 shadow-xl transition-opacity group-hover/payment:opacity-100 group-hover/payment:pointer-events-auto">
-                                <p className="text-xs font-semibold text-neutral-100">
+                              <div className="pointer-events-none absolute right-0 bottom-full z-20 mb-2 w-72 rounded-md border border-neutral-600 bg-neutral-950 px-4 py-3 text-[11px] opacity-0 shadow-xl transition-opacity group-hover/payment:opacity-100 group-hover/payment:pointer-events-auto">
+                                <p className="text-sm font-semibold text-neutral-50">
                                   {text.tooltipTitlePrefix} $
                                   {monthly.toLocaleString()}
                                 </p>
-                                <p className="mt-1 text-[11px] text-neutral-300">
+                                <p className="mt-2 text-[11px] leading-snug text-neutral-200">
                                   {text.paymentDisclaimer}
                                 </p>
                                 <Link
                                   href="/pre-qualification"
                                   onClick={(e) => e.stopPropagation()}
-                                  className="mt-2 inline-flex w-full items-center justify-center rounded-sm bg-neutral-100 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-black hover:bg-neutral-200"
+                                  className="mt-3 inline-flex w-full items-center justify-center rounded-sm bg-neutral-100 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-black hover:bg-neutral-200"
                                 >
                                   {text.getPrequalified}
                                 </Link>
@@ -605,7 +608,7 @@ export default function Inventory({ inventory }: InventoryProps) {
 
       {/* MODAL DE BÚSQUEDA (lupa) */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justifycenter bg-black/70 px-4 pt-16">
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 px-4 pt-16">
           <div className="w-full max-w-2xl rounded-2xl border border-neutral-800 bg-neutral-950/95 shadow-xl">
             {/* header modal */}
             <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
