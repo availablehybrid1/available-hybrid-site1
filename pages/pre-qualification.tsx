@@ -187,7 +187,7 @@ export default function PreQualification() {
                 <Field
                   label={isEN ? "City" : "Ciudad"}
                   name="addressCity"
-                  placeholder={isEN ? "Reseda" : "Reseda"}
+                  placeholder="Reseda"
                 />
               </div>
 
@@ -195,7 +195,7 @@ export default function PreQualification() {
                 <Field
                   label={isEN ? "State" : "Estado"}
                   name="addressState"
-                  placeholder={isEN ? "CA" : "CA"}
+                  placeholder="CA"
                 />
                 <Field
                   label={isEN ? "ZIP Code" : "Código ZIP"}
@@ -225,6 +225,11 @@ export default function PreQualification() {
                   label={isEN ? "VIN (optional)" : "VIN (opcional)"}
                   name="vin"
                   placeholder="JTDKN3DU..."
+                  help={
+                    isEN
+                      ? "Vehicle Identification Number (17 characters). You can find it on the registration, title or at the base of the windshield."
+                      : "Número de identificación del vehículo (17 caracteres). Lo encuentras en la registración, el título o en la base del parabrisas."
+                  }
                 />
                 <Field
                   label={isEN ? "Down Payment" : "Pago inicial"}
