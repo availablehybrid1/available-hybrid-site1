@@ -1,4 +1,4 @@
-// pages/[id].tsx 
+// pages/[id].tsx
 import * as React from "react";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
@@ -189,8 +189,10 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
   const estimatedTax = vehiclePrice * taxRate;
   const estimatedFees = vehiclePrice ? estimatedTax + fixedFees : 0;
 
-  // 💌 Confirm availability
-  const handleAvailabilitySubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // 💌 Confirm availability -> EmailJS
+  const handleAvailabilitySubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -201,31 +203,41 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
     const email = (formData.get("email") || "").toString();
     const comments = (formData.get("comments") || "").toString();
 
-    const subject = `Availability for ${car.year ?? ""} ${car.make} ${
-      car.model
-    } (ID: ${car.id})`;
-    const bodyLines = [
-      `Vehicle: ${car.year ?? ""} ${car.make} ${car.model}`,
-      `ID: ${car.id}`,
-      car.vin ? `VIN: ${car.vin}` : "",
-      "",
-      `Name: ${firstName} ${lastName}`.trim(),
-      `Phone: ${phone}`,
-      email ? `Email: ${email}` : "",
-      "",
-      "Comments:",
-      comments || "(No comments)",
-    ].filter(Boolean);
+    const page_url =
+      typeof window !== "undefined" ? window.location.href : "";
 
-    const mailto = `mailto:availablehybrid@gmail.com?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
+    const res = await fetch("/api/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "availability",
+        vehicleId: car.id,
+        vehicleTitle: `${car.year ?? ""} ${car.make} ${car.model}`,
+        vin: car.vin ?? "",
+        firstName,
+        lastName,
+        phone,
+        email,
+        comments,
+        page_url,
+      }),
+    });
 
-    window.location.href = mailto;
+    if (!res.ok) {
+      alert(
+        "There was a problem sending your request. Please try again."
+      );
+      return;
+    }
+
+    alert("Your request was sent. We will contact you soon.");
+    form.reset();
   };
 
-  // 💰 Manejar submit de "Make an Offer"
-  const handleMakeOfferSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // 💰 Manejar submit de "Make an Offer" -> EmailJS
+  const handleMakeOfferSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -236,32 +248,41 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
     const offer = (formData.get("offer") || "").toString();
     const message = (formData.get("message") || "").toString();
 
-    const subject = `Offer for ${car.year ?? ""} ${car.make} ${
-      car.model
-    } (ID: ${car.id})`;
-    const bodyLines = [
-      `Vehicle: ${car.year ?? ""} ${car.make} ${car.model}`,
-      `ID: ${car.id}`,
-      car.vin ? `VIN: ${car.vin}` : "",
-      "",
-      `Name: ${name}`,
-      `Phone: ${phone}`,
-      email ? `Email: ${email}` : "",
-      `Offer: ${offer ? `$${offer}` : "Not specified"}`,
-      "",
-      "Message:",
-      message || "(No message)",
-    ].filter(Boolean);
+    const page_url =
+      typeof window !== "undefined" ? window.location.href : "";
 
-    const mailto = `mailto:availablehybrid@gmail.com?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
+    const res = await fetch("/api/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "offer",
+        vehicleId: car.id,
+        vehicleTitle: `${car.year ?? ""} ${car.make} ${car.model}`,
+        vin: car.vin ?? "",
+        name,
+        phone,
+        email,
+        offer,
+        message,
+        page_url,
+      }),
+    });
 
-    window.location.href = mailto;
+    if (!res.ok) {
+      alert(
+        "There was a problem sending your offer. Please try again."
+      );
+      return;
+    }
+
+    alert("Your offer was sent. We will contact you soon.");
+    form.reset();
   };
 
-  // 🚗 Manejar submit de "Schedule Test Drive"
-  const handleTestDriveSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // 🚗 Manejar submit de "Schedule Test Drive" -> EmailJS
+  const handleTestDriveSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -269,36 +290,44 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
     const name = (formData.get("name") || "").toString();
     const phone = (formData.get("phone") || "").toString();
     const email = (formData.get("email") || "").toString();
-    const preferred = (formData.get("preferred") || "").toString(); // Text / Email / WhatsApp
-    const date = (formData.get("date") || "").toString();
-    const time = (formData.get("time") || "").toString();
+    const preferredContact = (
+      formData.get("preferredContact") || ""
+    ).toString(); // Text / Email / WhatsApp
+    const preferredDate = (formData.get("preferredDate") || "").toString();
+    const preferredTime = (formData.get("preferredTime") || "").toString();
     const comments = (formData.get("comments") || "").toString();
 
-    const subject = `Test Drive Request - ${car.year ?? ""} ${car.make} ${
-      car.model
-    } (ID: ${car.id})`;
-    const bodyLines = [
-      `Vehicle: ${car.year ?? ""} ${car.make} ${car.model}`,
-      `ID: ${car.id}`,
-      car.vin ? `VIN: ${car.vin}` : "",
-      "",
-      `Name: ${name}`,
-      `Phone: ${phone}`,
-      email ? `Email: ${email}` : "",
-      `Preferred contact: ${preferred || "Not specified"}`,
-      "",
-      `Requested date: ${date || "Not specified"}`,
-      `Requested time: ${time || "Not specified"}`,
-      "",
-      "Comments:",
-      comments || "(No comments)",
-    ].filter(Boolean);
+    const page_url =
+      typeof window !== "undefined" ? window.location.href : "";
 
-    const mailto = `mailto:availablehybrid@gmail.com?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
+    const res = await fetch("/api/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "testDrive",
+        vehicleId: car.id,
+        vehicleTitle: `${car.year ?? ""} ${car.make} ${car.model}`,
+        vin: car.vin ?? "",
+        name,
+        phone,
+        email,
+        preferredContact,
+        preferredDate,
+        preferredTime,
+        comments,
+        page_url,
+      }),
+    });
 
-    window.location.href = mailto;
+    if (!res.ok) {
+      alert(
+        "There was a problem sending your request. Please try again."
+      );
+      return;
+    }
+
+    alert("Your test drive request was sent. We will contact you soon.");
+    form.reset();
   };
 
   // 👆 Click en la imagen dentro del modal: zoom al punto exacto
@@ -916,7 +945,7 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
                       Preferred contact
                     </label>
                     <select
-                      name="preferred"
+                      name="preferredContact"
                       className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
                     >
                       <option value="">Select</option>
@@ -934,7 +963,7 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
                     </label>
                     <input
                       type="date"
-                      name="date"
+                      name="preferredDate"
                       className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
                     />
                   </div>
@@ -944,7 +973,7 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
                     </label>
                     <input
                       type="time"
-                      name="time"
+                      name="preferredTime"
                       className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
                     />
                   </div>
