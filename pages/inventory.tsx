@@ -44,7 +44,7 @@ export default function Inventory({ inventory }: InventoryProps) {
   const [makeFilter, setMakeFilter] = React.useState<string>("all");
   const [sortBy, setSortBy] = React.useState<
     "yearDesc" | "priceAsc" | "priceDesc" | "mileageAsc"
-  >("yearDesc");
+  >("priceDesc"); // 🔥 default: más caro -> más barato
 
   const makes = React.useMemo(() => {
     const set = new Set<string>();
@@ -59,9 +59,7 @@ export default function Inventory({ inventory }: InventoryProps) {
 
     if (search.trim()) {
       const q = search.toLowerCase();
-      list = list.filter((v) =>
-        v.title.toLowerCase().includes(q)
-      );
+      list = list.filter((v) => v.title.toLowerCase().includes(q));
     }
 
     if (makeFilter !== "all") {
@@ -80,7 +78,7 @@ export default function Inventory({ inventory }: InventoryProps) {
         case "priceDesc": {
           const pa = a.price ?? 0;
           const pb = b.price ?? 0;
-          return pb - pa;
+          return pb - pa; // más caro primero
         }
         case "mileageAsc": {
           const ma = a.mileage ?? Infinity;
@@ -103,9 +101,9 @@ export default function Inventory({ inventory }: InventoryProps) {
     <main className="min-h-screen bg-neutral-950 text-neutral-100 px-4 py-10">
       {/* HEADER CON LOGO */}
       <header className="mx-auto flex max-w-5xl items-center justify-between px-0 pb-6">
-        <Link href="/" className="flex items-center gap-3 group">
-          {/* Logo circular grande */}
-          <div className="relative h-11 w-11 sm:h-12 sm:w-12 rounded-full border border-white/20 bg-white/5 p-[2px] shadow-lg shadow-black/60 transition group-hover:border-white/50 group-hover:bg-white/10">
+        <Link href="/" className="flex items-center gap-4 group">
+          {/* Logo circular más grande */}
+          <div className="relative h-14 w-14 sm:h-16 sm:w-16 rounded-full border border-white/25 bg-white/5 p-[3px] shadow-lg shadow-black/60 transition group-hover:border-white/60 group-hover:bg-white/10">
             <div className="relative h-full w-full overflow-hidden rounded-full bg-black">
               <img
                 src="/logo.%20available%20hybrid%20premium.png"
@@ -142,25 +140,13 @@ export default function Inventory({ inventory }: InventoryProps) {
       </header>
 
       <div className="mx-auto max-w-5xl">
-        {/* Título + contador */}
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Available Inventory
-            </h1>
-            <p className="mt-1 text-neutral-400 text-sm">
-              Click any vehicle to see full photos, VIN and financing options.
-            </p>
-          </div>
+        {/* Contador + búsqueda (más corta) */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-neutral-500">
             {filtered.length} vehicle{filtered.length === 1 ? "" : "s"} available
           </p>
-        </div>
 
-        {/* Barra de filtros estilo dealer grande */}
-        <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-neutral-800 bg-neutral-900/70 p-3 sm:flex-row sm:items-center sm:justify-between">
-          {/* Search */}
-          <div className="w-full sm:max-w-sm">
+          <div className="w-full max-w-xs sm:max-w-sm ml-auto">
             <label className="block text-[11px] text-neutral-400 mb-1">
               Search
             </label>
@@ -176,124 +162,138 @@ export default function Inventory({ inventory }: InventoryProps) {
               </span>
             </div>
           </div>
-
-          {/* Make + Sort */}
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-end">
-            <div className="flex-1 min-w-[140px]">
-              <label className="block text-[11px] text-neutral-400 mb-1">
-                Make
-              </label>
-              <select
-                value={makeFilter}
-                onChange={(e) => setMakeFilter(e.target.value)}
-                className="w-full rounded-xl border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-emerald-500"
-              >
-                <option value="all">All makes</option>
-                {makes.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex-1 min-w-[140px]">
-              <label className="block text-[11px] text-neutral-400 mb-1">
-                Sort by
-              </label>
-              <select
-                value={sortBy}
-                onChange={(e) =>
-                  setSortBy(e.target.value as typeof sortBy)
-                }
-                className="w-full rounded-xl border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-emerald-500"
-              >
-                <option value="yearDesc">Newest (Year)</option>
-                <option value="priceAsc">Price · Low to High</option>
-                <option value="priceDesc">Price · High to Low</option>
-                <option value="mileageAsc">Mileage · Low to High</option>
-              </select>
-            </div>
-          </div>
         </div>
 
-        {/* GRID INVENTARIO */}
-        {filtered.length === 0 ? (
-          <p className="mt-8 text-neutral-400">
-            No vehicles match your filters. Try clearing some options.
-          </p>
-        ) : (
-          <div className="mt-8 grid gap-5 sm:grid-cols-2">
-            {filtered.map((car) => {
-              const mainPhoto = car.photos[0] ?? "";
+        {/* Layout con columna izquierda para filtros */}
+        <div className="mt-6 flex flex-col gap-6 sm:flex-row">
+          {/* SIDEBAR FILTROS */}
+          <aside className="w-full sm:w-64 rounded-2xl border border-neutral-800 bg-neutral-900/80 p-4 text-sm">
+            <p className="mb-3 text-xs font-semibold tracking-[0.18em] text-neutral-300 uppercase">
+              Filters
+            </p>
 
-              return (
-                <Link
-                  key={car.id}
-                  href={`/${encodeURIComponent(car.id)}`}
-                  className="group flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900/70 hover:border-neutral-500 transition"
+            <div className="space-y-4">
+              {/* Make */}
+              <div>
+                <label className="block text-[11px] text-neutral-400 mb-1">
+                  Make
+                </label>
+                <select
+                  value={makeFilter}
+                  onChange={(e) => setMakeFilter(e.target.value)}
+                  className="w-full rounded-xl border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-emerald-500"
                 >
-                  {/* RIBBON */}
-                  <div className="flex items-center gap-2 px-4 pt-3">
-                    <span className="inline-flex items-center rounded-full bg-neutral-900/90 px-3 py-1 text-[10px] font-semibold tracking-[0.18em] text-neutral-200">
-                      AVAILABLE HYBRID
-                    </span>
-                  </div>
+                  <option value="all">All makes</option>
+                  {makes.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-                  {/* IMAGE */}
-                  <div className="mt-2 h-44 w-full overflow-hidden bg-neutral-800">
-                    {mainPhoto ? (
-                      <img
-                        src={mainPhoto}
-                        alt={car.title}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-neutral-500 text-sm">
-                        No photo
+              {/* Sort by */}
+              <div>
+                <label className="block text-[11px] text-neutral-400 mb-1">
+                  Sort by
+                </label>
+                <select
+                  value={sortBy}
+                  onChange={(e) =>
+                    setSortBy(e.target.value as typeof sortBy)
+                  }
+                  className="w-full rounded-xl border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-emerald-500"
+                >
+                  <option value="priceDesc">Price · High to Low</option>
+                  <option value="priceAsc">Price · Low to High</option>
+                  <option value="yearDesc">Newest (Year)</option>
+                  <option value="mileageAsc">Mileage · Low to High</option>
+                </select>
+              </div>
+            </div>
+          </aside>
+
+          {/* GRID INVENTARIO */}
+          <section className="flex-1">
+            {filtered.length === 0 ? (
+              <p className="text-neutral-400 text-sm">
+                No vehicles match your filters. Try clearing some options.
+              </p>
+            ) : (
+              <div className="grid gap-5 sm:grid-cols-2">
+                {filtered.map((car) => {
+                  const mainPhoto = car.photos[0] ?? "";
+
+                  return (
+                    <Link
+                      key={car.id}
+                      href={`/${encodeURIComponent(car.id)}`}
+                      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900/70 hover:border-neutral-500 transition"
+                    >
+                      {/* RIBBON */}
+                      <div className="flex items-center gap-2 px-4 pt-3">
+                        <span className="inline-flex items-center rounded-full bg-neutral-900/90 px-3 py-1 text-[10px] font-semibold tracking-[0.18em] text-neutral-200">
+                          AVAILABLE HYBRID
+                        </span>
                       </div>
-                    )}
-                  </div>
 
-                  {/* INFO */}
-                  <div className="flex flex-1 flex-col p-4 text-sm">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h3 className="font-semibold text-neutral-50">
-                          {car.title}
-                        </h3>
-                        <p className="mt-1 text-[11px] text-neutral-400">
-                          {car.year ?? "—"} · {car.fuel} · {car.transmission}
+                      {/* IMAGE */}
+                      <div className="mt-2 h-40 w-full overflow-hidden bg-neutral-800">
+                        {mainPhoto ? (
+                          <img
+                            src={mainPhoto}
+                            alt={car.title}
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-neutral-500 text-sm">
+                            No photo
+                          </div>
+                        )}
+                      </div>
+
+                      {/* INFO */}
+                      <div className="flex flex-1 flex-col p-4 text-sm">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <h3 className="font-semibold text-neutral-50">
+                              {car.title}
+                            </h3>
+                            <p className="mt-1 text-[11px] text-neutral-400">
+                              {car.year ?? "—"} · {car.fuel} ·{" "}
+                              {car.transmission}
+                            </p>
+                          </div>
+                          {car.price && (
+                            <p className="text-right text-emerald-400 font-semibold text-sm">
+                              ${car.price.toLocaleString()}
+                            </p>
+                          )}
+                        </div>
+
+                        {car.mileage != null && (
+                          <p className="mt-1 text-[11px] text-neutral-400">
+                            {car.mileage.toLocaleString()} mi
+                          </p>
+                        )}
+
+                        {car.description && (
+                          <p className="mt-2 line-clamp-2 text-[11px] text-neutral-400">
+                            {car.description}
+                          </p>
+                        )}
+
+                        <p className="mt-3 text-[10px] text-neutral-500 uppercase">
+                          VIN: {car.vin}
                         </p>
                       </div>
-                      {car.price && (
-                        <p className="text-right text-emerald-400 font-semibold text-sm">
-                          ${car.price.toLocaleString()}
-                        </p>
-                      )}
-                    </div>
-
-                    {car.mileage != null && (
-                      <p className="mt-1 text-[11px] text-neutral-400">
-                        {car.mileage.toLocaleString()} mi
-                      </p>
-                    )}
-
-                    {car.description && (
-                      <p className="mt-2 line-clamp-2 text-[11px] text-neutral-400">
-                        {car.description}
-                      </p>
-                    )}
-
-                    <p className="mt-3 text-[10px] text-neutral-500 uppercase">
-                      VIN: {car.vin}
-                    </p>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        </div>
       </div>
     </main>
   );
