@@ -41,9 +41,12 @@ export default function Inventory({ inventory }: InventoryProps) {
   const [yearFilter, setYearFilter] = React.useState<string>("ALL");
   const [makeFilter, setMakeFilter] = React.useState<string>("ALL");
   const [sortBy, setSortBy] = React.useState<"priceDesc" | "priceAsc">(
-    "priceDesc" // default: de más caro a más barato
+    "priceDesc"
   );
-  const [search, setSearch] = React.useState("");
+
+  // estado para el modal de búsqueda tipo lupa
+  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   // años únicos
   const years = React.useMemo(() => {
@@ -63,7 +66,7 @@ export default function Inventory({ inventory }: InventoryProps) {
     return Array.from(set).sort();
   }, [inventory]);
 
-  // Filtrado + orden
+  // Filtrado + orden para el grid principal (sin texto de búsqueda)
   const visible = React.useMemo(() => {
     let cars = [...inventory];
 
@@ -77,22 +80,6 @@ export default function Inventory({ inventory }: InventoryProps) {
       );
     }
 
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      cars = cars.filter((c) => {
-        const haystack = [
-          c.title,
-          c.year?.toString() ?? "",
-          c.make,
-          c.model,
-          c.vin,
-        ]
-          .join(" ")
-          .toLowerCase();
-        return haystack.includes(q);
-      });
-    }
-
     cars.sort((a, b) => {
       const pa = a.price ?? 0;
       const pb = b.price ?? 0;
@@ -101,7 +88,25 @@ export default function Inventory({ inventory }: InventoryProps) {
     });
 
     return cars;
-  }, [inventory, yearFilter, makeFilter, sortBy, search]);
+  }, [inventory, yearFilter, makeFilter, sortBy]);
+
+  // Resultados para el modal de búsqueda
+  const searchResults = React.useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return inventory.filter((c) => {
+      const haystack = [
+        c.title,
+        c.year?.toString() ?? "",
+        c.make,
+        c.model,
+        c.vin,
+      ]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [inventory, searchQuery]);
 
   const phone = "+1 747-354-4098";
 
@@ -111,7 +116,7 @@ export default function Inventory({ inventory }: InventoryProps) {
       <header className="border-b border-neutral-900 bg-gradient-to-b from-black to-neutral-950">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-6">
           <Link href="/" className="flex items-center gap-4">
-            {/* logo ~320x100, igual estilo que portada */}
+            {/* Logo ~320 x 100 (confirmado) */}
             <div className="relative h-[100px] w-[320px]">
               <img
                 src="/logo. available hybrid premium.png"
@@ -132,7 +137,7 @@ export default function Inventory({ inventory }: InventoryProps) {
           </div>
         </div>
 
-        {/* Fila de filtros rápidos arriba (años, marca, sort) + pequeño buscador */}
+        {/* Fila de filtros rápidos arriba + lupa de búsqueda */}
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 pb-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-neutral-400">
             {visible.length} vehicle{visible.length === 1 ? "" : "s"} available
@@ -188,25 +193,25 @@ export default function Inventory({ inventory }: InventoryProps) {
               </select>
             </div>
 
-            {/* Buscador sencillo (no gigante) */}
-            <div className="relative w-full max-w-xs text-[11px]">
-              <span className="pointer-events-none absolute inset-y-0 left-2 flex items-center text-neutral-500">
-                🔍
-              </span>
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Model, year, VIN…"
-                className="w-full rounded-full border border-neutral-800 bg-neutral-900/80 py-1.5 pl-7 pr-3 text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-neutral-300"
-              />
-            </div>
+            {/* Botón de lupa (abre modal de búsqueda) */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsSearchOpen(true);
+                setSearchQuery("");
+              }}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900/80 text-sm text-neutral-300 hover:border-neutral-300 hover:bg-neutral-800"
+              aria-label="Search inventory"
+            >
+              🔍
+            </button>
           </div>
         </div>
       </header>
 
       {/* CUERPO: filtros laterales + tarjetas */}
       <div className="mx-auto mt-6 grid max-w-6xl gap-6 px-4 md:grid-cols-[260px,1fr]">
-        {/* FILTROS LATERALES (rediseñados más finos) */}
+        {/* FILTROS LATERALES */}
         <aside className="rounded-2xl border border-neutral-900 bg-neutral-950/80 p-4 text-xs shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
           <p className="mb-3 text-[11px] font-semibold tracking-[0.18em] text-neutral-400">
             FILTERS
@@ -259,12 +264,12 @@ export default function Inventory({ inventory }: InventoryProps) {
           </div>
         </aside>
 
-        {/* GRID DE VEHÍCULOS – estilo similar al ejemplo, sin descripción larga */}
+        {/* GRID DE VEHÍCULOS */}
         <section className="grid gap-4 md:grid-cols-2">
           {visible.length === 0 ? (
             <p className="text-sm text-neutral-400">
-              No vehicles found with the selected filters. Try another make,
-              year, or search term.
+              No vehicles found with the selected filters. Try another make or
+              year.
             </p>
           ) : (
             visible.map((car) => {
@@ -316,7 +321,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                       </p>
                     </div>
 
-                    {/* Línea de specs – sin descripción larga */}
+                    {/* Línea de specs */}
                     <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-neutral-400">
                       {car.mileage != null && (
                         <span>{car.mileage.toLocaleString()} mi</span>
@@ -326,7 +331,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                       {car.exterior && <span>· {car.exterior}</span>}
                     </div>
 
-                    {/* Píldoras sencillas tipo “features” */}
+                    {/* Píldoras de info */}
                     <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
                       {car.fuel && (
                         <span className="rounded-full border border-neutral-800 bg-neutral-950 px-2 py-0.5 text-neutral-300">
@@ -356,6 +361,91 @@ export default function Inventory({ inventory }: InventoryProps) {
           )}
         </section>
       </div>
+
+      {/* MODAL DE BÚSQUEDA (lupa) */}
+      {isSearchOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 px-4 pt-16">
+          <div className="w-full max-w-2xl rounded-2xl border border-neutral-800 bg-neutral-950/95 shadow-xl">
+            {/* header modal */}
+            <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
+              <p className="text-xs font-medium text-neutral-200">
+                Search all inventory
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsSearchOpen(false)}
+                className="text-sm text-neutral-400 hover:text-neutral-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* input búsqueda */}
+            <div className="px-4 py-3">
+              <div className="relative">
+                <span className="pointer-events-none absolute inset-y-0 left-2 flex items-center text-neutral-500">
+                  🔍
+                </span>
+                <input
+                  autoFocus
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by model, year, VIN…"
+                  className="w-full rounded-full border border-neutral-800 bg-neutral-950 px-3 py-2 pl-7 text-sm text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-neutral-300"
+                />
+              </div>
+            </div>
+
+            {/* resultados */}
+            <div className="max-h-[60vh] overflow-y-auto px-2 pb-3">
+              {searchQuery.trim() && searchResults.length === 0 && (
+                <p className="px-2 py-2 text-xs text-neutral-500">
+                  No results for “{searchQuery.trim()}”.
+                </p>
+              )}
+
+              {searchResults.map((car) => {
+                const thumb = car.photos[0] ?? "/placeholder-car.jpg";
+                const price =
+                  car.price != null
+                    ? `$${car.price.toLocaleString()}`
+                    : "Call for price";
+
+                return (
+                  <Link
+                    key={car.id}
+                    href={`/${encodeURIComponent(car.id)}`}
+                    onClick={() => setIsSearchOpen(false)}
+                    className="flex items-center gap-3 rounded-xl px-2 py-2 text-xs text-neutral-100 hover:bg-neutral-900"
+                  >
+                    <div className="h-14 w-20 overflow-hidden rounded bg-neutral-900">
+                      <img
+                        src={thumb}
+                        alt={car.title}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[11px] text-neutral-400">
+                        {car.year} {car.make}
+                      </p>
+                      <p className="text-sm font-semibold">
+                        {car.model || car.title}
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-neutral-500">
+                        {car.vin ? `VIN ${car.vin}` : ""}
+                      </p>
+                    </div>
+                    <p className="whitespace-nowrap text-sm font-semibold text-emerald-400">
+                      {price}
+                    </p>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
