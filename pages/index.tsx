@@ -128,8 +128,8 @@ export default function Home() {
             <Image
               src="/logo. available hybrid premium.png"
               alt={t.footerDealerName}
-              width={150}
-              height={48}
+              width={220}
+              height={70}
               className="object-contain opacity-95 group-hover:opacity-100 transition"
               priority
             />
@@ -323,8 +323,8 @@ export default function Home() {
               <Image
                 src="/logo. available hybrid premium.png"
                 alt={t.footerDealerName}
-                width={150}
-                height={48}
+                width={220}
+                height={70}
                 className="object-contain mb-2 opacity-95"
               />
               <p className="text-white/70">{t.footerAddress}</p>
