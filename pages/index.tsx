@@ -125,17 +125,15 @@ export default function Home() {
       <header className="fixed inset-x-0 top-0 z-40 backdrop-blur bg-black/30 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="h-9 w-9 rounded-xl bg-white/10 ring-1 ring-white/20 grid place-items-center group-hover:bg-white/15 transition">
-              <span className="text-white text-[10px] tracking-widest font-semibold">
-                AH
-              </span>
-            </div>
-            <div className="leading-tight">
-              <p className="text-white font-semibold text-sm sm:text-base">
-                AVAILABLE HYBRID
-              </p>
-              <p className="text-white/70 text-[11px] sm:text-xs">R&M INC.</p>
-            </div>
+            <Image
+              src="/logo. available hybrid premium.png"
+              alt={t.footerDealerName}
+              width={150}
+              height={48}
+              className="object-contain opacity-95 group-hover:opacity-100 transition"
+              priority
+            />
+            <span className="sr-only">{t.footerDealerName}</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-6 text-sm">
@@ -322,9 +320,13 @@ export default function Home() {
         <footer className="border-t border-white/10 bg-black">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-8 text-sm">
             <div>
-              <p className="text-white font-semibold">
-                {t.footerDealerName}
-              </p>
+              <Image
+                src="/logo. available hybrid premium.png"
+                alt={t.footerDealerName}
+                width={150}
+                height={48}
+                className="object-contain mb-2 opacity-95"
+              />
               <p className="text-white/70">{t.footerAddress}</p>
             </div>
             <div>
