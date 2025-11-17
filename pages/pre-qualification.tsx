@@ -141,7 +141,7 @@ export default function PreQualification() {
                   placeholder="2013 Toyota Prius"
                 />
                 <Field
-                  label="VIN"
+                  label="VIN (optional / opcional)"
                   name="vin"
                   placeholder="JTDKN3DU..."
                 />
@@ -153,11 +153,13 @@ export default function PreQualification() {
                   label="Down Payment"
                   name="downPayment"
                   placeholder="$2,000"
+                  help="Amount you can pay today as initial payment. / Cantidad que puedes pagar hoy como pago inicial."
                 />
                 <Field
                   label="Monthly Budget"
                   name="monthlyBudget"
                   placeholder="$350"
+                  help="Maximum car payment per month you feel comfortable with (without insurance). / Pago mensual máximo con el que te sientas cómodo (sin incluir seguro)."
                 />
               </div>
 
@@ -172,11 +174,13 @@ export default function PreQualification() {
                     "Self-employed",
                     "Unemployed",
                   ]}
+                  help="Your current work situation. / Tu situación laboral actual."
                 />
                 <Field
                   label="Monthly Income"
                   name="monthlyIncome"
                   placeholder="$4,000"
+                  help="Approximate income per month before taxes. / Ingreso aproximado al mes antes de impuestos."
                 />
               </div>
 
@@ -249,10 +253,14 @@ function Field({
   placeholder,
   required,
   type = "text",
+  help,
 }: any) {
   return (
     <div className="grid gap-2">
-      <label className="text-sm text-neutral-200">{label}</label>
+      <div className="flex items-center gap-1">
+        <label className="text-sm text-neutral-200">{label}</label>
+        {help && <InfoDot text={help} />}
+      </div>
       <input
         name={name}
         required={required}
@@ -264,10 +272,13 @@ function Field({
   );
 }
 
-function Select({ label, name, options }: any) {
+function Select({ label, name, options, help }: any) {
   return (
     <div className="grid gap-2">
-      <label className="text-sm text-neutral-200">{label}</label>
+      <div className="flex items-center gap-1">
+        <label className="text-sm text-neutral-200">{label}</label>
+        {help && <InfoDot text={help} />}
+      </div>
       <select
         name={name}
         className="rounded-2xl border border-neutral-700 bg-neutral-900 text-sm text-white px-3 py-2.5 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 transition"
@@ -279,6 +290,17 @@ function Select({ label, name, options }: any) {
           </option>
         ))}
       </select>
+    </div>
+  );
+}
+
+function InfoDot({ text }: { text: string }) {
+  return (
+    <div className="group relative flex h-4 w-4 items-center justify-center rounded-full border border-neutral-500 text-[10px] text-neutral-300">
+      i
+      <div className="pointer-events-none absolute left-1/2 top-5 z-20 hidden w-64 -translate-x-1/2 rounded-xl border border-neutral-700 bg-neutral-950 px-3 py-2 text-[11px] text-neutral-100 shadow-xl group-hover:block">
+        {text}
+      </div>
     </div>
   );
 }
