@@ -66,10 +66,12 @@ export default function VehicleDetail({ car }: DetailProps) {
 
   // zoom dentro del modal
   const [isZoomed, setIsZoomed] = React.useState(false);
-  const [zoomOrigin, setZoomOrigin] = React.useState<{ x: string; y: string }>({
-    x: "50%",
-    y: "50%",
-  });
+  const [zoomOrigin, setZoomOrigin] = React.useState<{ x: string; y: string }>(
+    {
+      x: "50%",
+      y: "50%",
+    }
+  );
 
   // VIN decoding
   const [vinInfo, setVinInfo] = React.useState<VinDecoded | null>(null);
@@ -175,7 +177,7 @@ export default function VehicleDetail({ car }: DetailProps) {
       return 0;
 
     const r = apr / 100 / 12; // interés mensual
-       const n = termMonths;
+    const n = termMonths;
     const payment = (amountFinanced * r) / (1 - Math.pow(1 + r, -n));
     return payment;
   }, [amountFinanced, termMonths, apr, vehiclePrice]);
@@ -184,7 +186,7 @@ export default function VehicleDetail({ car }: DetailProps) {
   const handleAvailabilitySubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
-    const formData = new FormData(form);
+       const formData = new FormData(form);
 
     const firstName = (formData.get("firstName") || "").toString();
     const lastName = (formData.get("lastName") || "").toString();
@@ -277,6 +279,20 @@ export default function VehicleDetail({ car }: DetailProps) {
 
   const phone = "+1 747-354-4098";
 
+  const hasMultiplePhotos = car.photos.length > 1;
+
+  const goPrev = () => {
+    setCurrent((prev) =>
+      prev === 0 ? car.photos.length - 1 : prev - 1
+    );
+    setIsZoomed(false);
+  };
+
+  const goNext = () => {
+    setCurrent((prev) => (prev + 1) % car.photos.length);
+    setIsZoomed(false);
+  };
+
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
       {/* HEADER ELEGANTE */}
@@ -347,20 +363,45 @@ export default function VehicleDetail({ car }: DetailProps) {
               {/* Foto principal (ajustada) */}
               <div className="relative flex h-[220px] w-full items-center justify-center bg-neutral-800 sm:h-[280px] lg:h-[320px]">
                 {mainPhoto ? (
-                  <button
-                    type="button"
-                    onClick={() => setIsLightboxOpen(true)}
-                    className="group flex h-full w-full items-center justify-center"
-                  >
-                    <img
-                      src={mainPhoto}
-                      alt={car.title}
-                      className="max-h-full max-w-full max-w-[520px] object-contain"
-                    />
-                    <span className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
-                      Click to enlarge
-                    </span>
-                  </button>
+                  <>
+                    {/* Botón imagen: abre lightbox */}
+                    <button
+                      type="button"
+                      onClick={() => setIsLightboxOpen(true)}
+                      className="group flex h-full w-full items-center justify-center"
+                    >
+                      <img
+                        src={mainPhoto}
+                        alt={car.title}
+                        className="max-h-full max-w-full max-w-[520px] object-contain"
+                      />
+                      <span className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
+                        Click to enlarge
+                      </span>
+                    </button>
+
+                    {/* Flecha izquierda */}
+                    {hasMultiplePhotos && (
+                      <button
+                        type="button"
+                        onClick={goPrev}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
+                      >
+                        ‹
+                      </button>
+                    )}
+
+                    {/* Flecha derecha */}
+                    {hasMultiplePhotos && (
+                      <button
+                        type="button"
+                        onClick={goNext}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
+                      >
+                        ›
+                      </button>
+                    )}
+                  </>
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
                     Photo coming soon
@@ -368,32 +409,7 @@ export default function VehicleDetail({ car }: DetailProps) {
                 )}
               </div>
 
-              {/* Miniaturas */}
-              {car.photos.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto border-t border-neutral-800 bg-neutral-900/80 p-2">
-                  {car.photos.map((photo, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => {
-                        setCurrent(idx);
-                        setIsZoomed(false);
-                      }}
-                      className={`h-14 w-20 flex-none overflow-hidden rounded border ${
-                        idx === current
-                          ? "border-emerald-500"
-                          : "border-neutral-700"
-                      }`}
-                    >
-                      <img
-                        src={photo}
-                        alt={`${car.title} ${idx + 1}`}
-                        className="h-full w-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
+              {/* ✅ Ya no mostramos miniaturas, solo la imagen principal con flechas */}
             </div>
           </section>
 
@@ -941,6 +957,27 @@ export default function VehicleDetail({ car }: DetailProps) {
             >
               ✕
             </button>
+
+            {/* Flechas dentro del lightbox para navegar también */}
+            {hasMultiplePhotos && (
+              <button
+                type="button"
+                onClick={goPrev}
+                className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
+              >
+                ‹
+              </button>
+            )}
+            {hasMultiplePhotos && (
+              <button
+                type="button"
+                onClick={goNext}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
+              >
+                ›
+              </button>
+            )}
+
             <img
               src={mainPhoto}
               alt={car.title}
