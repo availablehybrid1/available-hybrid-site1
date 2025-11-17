@@ -1,4 +1,4 @@
-// pages/[id].tsx
+// pages/[id].tsx 
 import * as React from "react";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
@@ -67,10 +67,12 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
 
   // zoom dentro del modal
   const [isZoomed, setIsZoomed] = React.useState(false);
-  const [zoomOrigin, setZoomOrigin] = React.useState<{ x: string; y: string }>({
-    x: "50%",
-    y: "50%",
-  });
+  const [zoomOrigin, setZoomOrigin] = React.useState<{ x: string; y: string }>(
+    {
+      x: "50%",
+      y: "50%",
+    }
+  );
 
   // VIN decoding
   const [vinInfo, setVinInfo] = React.useState<VinDecoded | null>(null);
@@ -82,7 +84,7 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
     "availability" | "estimate" | "offer" | "testdrive"
   >("availability");
 
-  // BHPH / estimator UI
+  // BHPH estimator UI
   const [creditTier, setCreditTier] = React.useState<
     "low" | "midLow" | "midHigh" | "high"
   >("low");
@@ -181,9 +183,9 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
     return payment;
   }, [amountFinanced, termMonths, apr, vehiclePrice]);
 
-  // 💵 Estimación de taxes + fees (simple ejemplo para LA)
-  const taxRate = 0.1025; // 10.25% Los Angeles aprox.
-  const fixedFees = 85 + 58 + 65 + 21; // doc + reg + title + smog aprox.
+  // 💵 Estimación de taxes + fees (ejemplo simple LA County)
+  const taxRate = 0.1025; // ~10.25%
+  const fixedFees = 85 + 58 + 65 + 21; // doc + reg + title + smog aprox
   const estimatedTax = vehiclePrice * taxRate;
   const estimatedFees = vehiclePrice ? estimatedTax + fixedFees : 0;
 
@@ -267,7 +269,7 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
     const name = (formData.get("name") || "").toString();
     const phone = (formData.get("phone") || "").toString();
     const email = (formData.get("email") || "").toString();
-    const preferred = (formData.get("preferred") || "").toString(); // text / email / whatsapp
+    const preferred = (formData.get("preferred") || "").toString(); // Text / Email / WhatsApp
     const date = (formData.get("date") || "").toString();
     const time = (formData.get("time") || "").toString();
     const comments = (formData.get("comments") || "").toString();
@@ -324,6 +326,19 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
   };
 
   const phone = "+1 747-354-4098";
+  const hasMultiplePhotos = car.photos.length > 1;
+
+  const goPrev = () => {
+    setCurrent((prev) =>
+      prev === 0 ? car.photos.length - 1 : prev - 1
+    );
+    setIsZoomed(false);
+  };
+
+  const goNext = () => {
+    setCurrent((prev) => (prev + 1) % car.photos.length);
+    setIsZoomed(false);
+  };
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
@@ -392,56 +407,50 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
             </Link>
 
             <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70">
-              {/* Foto principal (ajustada) */}
+              {/* Foto principal (ajustada, sin miniaturas) */}
               <div className="relative flex h-[220px] w-full items-center justify-center bg-neutral-800 sm:h-[280px] lg:h-[320px]">
                 {mainPhoto ? (
-                  <button
-                    type="button"
-                    onClick={() => setIsLightboxOpen(true)}
-                    className="group flex h-full w-full items-center justify-center"
-                  >
-                    <img
-                      src={mainPhoto}
-                      alt={car.title}
-                      className="max-h-full max-w-full max-w-[520px] object-contain"
-                    />
-                    <span className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
-                      Click to enlarge
-                    </span>
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setIsLightboxOpen(true)}
+                      className="group flex h-full w-full items-center justify-center"
+                    >
+                      <img
+                        src={mainPhoto}
+                        alt={car.title}
+                        className="max-h-full max-w-full max-w-[520px] object-contain"
+                      />
+                      <span className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
+                        Click to enlarge
+                      </span>
+                    </button>
+
+                    {hasMultiplePhotos && (
+                      <button
+                        type="button"
+                        onClick={goPrev}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
+                      >
+                        ‹
+                      </button>
+                    )}
+                    {hasMultiplePhotos && (
+                      <button
+                        type="button"
+                        onClick={goNext}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
+                      >
+                        ›
+                      </button>
+                    )}
+                  </>
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
                     Photo coming soon
                   </div>
                 )}
               </div>
-
-              {/* Miniaturas */}
-              {car.photos.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto border-t border-neutral-800 bg-neutral-900/80 p-2">
-                  {car.photos.map((photo, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => {
-                        setCurrent(idx);
-                        setIsZoomed(false);
-                      }}
-                      className={`h-14 w-20 flex-none overflow-hidden rounded border ${
-                        idx === current
-                          ? "border-emerald-500"
-                          : "border-neutral-700"
-                      }`}
-                    >
-                      <img
-                        src={photo}
-                        alt={`${car.title} ${idx + 1}`}
-                        className="h-full w-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
           </section>
 
@@ -1090,7 +1099,7 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
 
           {/* YOU MAY ALSO LIKE */}
           {suggestions.length > 0 && (
-            <div className="mt-4 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
+            <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
               <p className="mb-3 text-sm font-semibold text-neutral-100">
                 You may also like
               </p>
@@ -1147,6 +1156,26 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
             >
               ✕
             </button>
+
+            {hasMultiplePhotos && (
+              <button
+                type="button"
+                onClick={goPrev}
+                className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
+              >
+                ‹
+              </button>
+            )}
+            {hasMultiplePhotos && (
+              <button
+                type="button"
+                onClick={goNext}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
+              >
+                ›
+              </button>
+            )}
+
             <img
               src={mainPhoto}
               alt={car.title}
@@ -1211,7 +1240,6 @@ export const getStaticProps: GetStaticProps<DetailProps> = async (ctx) => {
     };
   }
 
-  // helper para convertir Car -> Vehicle
   const mapCarToVehicle = (c: Car): Vehicle => {
     const photoStrings = Object.entries(c as any)
       .filter(
@@ -1224,7 +1252,9 @@ export const getStaticProps: GetStaticProps<DetailProps> = async (ctx) => {
     const rawPhotos = photoStrings.join(" ");
     const photos = parsePhotos(rawPhotos);
 
-    const titleBase = `${c.year ?? ""} ${c.make ?? ""} ${c.model ?? ""}`.trim();
+    const titleBase = `${c.year ?? ""} ${c.make ?? ""} ${
+      c.model ?? ""
+    }`.trim();
 
     return {
       id: String(c.id).trim(),
@@ -1253,7 +1283,7 @@ export const getStaticProps: GetStaticProps<DetailProps> = async (ctx) => {
 
   const car = mapCarToVehicle(raw);
 
-  // sugerencias: mismo make si hay, si no cualquiera, máximo 3
+  // sugerencias: mismo make si es posible, si no cualquier otro, máximo 3
   const others = cars.filter((c) => String(c.id).trim() !== id);
   const sameMake = others.filter(
     (c) =>
