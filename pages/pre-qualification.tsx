@@ -6,6 +6,9 @@ export default function PreQualification() {
   const [submitting, setSubmitting] = React.useState(false);
   const [sent, setSent] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [uiLang, setUiLang] = React.useState<"EN" | "ES">("EN"); // idioma UI
+  const [hasLicenseValue, setHasLicenseValue] = React.useState<string>("");
+  const [heardAbout, setHeardAbout] = React.useState<string>("");
 
   // Autollenar vehículo cuando viene desde /pre-qualification?id=...
   React.useEffect(() => {
@@ -32,7 +35,11 @@ export default function PreQualification() {
 
     if (!name || !phone) {
       setSubmitting(false);
-      setError("⚠️ Please enter at least your full name & phone.");
+      setError(
+        uiLang === "EN"
+          ? "⚠️ Please enter at least your full name and phone number."
+          : "⚠️ Por favor ingresa al menos tu nombre completo y número de teléfono."
+      );
       return;
     }
 
@@ -40,7 +47,7 @@ export default function PreQualification() {
       name,
       phone,
       email: (fd.get("email") as string) || "",
-      language: (fd.get("language") as string) || "",
+      language: uiLang, // idioma de la UI
       vehicle: (fd.get("vehicle") as string) || "",
       vin: (fd.get("vin") as string) || "",
       downPayment: (fd.get("downPayment") as string) || "",
@@ -48,8 +55,15 @@ export default function PreQualification() {
       employment: (fd.get("employment") as string) || "",
       monthlyIncome: (fd.get("monthlyIncome") as string) || "",
       hasLicense: (fd.get("hasLicense") as string) || "",
+      licenseNumber: (fd.get("licenseNumber") as string) || "",
       proofIncome: (fd.get("proofIncome") as string) || "",
       contactMethod: (fd.get("contactMethod") as string) || "",
+      heardAbout: (fd.get("heardAbout") as string) || "",
+      referralName: (fd.get("referralName") as string) || "",
+      addressStreet: (fd.get("addressStreet") as string) || "",
+      addressCity: (fd.get("addressCity") as string) || "",
+      addressState: (fd.get("addressState") as string) || "",
+      addressZip: (fd.get("addressZip") as string) || "",
       notes: (fd.get("notes") as string) || "",
       page_url: typeof window !== "undefined" ? window.location.href : "",
     };
@@ -65,36 +79,79 @@ export default function PreQualification() {
 
         setSent(true);
         (e.currentTarget as HTMLFormElement).reset();
+        setHasLicenseValue("");
+        setHeardAbout("");
       })
       .catch((err) => {
         console.error(err);
         setError(
-          err?.message || "There was a problem sending your info. Please try again."
+          uiLang === "EN"
+            ? err?.message ||
+              "There was a problem sending your info. Please try again."
+            : err?.message ||
+              "Hubo un problema enviando tu información. Intenta nuevamente."
         );
       })
       .finally(() => setSubmitting(false));
   }
 
+  const isEN = uiLang === "EN";
+
   return (
     <>
       <Head>
-        <title>Get Pre-Qualified – Available Hybrid R&M Inc.</title>
+        <title>
+          {isEN
+            ? "Get Pre-Qualified – Available Hybrid R&M Inc."
+            : "Pre-Califícate – Available Hybrid R&M Inc."}
+        </title>
       </Head>
 
       <main className="min-h-screen bg-neutral-950 text-white px-4 py-10">
         <div className="mx-auto max-w-3xl">
-          <header className="space-y-2">
-            <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-neutral-500">
-              PRE-QUALIFICATION
-            </p>
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Get Pre-Qualified
-            </h1>
-            <p className="text-sm text-neutral-400">
-              Fill out this short form and we’ll review your application in DealerCenter.{" "}
-              <span className="font-medium text-neutral-200">Bilingual EN/ES.</span>{" "}
-              No hard credit pull.
-            </p>
+          <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-2">
+              <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-neutral-500">
+                {isEN ? "PRE-QUALIFICATION" : "PRE-CALIFICACIÓN"}
+              </p>
+              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                {isEN ? "Get Pre-Qualified" : "Pre-Califícate"}
+              </h1>
+              <p className="text-sm text-neutral-400">
+                {isEN
+                  ? "Fill out this short form and we’ll review your application in DealerCenter. Bilingual EN/ES. No hard credit pull."
+                  : "Llena este formulario corto y revisaremos tu solicitud en DealerCenter. Bilingüe EN/ES. No hacemos hard credit pull."}
+              </p>
+            </div>
+
+            {/* Toggle de idioma */}
+            <div className="mt-2 flex items-center gap-2 self-start rounded-full border border-neutral-700 bg-neutral-900 px-2 py-1 text-[11px] sm:self-auto">
+              <span className="text-neutral-400">
+                {isEN ? "Language" : "Idioma"}
+              </span>
+              <button
+                type="button"
+                onClick={() => setUiLang("EN")}
+                className={`rounded-full px-3 py-1 ${
+                  isEN
+                    ? "bg-white text-neutral-900"
+                    : "text-neutral-300 hover:bg-neutral-800"
+                }`}
+              >
+                EN
+              </button>
+              <button
+                type="button"
+                onClick={() => setUiLang("ES")}
+                className={`rounded-full px-3 py-1 ${
+                  !isEN
+                    ? "bg-white text-neutral-900"
+                    : "text-neutral-300 hover:bg-neutral-800"
+                }`}
+              >
+                ES
+              </button>
+            </div>
           </header>
 
           {!sent ? (
@@ -105,114 +162,286 @@ export default function PreQualification() {
               {/* NAME + PHONE */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field
-                  label="Full Name *"
+                  label={isEN ? "Full Name *" : "Nombre completo *"}
                   name="name"
                   required
-                  placeholder="John Doe"
+                  placeholder={isEN ? "John Doe" : "Juan Pérez"}
                 />
                 <Field
-                  label="Phone *"
+                  label={isEN ? "Phone *" : "Teléfono *"}
                   name="phone"
                   required
                   placeholder="(818) 555-1234"
                 />
               </div>
 
-              {/* EMAIL + LANGUAGE */}
+              {/* ADDRESS */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field
-                  label="Email"
+                  label={isEN ? "Street Address" : "Dirección (calle y número)"}
+                  name="addressStreet"
+                  placeholder={
+                    isEN ? "6726 Reseda Blvd Suite A7" : "6726 Reseda Blvd Suite A7"
+                  }
+                />
+                <Field
+                  label={isEN ? "City" : "Ciudad"}
+                  name="addressCity"
+                  placeholder={isEN ? "Reseda" : "Reseda"}
+                />
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field
+                  label={isEN ? "State" : "Estado"}
+                  name="addressState"
+                  placeholder={isEN ? "CA" : "CA"}
+                />
+                <Field
+                  label={isEN ? "ZIP Code" : "Código ZIP"}
+                  name="addressZip"
+                  placeholder="91335"
+                />
+              </div>
+
+              {/* EMAIL + VEHICLE */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field
+                  label={isEN ? "Email" : "Correo electrónico"}
                   name="email"
                   type="email"
                   placeholder="you@email.com"
                 />
-                <Select
-                  label="Preferred Language"
-                  name="language"
-                  options={["English", "Español"]}
-                />
-              </div>
-
-              {/* VEHICLE + VIN */}
-              <div className="grid gap-4 sm:grid-cols-2">
                 <Field
-                  label="Vehicle of Interest"
+                  label={isEN ? "Vehicle of Interest" : "Vehículo de interés"}
                   name="vehicle"
                   placeholder="2013 Toyota Prius"
                 />
+              </div>
+
+              {/* VIN opcional + DOWN PAYMENT */}
+              <div className="grid gap-4 sm:grid-cols-2">
                 <Field
-                  label="VIN (optional / opcional)"
+                  label={isEN ? "VIN (optional)" : "VIN (opcional)"}
                   name="vin"
                   placeholder="JTDKN3DU..."
                 />
-              </div>
-
-              {/* DOWNPAYMENT + BUDGET */}
-              <div className="grid gap-4 sm:grid-cols-2">
                 <Field
-                  label="Down Payment"
+                  label={isEN ? "Down Payment" : "Pago inicial"}
                   name="downPayment"
                   placeholder="$2,000"
-                  help="Amount you can pay today as initial payment. / Cantidad que puedes pagar hoy como pago inicial."
+                  help={
+                    isEN
+                      ? "Amount you can pay today as initial payment."
+                      : "Cantidad que puedes pagar hoy como pago inicial."
+                  }
                 />
+              </div>
+
+              {/* BUDGET + INCOME */}
+              <div className="grid gap-4 sm:grid-cols-2">
                 <Field
-                  label="Monthly Budget"
+                  label={isEN ? "Monthly Budget" : "Presupuesto mensual"}
                   name="monthlyBudget"
                   placeholder="$350"
-                  help="Maximum car payment per month you feel comfortable with (without insurance). / Pago mensual máximo con el que te sientas cómodo (sin incluir seguro)."
-                />
-              </div>
-
-              {/* EMPLOYMENT + INCOME */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Select
-                  label="Employment"
-                  name="employment"
-                  options={[
-                    "Full-time",
-                    "Part-time",
-                    "Self-employed",
-                    "Unemployed",
-                  ]}
-                  help="Your current work situation. / Tu situación laboral actual."
+                  help={
+                    isEN
+                      ? "Max monthly car payment you feel comfortable with (without insurance)."
+                      : "Pago mensual máximo con el que te sientes cómodo (sin incluir seguro)."
+                  }
                 />
                 <Field
-                  label="Monthly Income"
+                  label={isEN ? "Monthly Income" : "Ingreso mensual"}
                   name="monthlyIncome"
                   placeholder="$4,000"
-                  help="Approximate income per month before taxes. / Ingreso aproximado al mes antes de impuestos."
+                  help={
+                    isEN
+                      ? "Approximate income per month before taxes."
+                      : "Ingreso aproximado al mes antes de impuestos."
+                  }
                 />
               </div>
 
-              {/* NEW FIELDS */}
+              {/* EMPLOYMENT + LICENSE */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <Select
-                  label="Driver License?"
-                  name="hasLicense"
-                  options={["Yes", "No", "Expired"]}
+                  label={isEN ? "Employment" : "Situación laboral"}
+                  name="employment"
+                  options={
+                    isEN
+                      ? ["Full-time", "Part-time", "Self-employed", "Unemployed"]
+                      : [
+                          "Tiempo completo",
+                          "Medio tiempo",
+                          "Independiente",
+                          "Desempleado",
+                        ]
+                  }
+                  help={
+                    isEN
+                      ? "Your current work situation."
+                      : "Tu situación laboral actual."
+                  }
+                />
+
+                {/* Driver License select con estado */}
+                <div className="grid gap-2">
+                  <div className="flex items-center gap-1">
+                    <label className="text-sm text-neutral-200">
+                      {isEN
+                        ? "Do you have a driver's license?"
+                        : "¿Tienes licencia de conducir?"}
+                    </label>
+                  </div>
+                  <select
+                    name="hasLicense"
+                    value={hasLicenseValue}
+                    onChange={(e) => setHasLicenseValue(e.target.value)}
+                    className="rounded-2xl border border-neutral-700 bg-neutral-900 text-sm text-white px-3 py-2.5 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 transition"
+                  >
+                    <option value="">
+                      {isEN ? "Select…" : "Selecciona…"}
+                    </option>
+                    <option value="yes">
+                      {isEN
+                        ? "Yes, I have a valid license"
+                        : "Sí, tengo licencia vigente"}
+                    </option>
+                    <option value="no">
+                      {isEN ? "No license" : "No tengo licencia"}
+                    </option>
+                    <option value="expired">
+                      {isEN ? "Expired license" : "Licencia vencida"}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              {/* License number condicional */}
+              {hasLicenseValue === "yes" && (
+                <Field
+                  label={
+                    isEN
+                      ? "Driver's License Number"
+                      : "Número de licencia de conducir"
+                  }
+                  name="licenseNumber"
+                  placeholder={isEN ? "D1234567" : "D1234567"}
+                />
+              )}
+
+              {/* PROOF OF INCOME + CONTACT METHOD */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Select
+                  label={
+                    isEN
+                      ? "Proof of Income Available?"
+                      : "¿Tienes prueba de ingresos?"
+                  }
+                  name="proofIncome"
+                  options={
+                    isEN
+                      ? ["Yes", "No", "Self-employed / No documents"]
+                      : ["Sí", "No", "Independiente / Sin documentos"]
+                  }
+                  help={
+                    isEN
+                      ? "Pay stubs, bank statements or any document that shows your income."
+                      : "Recibos de pago, estados de cuenta bancarios u otro documento que muestre tus ingresos."
+                  }
                 />
                 <Select
-                  label="Proof of Income Available?"
-                  name="proofIncome"
-                  options={["Yes", "No", "Self-employed / No documents"]}
+                  label={
+                    isEN
+                      ? "How do you want us to contact you?"
+                      : "¿Cómo prefieres que te contactemos?"
+                  }
+                  name="contactMethod"
+                  options={
+                    isEN
+                      ? ["Phone Call", "WhatsApp", "Text Message", "Email"]
+                      : ["Llamada", "WhatsApp", "Mensaje de texto", "Email"]
+                  }
                 />
               </div>
 
-              {/* CONTACT METHOD */}
-              <Select
-                label="How do you want us to contact you?"
-                name="contactMethod"
-                options={["Phone Call", "WhatsApp", "Text Message", "Email"]}
-              />
+              {/* HOW DID YOU HEAR ABOUT US */}
+              <div className="grid gap-2">
+                <div className="flex items-center gap-1">
+                  <label className="text-sm text-neutral-200">
+                    {isEN
+                      ? "How did you hear about us?"
+                      : "¿Cómo nos conociste?"}
+                  </label>
+                  <InfoDot
+                    text={
+                      isEN
+                        ? "This helps us understand where our clients are coming from."
+                        : "Esto nos ayuda a entender de dónde llegan nuestros clientes."
+                    }
+                  />
+                </div>
+                <select
+                  name="heardAbout"
+                  value={heardAbout}
+                  onChange={(e) => setHeardAbout(e.target.value)}
+                  className="rounded-2xl border border-neutral-700 bg-neutral-900 text-sm text-white px-3 py-2.5 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 transition"
+                >
+                  <option value="">
+                    {isEN ? "Select…" : "Selecciona…"}
+                  </option>
+                  <option value="online">
+                    {isEN
+                      ? "Online (website / marketplace)"
+                      : "En línea (página web / marketplace)"}
+                  </option>
+                  <option value="friend">
+                    {isEN
+                      ? "Friend / Family recommended"
+                      : "Recomendado por amigo / familia"}
+                  </option>
+                  <option value="driveby">
+                    {isEN
+                      ? "Drove by / Saw location"
+                      : "Pasé por el lugar / Vi la ubicación"}
+                  </option>
+                  <option value="social">
+                    {isEN ? "Social Media" : "Redes sociales"}
+                  </option>
+                  <option value="other">
+                    {isEN ? "Other" : "Otro"}
+                  </option>
+                </select>
+              </div>
+
+              {heardAbout === "friend" && (
+                <Field
+                  label={
+                    isEN
+                      ? "Who referred you?"
+                      : "¿Quién te recomendó?"
+                  }
+                  name="referralName"
+                  placeholder={
+                    isEN ? "Friend's name" : "Nombre de la persona"
+                  }
+                />
+              )}
 
               {/* NOTES */}
               <div className="grid gap-2">
-                <label className="text-sm text-neutral-200">Notes</label>
+                <label className="text-sm text-neutral-200">
+                  {isEN ? "Notes" : "Notas"}
+                </label>
                 <textarea
                   name="notes"
                   rows={3}
                   className="rounded-2xl border border-neutral-700 bg-neutral-900/80 px-3 py-2.5 text-sm text-white placeholder:text-neutral-500 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 transition"
-                  placeholder="Anything else we should know? (Co-signer, job type, schedule, etc.)"
+                  placeholder={
+                    isEN
+                      ? "Anything else we should know? (Co-signer, job type, schedule, etc.)"
+                      : "¿Algo más que debamos saber? (Co-signer, tipo de trabajo, horario, etc.)"
+                  }
                 />
               </div>
 
@@ -226,16 +455,23 @@ export default function PreQualification() {
                 disabled={submitting}
                 className="mt-2 inline-flex items-center justify-center rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-semibold text-neutral-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {submitting ? "Sending…" : "Send my info"}
+                {submitting
+                  ? isEN
+                    ? "Sending…"
+                    : "Enviando…"
+                  : isEN
+                  ? "Send my info"
+                  : "Enviar mi información"}
               </button>
 
               <p className="text-[11px] text-neutral-500">
-                By submitting this form you agree to be contacted by phone, text,
-                WhatsApp or email based on your preferred contact method.
+                {isEN
+                  ? "By submitting this form you agree to be contacted by phone, text, WhatsApp or email based on your preferred contact method."
+                  : "Al enviar este formulario aceptas que te contactemos por llamada, texto, WhatsApp o correo electrónico según tu método preferido."}
               </p>
             </form>
           ) : (
-            <SuccessBox />
+            <SuccessBox uiLang={uiLang} />
           )}
         </div>
       </main>
@@ -305,21 +541,23 @@ function InfoDot({ text }: { text: string }) {
   );
 }
 
-function SuccessBox() {
+function SuccessBox({ uiLang }: { uiLang: "EN" | "ES" }) {
+  const isEN = uiLang === "EN";
   return (
     <div className="mt-10 rounded-3xl border border-emerald-500/40 bg-emerald-900/20 p-8 text-center shadow-lg">
       <h2 className="text-2xl font-bold text-emerald-400">
-        ✅ Information Sent!
+        {isEN ? "✅ Information Sent!" : "✅ ¡Información enviada!"}
       </h2>
       <p className="mt-3 text-sm text-neutral-100">
-        Thank you! We’ve received your information and will contact you shortly
-        with the next steps.
+        {isEN
+          ? "Thank you! We’ve received your information and will contact you shortly with the next steps."
+          : "¡Gracias! Hemos recibido tu información y te contactaremos pronto con los siguientes pasos."}
       </p>
       <a
         href="/pre-qualification"
         className="mt-5 inline-block rounded-2xl border border-emerald-400 bg-transparent px-5 py-2 text-sm font-medium text-emerald-300 hover:bg-emerald-500/10"
       >
-        Send another request
+        {isEN ? "Send another request" : "Enviar otra solicitud"}
       </a>
     </div>
   );
