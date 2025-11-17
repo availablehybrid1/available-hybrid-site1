@@ -2,6 +2,7 @@
 import * as React from "react";
 import type { GetStaticProps } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { getInventory, type Car } from "../lib/getInventory";
 
 // Convierte fotos de Drive a imágenes visibles
@@ -42,10 +43,10 @@ export default function Inventory({ inventory }: InventoryProps) {
   const [yearFilter, setYearFilter] = React.useState<string>("ALL");
   const [sortBy, setSortBy] = React.useState<
     "priceDesc" | "priceAsc" | "yearDesc" | "yearAsc"
-  >("priceDesc"); // 🔥 default: de más caro a más barato
+  >("priceDesc"); // default: más caro → más barato
   const [search, setSearch] = React.useState("");
 
-  // lista de marcas únicas
+  // marcas únicas
   const makes = React.useMemo(() => {
     const set = new Set<string>();
     for (const car of inventory) {
@@ -54,13 +55,13 @@ export default function Inventory({ inventory }: InventoryProps) {
     return Array.from(set).sort();
   }, [inventory]);
 
-  // lista de años únicos
+  // años únicos
   const years = React.useMemo(() => {
     const set = new Set<number>();
     for (const car of inventory) {
-      if (car.year != null) set.add(car.year);
+      if (typeof car.year === "number") set.add(car.year);
     }
-    return Array.from(set).sort((a, b) => b - a); // de más nuevo a más viejo
+    return Array.from(set).sort((a, b) => b - a);
   }, [inventory]);
 
   // Filtrado + orden + búsqueda
@@ -106,92 +107,61 @@ export default function Inventory({ inventory }: InventoryProps) {
       const yb = b.year ?? 0;
 
       switch (sortBy) {
-        case "priceDesc":
-          return pb - pa; // alto → bajo
         case "priceAsc":
-          return pa - pb; // bajo → alto
-        case "yearDesc":
-          return yb - ya; // nuevo → viejo
+          return pa - pb;
+        case "priceDesc":
+          return pb - pa;
         case "yearAsc":
-          return ya - yb; // viejo → nuevo
+          return ya - yb;
+        case "yearDesc":
+          return yb - ya;
         default:
-          return 0;
+          return pb - pa;
       }
     });
 
     return cars;
   }, [inventory, makeFilter, yearFilter, sortBy, search]);
 
-  const phone = "+1 747-354-4098";
-
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
-      {/* HEADER: franja superior con SOLO el logo + dirección + call */}
-      <header className="border-b border-neutral-900 bg-black/80">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link href="/" className="flex items-center gap-3">
-            <img
-              src="/logo. available hybrid premium.png"
-              alt="Available Hybrid R&M Inc. logo"
-              className="h-[56px] w-auto object-contain"
+      {/* 🔹 BARRA SUPERIOR TIPO DEALER (LOGO GRANDE + CALL) */}
+      <header className="border-b border-neutral-900 bg-black/60">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo.%20available%20hybrid%20premium.png"
+              alt="Available Hybrid R&M Inc."
+              width={220}
+              height={70}
+              priority
+              className="h-[70px] w-auto object-contain"
             />
           </Link>
-          <div className="flex flex-col items-end gap-1 text-right text-[11px] text-neutral-400">
-            <span>6726 Reseda Blvd Suite A7 · Reseda, CA 91335</span>
+
+          <div className="hidden text-right text-[11px] text-neutral-400 sm:block">
+            <p>6726 Reseda Blvd Suite A7 · Reseda, CA 91335</p>
             <a
-              href={`tel:${phone.replace(/[^+\d]/g, "")}`}
-              className="inline-flex items-center justify-center rounded-full border border-neutral-600 bg-neutral-900/60 px-4 py-1.5 text-[11px] font-medium tracking-[0.12em] text-neutral-100 hover:border-neutral-300"
+              href="tel:+17473544098"
+              className="mt-2 inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-4 py-1.5 font-medium uppercase tracking-[0.16em] text-white hover:bg-white/10"
             >
-              CALL {phone}
+              Call +1 747-354-4098
             </a>
           </div>
         </div>
       </header>
 
+      {/* 🔹 CONTENIDO PRINCIPAL */}
       <div className="mx-auto max-w-6xl px-4 pb-12 pt-6">
-        {/* Resumen + barra de búsqueda (tipo dealer grande) */}
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        {/* Resumen + barra superior tipo J&S */}
+        <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <p className="text-sm text-neutral-400">
             {visible.length} vehicle{visible.length === 1 ? "" : "s"} available
           </p>
 
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-            {/* Filtros rápidos arriba (make / sort) en pantallas chicas */}
-            <div className="flex flex-1 gap-2 sm:hidden">
-              <select
-                value={makeFilter}
-                onChange={(e) => setMakeFilter(e.target.value)}
-                className="w-full rounded-full border border-neutral-800 bg-neutral-900/90 px-3 py-1.5 text-xs text-neutral-100 outline-none focus:border-emerald-400"
-              >
-                <option value="ALL">All makes</option>
-                {makes.map((mk) => (
-                  <option key={mk} value={mk}>
-                    {mk}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={sortBy}
-                onChange={(e) =>
-                  setSortBy(
-                    e.target.value as
-                      | "priceDesc"
-                      | "priceAsc"
-                      | "yearDesc"
-                      | "yearAsc"
-                  )
-                }
-                className="w-full rounded-full border border-neutral-800 bg-neutral-900/90 px-3 py-1.5 text-xs text-neutral-100 outline-none focus:border-emerald-400"
-              >
-                <option value="priceDesc">Price · High to Low</option>
-                <option value="priceAsc">Price · Low to High</option>
-                <option value="yearDesc">Year · New to Old</option>
-                <option value="yearAsc">Year · Old to New</option>
-              </select>
-            </div>
-
-            {/* Search */}
-            <div className="relative w-full sm:w-[260px]">
+          <div className="flex flex-1 flex-col items-stretch gap-3 md:flex-row md:items-center md:justify-end">
+            {/* search grande al estilo referencia */}
+            <div className="relative w-full max-w-md">
               <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-xs text-neutral-500">
                 🔍
               </span>
@@ -199,57 +169,13 @@ export default function Inventory({ inventory }: InventoryProps) {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by model, year, VIN..."
-                className="w-full rounded-full border border-neutral-800 bg-neutral-900/80 py-1.5 pl-7 pr-3 text-xs text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-emerald-400"
+                className="w-full rounded-full border border-neutral-800 bg-neutral-900/80 pl-8 pr-3 py-2 text-xs text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-emerald-400"
               />
             </div>
-          </div>
-        </div>
 
-        {/* LAYOUT: filtros izquierda / cards derecha (estilo JS Autohaus pero más minimalista) */}
-        <div className="grid gap-6 md:grid-cols-[260px,minmax(0,1fr)]">
-          {/* FILTROS (desktop) */}
-          <aside className="hidden flex-col gap-5 rounded-2xl border border-neutral-900 bg-black/40 p-4 text-xs md:flex">
-            <p className="text-[11px] font-semibold tracking-[0.18em] text-neutral-400">
-              FILTERS
-            </p>
-
-            {/* Make */}
-            <div className="space-y-1">
-              <p className="text-[11px] text-neutral-500">Make</p>
-              <select
-                value={makeFilter}
-                onChange={(e) => setMakeFilter(e.target.value)}
-                className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-2 py-1.5 text-[11px] text-neutral-100 outline-none focus:border-emerald-400"
-              >
-                <option value="ALL">All makes</option>
-                {makes.map((mk) => (
-                  <option key={mk} value={mk}>
-                    {mk}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Year */}
-            <div className="space-y-1">
-              <p className="text-[11px] text-neutral-500">Year</p>
-              <select
-                value={yearFilter}
-                onChange={(e) => setYearFilter(e.target.value)}
-                className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-2 py-1.5 text-[11px] text-neutral-100 outline-none focus:border-emerald-400"
-              >
-                <option value="ALL">All years</option>
-                {years.map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Sort by */}
-            <div className="space-y-1">
-              <p className="text-[11px] text-neutral-500">Sort by</p>
+            {/* sort compacto a la derecha */}
+            <div className="flex items-center gap-2 text-[11px] text-neutral-400">
+              <span className="hidden md:inline">Sort</span>
               <select
                 value={sortBy}
                 onChange={(e) =>
@@ -261,7 +187,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                       | "yearAsc"
                   )
                 }
-                className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-2 py-1.5 text-[11px] text-neutral-100 outline-none focus:border-emerald-400"
+                className="rounded-full border border-neutral-800 bg-neutral-900/80 px-3 py-1.5 text-[11px] text-neutral-100 outline-none focus:border-emerald-400"
               >
                 <option value="priceDesc">Price · High to Low</option>
                 <option value="priceAsc">Price · Low to High</option>
@@ -269,85 +195,162 @@ export default function Inventory({ inventory }: InventoryProps) {
                 <option value="yearAsc">Year · Old to New</option>
               </select>
             </div>
+          </div>
+        </div>
+
+        {/* Layout: sidebar filtros + grid cards (similar a la 1ra foto) */}
+        <div className="grid gap-6 lg:grid-cols-[230px,1fr]">
+          {/* 🔹 SIDEBAR FILTROS TIPO J&S (simple y elegante) */}
+          <aside className="hidden rounded-2xl border border-neutral-900 bg-black/40 p-4 text-xs lg:block">
+            <p className="mb-4 text-[11px] font-semibold tracking-[0.22em] text-neutral-500 uppercase">
+              Filters
+            </p>
+
+            <div className="space-y-4">
+              {/* Make */}
+              <div>
+                <p className="mb-1 text-[11px] font-medium text-neutral-400">
+                  Make
+                </p>
+                <select
+                  value={makeFilter}
+                  onChange={(e) => setMakeFilter(e.target.value)}
+                  className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-2 py-2 text-[11px] text-neutral-100 outline-none focus:border-emerald-400"
+                >
+                  <option value="ALL">All makes</option>
+                  {makes.map((mk) => (
+                    <option key={mk} value={mk}>
+                      {mk}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Year */}
+              <div>
+                <p className="mb-1 text-[11px] font-medium text-neutral-400">
+                  Year
+                </p>
+                <select
+                  value={yearFilter}
+                  onChange={(e) => setYearFilter(e.target.value)}
+                  className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-2 py-2 text-[11px] text-neutral-100 outline-none focus:border-emerald-400"
+                >
+                  <option value="ALL">All years</option>
+                  {years.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Sort (duplicado aquí para usabilidad) */}
+              <div>
+                <p className="mb-1 text-[11px] font-medium text-neutral-400">
+                  Sort by
+                </p>
+                <select
+                  value={sortBy}
+                  onChange={(e) =>
+                    setSortBy(
+                      e.target.value as
+                        | "priceDesc"
+                        | "priceAsc"
+                        | "yearDesc"
+                        | "yearAsc"
+                    )
+                  }
+                  className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-2 py-2 text-[11px] text-neutral-100 outline-none focus:border-emerald-400"
+                >
+                  <option value="priceDesc">Price · High to Low</option>
+                  <option value="priceAsc">Price · Low to High</option>
+                  <option value="yearDesc">Year · New to Old</option>
+                  <option value="yearAsc">Year · Old to New</option>
+                </select>
+              </div>
+            </div>
           </aside>
 
-          {/* GRID DE VEHÍCULOS */}
-          <section className="grid gap-4 lg:grid-cols-2">
+          {/* 🔹 GRID DE VEHÍCULOS (tarjetas amplias) */}
+          <section className="space-y-4">
             {visible.length === 0 ? (
               <p className="text-sm text-neutral-400">
                 No vehicles found with the selected filters. Try changing your
                 search or filters.
               </p>
             ) : (
-              visible.map((car) => {
-                const mainPhoto = car.photos[0] ?? "";
-                const priceLabel =
-                  car.price != null
-                    ? `$${car.price.toLocaleString()}`
-                    : "Call for price";
+              <div className="grid gap-4 md:grid-cols-2">
+                {visible.map((car) => {
+                  const mainPhoto = car.photos[0] ?? "";
+                  const priceLabel =
+                    car.price != null
+                      ? `$${car.price.toLocaleString()}`
+                      : "Call for price";
 
-                return (
-                  <Link
-                    key={car.id}
-                    href={`/${encodeURIComponent(car.id)}`}
-                    className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-900 bg-black/40 transition hover:border-emerald-500/70 hover:bg-black/60"
-                  >
-                    {/* Badging superior */}
-                    <div className="flex items-center justify-between px-4 pt-3 text-[10px] uppercase tracking-[0.18em] text-neutral-400">
-                      <span className="inline-flex items-center gap-1 rounded-full border border-neutral-700 bg-black/60 px-2 py-0.5">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                        AVAILABLE HYBRID
-                      </span>
-                      {car.year && (
-                        <span className="text-neutral-500">{car.year}</span>
-                      )}
-                    </div>
-
-                    {/* Imagen */}
-                    <div className="mt-2 h-40 w-full overflow-hidden bg-neutral-900">
-                      {mainPhoto ? (
-                        <img
-                          src={mainPhoto}
-                          alt={car.title}
-                          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-[11px] text-neutral-500">
-                          Photo coming soon
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex flex-1 flex-col px-4 pb-4 pt-3 text-xs">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="text-[11px] text-neutral-400">
-                            {car.year} {car.make}
-                          </p>
-                          <h3 className="text-sm font-semibold text-neutral-50">
-                            {car.model || car.title}
-                          </h3>
-                        </div>
-                        <p className="whitespace-nowrap text-sm font-semibold text-emerald-300">
-                          {priceLabel}
-                        </p>
+                  return (
+                    <Link
+                      key={car.id}
+                      href={`/${encodeURIComponent(car.id)}`}
+                      className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-900 bg-black/50 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] transition hover:border-emerald-500/70 hover:bg-black/70"
+                    >
+                      {/* badging superior */}
+                      <div className="flex items-center justify-between px-4 pt-3 text-[10px] uppercase tracking-[0.18em] text-neutral-400">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-neutral-700 bg-black/60 px-2 py-0.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                          Available Hybrid
+                        </span>
+                        {car.year && (
+                          <span className="text-neutral-500">{car.year}</span>
+                        )}
                       </div>
 
-                      <p className="mt-2 line-clamp-2 text-[11px] text-neutral-400">
-                        {car.description ||
-                          `${car.mileage?.toLocaleString() || "—"} mi · ${
-                            car.fuel || "Hybrid"
-                          } · ${car.transmission || "Automatic"}`}
-                      </p>
+                      {/* IMAGEN GRANDE */}
+                      <div className="mt-2 h-44 w-full overflow-hidden bg-neutral-900 md:h-52">
+                        {mainPhoto ? (
+                          <img
+                            src={mainPhoto}
+                            alt={car.title}
+                            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-[11px] text-neutral-500">
+                            Photo coming soon
+                          </div>
+                        )}
+                      </div>
 
-                      <p className="mt-2 text-[10px] font-mono uppercase text-neutral-500">
-                        VIN: {car.vin || "N/A"}
-                      </p>
-                    </div>
-                  </Link>
-                );
-              })
+                      {/* INFO */}
+                      <div className="flex flex-1 flex-col px-4 pb-4 pt-3 text-xs">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="text-[11px] text-neutral-400">
+                              {car.year} {car.make}
+                            </p>
+                            <h3 className="text-sm font-semibold text-neutral-50">
+                              {car.model || car.title}
+                            </h3>
+                          </div>
+                          <p className="whitespace-nowrap text-sm font-semibold text-emerald-300">
+                            {priceLabel}
+                          </p>
+                        </div>
+
+                        <p className="mt-2 line-clamp-2 text-[11px] text-neutral-400">
+                          {car.description ||
+                            `${car.mileage?.toLocaleString() || "—"} mi · ${
+                              car.fuel || "Hybrid"
+                            } · ${car.transmission || "Automatic"}`}
+                        </p>
+
+                        <p className="mt-2 text-[10px] font-mono uppercase text-neutral-500">
+                          VIN: {car.vin || "N/A"}
+                        </p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
             )}
           </section>
         </div>
