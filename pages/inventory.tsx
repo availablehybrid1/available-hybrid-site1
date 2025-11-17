@@ -43,10 +43,10 @@ export default function Inventory({ inventory }: InventoryProps) {
   const [yearFilter, setYearFilter] = React.useState<string>("ALL");
   const [sortBy, setSortBy] = React.useState<
     "priceDesc" | "priceAsc" | "yearDesc" | "yearAsc"
-  >("priceDesc"); // default: más caro → más barato
+  >("priceDesc");
   const [search, setSearch] = React.useState("");
 
-  // marcas únicas
+  // Marcas únicas
   const makes = React.useMemo(() => {
     const set = new Set<string>();
     for (const car of inventory) {
@@ -55,7 +55,7 @@ export default function Inventory({ inventory }: InventoryProps) {
     return Array.from(set).sort();
   }, [inventory]);
 
-  // años únicos
+  // Años únicos
   const years = React.useMemo(() => {
     const set = new Set<number>();
     for (const car of inventory) {
@@ -68,20 +68,17 @@ export default function Inventory({ inventory }: InventoryProps) {
   const visible = React.useMemo(() => {
     let cars = [...inventory];
 
-    // filtro por marca
     if (makeFilter !== "ALL") {
       cars = cars.filter(
         (c) => c.make.toLowerCase() === makeFilter.toLowerCase()
       );
     }
 
-    // filtro por año
     if (yearFilter !== "ALL") {
       const y = Number(yearFilter);
       cars = cars.filter((c) => c.year === y);
     }
 
-    // búsqueda simple por modelo / año / VIN / descripción
     if (search.trim()) {
       const q = search.toLowerCase();
       cars = cars.filter((c) => {
@@ -99,7 +96,6 @@ export default function Inventory({ inventory }: InventoryProps) {
       });
     }
 
-    // sort
     cars.sort((a, b) => {
       const pa = a.price ?? 0;
       const pb = b.price ?? 0;
@@ -125,20 +121,23 @@ export default function Inventory({ inventory }: InventoryProps) {
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
-      {/* 🔹 BARRA SUPERIOR TIPO DEALER (LOGO GRANDE + CALL) */}
-      <header className="border-b border-neutral-900 bg-black/60">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+      {/* 🔹 FRANJA SUPERIOR – LOGO GRANDE COMO EN LA PORTADA */}
+      <header className="border-b border-neutral-900 bg-black/70">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+          {/* Logo grande (MISMO ARCHIVO Y TAMAÑO DE LA PORTADA) */}
           <Link href="/" className="flex items-center">
-            <Image
-              src="/logo.%20available%20hybrid%20premium.png"
-              alt="Available Hybrid R&M Inc."
-              width={220}
-              height={70}
-              priority
-              className="h-[70px] w-auto object-contain"
-            />
+            <div className="relative h-[70px] w-[220px]">
+              <Image
+                src="/logo.%20available%20hybrid%20premium.png"
+                alt="Available Hybrid R&M Inc."
+                fill
+                priority
+                className="object-contain"
+              />
+            </div>
           </Link>
 
+          {/* Dirección + botón de llamada */}
           <div className="hidden text-right text-[11px] text-neutral-400 sm:block">
             <p>6726 Reseda Blvd Suite A7 · Reseda, CA 91335</p>
             <a
@@ -151,16 +150,15 @@ export default function Inventory({ inventory }: InventoryProps) {
         </div>
       </header>
 
-      {/* 🔹 CONTENIDO PRINCIPAL */}
+      {/* 🔹 CONTENIDO PRINCIPAL – ESTILO DEALER CON SIDEBAR */}
       <div className="mx-auto max-w-6xl px-4 pb-12 pt-6">
-        {/* Resumen + barra superior tipo J&S */}
-        <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        {/* Resumen + buscador arriba, tipo J&S */}
+        <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <p className="text-sm text-neutral-400">
             {visible.length} vehicle{visible.length === 1 ? "" : "s"} available
           </p>
 
           <div className="flex flex-1 flex-col items-stretch gap-3 md:flex-row md:items-center md:justify-end">
-            {/* search grande al estilo referencia */}
             <div className="relative w-full max-w-md">
               <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-xs text-neutral-500">
                 🔍
@@ -173,7 +171,6 @@ export default function Inventory({ inventory }: InventoryProps) {
               />
             </div>
 
-            {/* sort compacto a la derecha */}
             <div className="flex items-center gap-2 text-[11px] text-neutral-400">
               <span className="hidden md:inline">Sort</span>
               <select
@@ -198,37 +195,32 @@ export default function Inventory({ inventory }: InventoryProps) {
           </div>
         </div>
 
-        {/* Layout: sidebar filtros + grid cards (similar a la 1ra foto) */}
-        <div className="grid gap-6 lg:grid-cols-[230px,1fr]">
-          {/* 🔹 SIDEBAR FILTROS TIPO J&S (simple y elegante) */}
+        {/* Layout con sidebar de filtros + grid de vehículos */}
+        <div className="grid gap-6 lg:grid-cols-[240px,1fr]">
+          {/* 🔹 SIDEBAR – VISUAL TIPO J&S (Price, Year, Make...) */}
           <aside className="hidden rounded-2xl border border-neutral-900 bg-black/40 p-4 text-xs lg:block">
             <p className="mb-4 text-[11px] font-semibold tracking-[0.22em] text-neutral-500 uppercase">
               Filters
             </p>
 
             <div className="space-y-4">
-              {/* Make */}
-              <div>
-                <p className="mb-1 text-[11px] font-medium text-neutral-400">
-                  Make
-                </p>
-                <select
-                  value={makeFilter}
-                  onChange={(e) => setMakeFilter(e.target.value)}
-                  className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-2 py-2 text-[11px] text-neutral-100 outline-none focus:border-emerald-400"
+              {/* Price (solo visual por ahora) */}
+              <div className="border-b border-neutral-900 pb-3">
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between text-[12px] font-medium text-neutral-200"
                 >
-                  <option value="ALL">All makes</option>
-                  {makes.map((mk) => (
-                    <option key={mk} value={mk}>
-                      {mk}
-                    </option>
-                  ))}
-                </select>
+                  <span>Price</span>
+                  <span className="text-neutral-500">&rsaquo;</span>
+                </button>
+                <p className="mt-1 text-[11px] text-neutral-500">
+                  Adjust at dealership – ask for BHPH options.
+                </p>
               </div>
 
               {/* Year */}
-              <div>
-                <p className="mb-1 text-[11px] font-medium text-neutral-400">
+              <div className="border-b border-neutral-900 pb-3">
+                <p className="mb-1 text-[11px] font-medium text-neutral-200">
                   Year
                 </p>
                 <select
@@ -245,34 +237,59 @@ export default function Inventory({ inventory }: InventoryProps) {
                 </select>
               </div>
 
-              {/* Sort (duplicado aquí para usabilidad) */}
-              <div>
-                <p className="mb-1 text-[11px] font-medium text-neutral-400">
-                  Sort by
+              {/* Make */}
+              <div className="border-b border-neutral-900 pb-3">
+                <p className="mb-1 text-[11px] font-medium text-neutral-200">
+                  Make
                 </p>
                 <select
-                  value={sortBy}
-                  onChange={(e) =>
-                    setSortBy(
-                      e.target.value as
-                        | "priceDesc"
-                        | "priceAsc"
-                        | "yearDesc"
-                        | "yearAsc"
-                    )
-                  }
+                  value={makeFilter}
+                  onChange={(e) => setMakeFilter(e.target.value)}
                   className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-2 py-2 text-[11px] text-neutral-100 outline-none focus:border-emerald-400"
                 >
-                  <option value="priceDesc">Price · High to Low</option>
-                  <option value="priceAsc">Price · Low to High</option>
-                  <option value="yearDesc">Year · New to Old</option>
-                  <option value="yearAsc">Year · Old to New</option>
+                  <option value="ALL">All makes</option>
+                  {makes.map((mk) => (
+                    <option key={mk} value={mk}>
+                      {mk}
+                    </option>
+                  ))}
                 </select>
+              </div>
+
+              {/* Bloques vacíos solo para parecerse más al diseño J&S */}
+              <div className="border-b border-neutral-900 pb-3">
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between text-[12px] font-medium text-neutral-200"
+                >
+                  <span>Model</span>
+                  <span className="text-neutral-500">&rsaquo;</span>
+                </button>
+              </div>
+
+              <div className="border-b border-neutral-900 pb-3">
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between text-[12px] font-medium text-neutral-200"
+                >
+                  <span>Trim</span>
+                  <span className="text-neutral-500">&rsaquo;</span>
+                </button>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between text-[12px] font-medium text-neutral-200"
+                >
+                  <span>See all filters</span>
+                  <span className="text-neutral-500">&rsaquo;</span>
+                </button>
               </div>
             </div>
           </aside>
 
-          {/* 🔹 GRID DE VEHÍCULOS (tarjetas amplias) */}
+          {/* 🔹 GRID DE VEHÍCULOS */}
           <section className="space-y-4">
             {visible.length === 0 ? (
               <p className="text-sm text-neutral-400">
@@ -292,9 +309,9 @@ export default function Inventory({ inventory }: InventoryProps) {
                     <Link
                       key={car.id}
                       href={`/${encodeURIComponent(car.id)}`}
-                      className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-900 bg-black/50 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] transition hover:border-emerald-500/70 hover:bg-black/70"
+                      className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-900 bg-black/55 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] transition hover:border-emerald-500/70 hover:bg-black/75"
                     >
-                      {/* badging superior */}
+                      {/* Badging superior */}
                       <div className="flex items-center justify-between px-4 pt-3 text-[10px] uppercase tracking-[0.18em] text-neutral-400">
                         <span className="inline-flex items-center gap-1 rounded-full border border-neutral-700 bg-black/60 px-2 py-0.5">
                           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
@@ -305,7 +322,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                         )}
                       </div>
 
-                      {/* IMAGEN GRANDE */}
+                      {/* Imagen grande */}
                       <div className="mt-2 h-44 w-full overflow-hidden bg-neutral-900 md:h-52">
                         {mainPhoto ? (
                           <img
@@ -320,7 +337,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                         )}
                       </div>
 
-                      {/* INFO */}
+                      {/* Info */}
                       <div className="flex flex-1 flex-col px-4 pb-4 pt-3 text-xs">
                         <div className="flex items-start justify-between gap-2">
                           <div>
