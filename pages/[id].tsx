@@ -2,6 +2,7 @@
 import * as React from "react";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { getInventory, type Car } from "../lib/getInventory";
 
 // misma función que en index.tsx para convertir links de Drive a imágenes
@@ -241,18 +242,28 @@ export default function VehicleDetail({ car }: DetailProps) {
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
-      {/* HEADER */}
+      {/* HEADER CON LOGO */}
       <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-        <Link href="/" className="group">
-          <p className="text-[10px] tracking-[0.25em] text-red-500 group-hover:text-red-400">
-            AVAILABLE HYBRID
-          </p>
-          <h1 className="text-xl font-semibold group-hover:text-neutral-50">
-            R&amp;M Inc.
-          </h1>
-          <p className="text-sm text-neutral-400 group-hover:text-neutral-300">
-            Hybrid &amp; fuel-efficient vehicles in Reseda, CA.
-          </p>
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="relative h-10 w-10 overflow-hidden rounded-xl bg-neutral-900/80 ring-1 ring-white/10">
+            <Image
+              src="/logo. available hybrid premium.png"
+              alt="Available Hybrid R&M Inc. logo"
+              fill
+              className="object-contain"
+            />
+          </div>
+          <div className="leading-tight">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-red-500 group-hover:text-red-400">
+              Available Hybrid
+            </p>
+            <h1 className="text-lg font-semibold group-hover:text-neutral-50">
+              R&amp;M Inc.
+            </h1>
+            <p className="text-[11px] text-neutral-400 group-hover:text-neutral-300">
+              Hybrid &amp; fuel-efficient vehicles in Reseda, CA.
+            </p>
+          </div>
         </Link>
 
         <div className="flex flex-col items-end gap-1 text-right text-xs">
@@ -272,14 +283,14 @@ export default function VehicleDetail({ car }: DetailProps) {
         {/* IMAGEN GRANDE + MINIATURAS */}
         <section className="flex-1">
           <Link
-            href="/"
+            href="/inventory"
             className="mb-3 inline-flex text-xs text-neutral-400 underline-offset-2 hover:underline"
           >
             ← Back to inventory
           </Link>
 
           <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70">
-            {/* FOTO PRINCIPAL - COMPLETA (object-contain) + CLICK PARA ABRIR MODAL */}
+            {/* FOTO PRINCIPAL */}
             <div className="relative w-full bg-neutral-800 h-[260px] sm:h-[420px] flex items-center justify-center">
               {mainPhoto ? (
                 <button
@@ -655,9 +666,17 @@ export default function VehicleDetail({ car }: DetailProps) {
                             : "--"}
                         </p>
                         <p className="mt-1 text-[10px] text-neutral-500">
-                          This is only an estimate and does not constitute a
-                          final offer. Payments and interest may change after
-                          full credit review and approval.
+                          This calculator provides an estimated installment
+                          amount based on the selected terms. Estimates{" "}
+                          <span className="font-semibold">
+                            do not include sales tax, DMV/registration fees,
+                            documentation fees, or optional products.
+                          </span>{" "}
+                          This is for illustrative purposes only and does not
+                          constitute a credit approval or a final offer of
+                          credit. Final terms will be determined after full
+                          application, credit review, and signing of the retail
+                          installment contract.
                         </p>
                       </div>
                     </div>
