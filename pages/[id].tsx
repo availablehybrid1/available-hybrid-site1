@@ -2,7 +2,6 @@
 import * as React from "react";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { getInventory, type Car } from "../lib/getInventory";
 
 // misma función que en index.tsx para convertir links de Drive a imágenes
@@ -140,7 +139,7 @@ export default function VehicleDetail({ car }: DetailProps) {
           <p className="text-sm text-neutral-400">Vehicle not found.</p>
           <Link
             href="/"
-            className="mt-4 inline-flex text-sm text-red-400 underline-offset-2 hover:underline"
+            className="mt-4 inline-flex text-sm text-neutral-300 underline-offset-2 hover:underline"
           >
             ← Back to inventory
           </Link>
@@ -240,42 +239,41 @@ export default function VehicleDetail({ car }: DetailProps) {
     setIsZoomed(false);
   };
 
+  const phone = "+1 747-354-4098";
+
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
-      {/* HEADER CON LOGO */}
+      {/* HEADER CON LOGO GRANDE Y SIN ROJO */}
       <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="relative h-10 w-10 overflow-hidden rounded-xl bg-neutral-900/80 ring-1 ring-white/10">
-            <Image
-              src="/logo. available hybrid premium.png"
+        <Link href="/inventory" className="flex items-center gap-3 group">
+          <div className="relative h-11 w-11 sm:h-12 sm:w-12 overflow-hidden rounded-2xl bg-neutral-900/80 ring-1 ring-white/15 group-hover:ring-white/40 transition">
+            <img
+              src="/logo.%20available%20hybrid%20premium.png"
               alt="Available Hybrid R&M Inc. logo"
-              fill
-              className="object-contain"
+              className="h-full w-full object-contain"
             />
           </div>
-          <div className="leading-tight">
-            <p className="text-[10px] uppercase tracking-[0.25em] text-red-500 group-hover:text-red-400">
-              Available Hybrid
+          <div className="leading-tight hidden sm:block">
+            <p className="text-[10px] font-semibold tracking-[0.26em] text-neutral-400 group-hover:text-neutral-200">
+              AVAILABLE HYBRID
             </p>
-            <h1 className="text-lg font-semibold group-hover:text-neutral-50">
+            <p className="text-sm font-semibold text-neutral-50">
               R&amp;M Inc.
-            </h1>
-            <p className="text-[11px] text-neutral-400 group-hover:text-neutral-300">
+            </p>
+            <p className="text-[11px] text-neutral-500">
               Hybrid &amp; fuel-efficient vehicles in Reseda, CA.
             </p>
           </div>
         </Link>
 
-        <div className="flex flex-col items-end gap-1 text-right text-xs">
+        <div className="flex flex-col items-end gap-1 text-right text-[11px] text-neutral-400">
+          <span>6726 Reseda Blvd Suite A7 · Reseda, CA 91335</span>
           <a
-            href="tel:+17473544098"
-            className="rounded bg-red-600 px-3 py-1 font-semibold text-white hover:bg-red-500"
+            href={`tel:${phone.replace(/[^+\d]/g, "")}`}
+            className="mt-1 inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-white hover:bg-white/10"
           >
-            Call (747) 354-4098
+            Call {phone}
           </a>
-          <span className="text-[11px] text-neutral-400">
-            6726 Reseda Blvd Suite A7 · Reseda, CA 91335
-          </span>
         </div>
       </header>
 
@@ -327,7 +325,7 @@ export default function VehicleDetail({ car }: DetailProps) {
                     }}
                     className={`h-14 w-20 flex-none overflow-hidden rounded border ${
                       idx === current
-                        ? "border-red-500"
+                        ? "border-emerald-500"
                         : "border-neutral-700"
                     }`}
                   >
@@ -355,7 +353,7 @@ export default function VehicleDetail({ car }: DetailProps) {
               </p>
             </div>
             {car.price != null && (
-              <p className="text-lg font-semibold text-green-400">
+              <p className="text-lg font-semibold text-emerald-400">
                 ${car.price.toLocaleString()}
               </p>
             )}
@@ -473,7 +471,7 @@ export default function VehicleDetail({ car }: DetailProps) {
               WhatsApp
             </a>
             <a
-              href="tel:+17473544098"
+              href={`tel:${phone.replace(/[^+\d]/g, "")}`}
               className="rounded bg-neutral-800 px-3 py-1 font-medium text-neutral-100 hover:bg-neutral-700"
             >
               Call Dealer
@@ -500,7 +498,7 @@ export default function VehicleDetail({ car }: DetailProps) {
                 setShowOffer((prev) => !prev);
                 setShowBhph(false);
               }}
-              className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-red-500 hover:text-red-400"
+              className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-emerald-500 hover:text-emerald-400"
             >
               Make an Offer
             </button>
@@ -523,9 +521,13 @@ export default function VehicleDetail({ car }: DetailProps) {
                   <div className="grid gap-3 sm:grid-cols-2 text-[11px]">
                     <div className="space-y-2">
                       <div>
-                        <p className="text-neutral-500">Vehicle price</p>
+                        <p className="text-neutral-500">Vehicle price*</p>
                         <p className="font-semibold text-neutral-100">
                           ${vehiclePrice.toLocaleString()}
+                        </p>
+                        <p className="mt-0.5 text-[10px] text-neutral-500">
+                          *Price shown does not include sales tax, DMV
+                          registration, documentation, or other applicable fees.
                         </p>
                       </div>
 
@@ -666,17 +668,10 @@ export default function VehicleDetail({ car }: DetailProps) {
                             : "--"}
                         </p>
                         <p className="mt-1 text-[10px] text-neutral-500">
-                          This calculator provides an estimated installment
-                          amount based on the selected terms. Estimates{" "}
-                          <span className="font-semibold">
-                            do not include sales tax, DMV/registration fees,
-                            documentation fees, or optional products.
-                          </span>{" "}
-                          This is for illustrative purposes only and does not
-                          constitute a credit approval or a final offer of
-                          credit. Final terms will be determined after full
-                          application, credit review, and signing of the retail
-                          installment contract.
+                          This calculation is for illustration only and does not
+                          include sales tax, DMV registration, documentation, or
+                          other applicable fees. Final terms are subject to full
+                          credit review and written approval.
                         </p>
                       </div>
                     </div>
@@ -750,7 +745,7 @@ export default function VehicleDetail({ car }: DetailProps) {
               </div>
               <button
                 type="submit"
-                className="mt-2 rounded bg-red-600 px-3 py-1 text-[11px] font-medium text-white hover:bg-red-500"
+                className="mt-2 rounded bg-white px-3 py-1 text-[11px] font-medium text-neutral-900 hover:bg-neutral-200"
               >
                 Send Offer
               </button>
