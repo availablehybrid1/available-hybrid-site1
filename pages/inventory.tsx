@@ -44,6 +44,78 @@ export default function Inventory({ inventory }: InventoryProps) {
     "priceDesc"
   );
 
+  // idioma EN / ES
+  const [lang, setLang] = React.useState<"en" | "es">("en");
+
+  const text = lang === "en"
+    ? {
+        inventoryNav: "Inventory",
+        prequalifyNav: "Pre-Qualify",
+        contactNav: "Contact",
+        call: "Call",
+        standard: "Standard",
+        vehiclesAvailable: "vehicles available",
+        allInventory: "All inventory",
+        sort: "Sort",
+        sortHighLow: "Price · High to Low",
+        sortLowHigh: "Price · Low to High",
+        price: "Price",
+        adjustInStore: "Adjust in-store",
+        bhphNote: "Ask for BHPH options.",
+        year: "Year",
+        allYears: "All years",
+        make: "Make",
+        allMakes: "All makes",
+        model: "Model",
+        trim: "Trim",
+        bodyType: "Body Type",
+        bodySubtype: "Body Subtype",
+        drivetrain: "Drivetrain",
+        seeAllFilters: "See all filters",
+        comingSoon: "Coming soon",
+        estPayment: "Est. payment",
+        noVehicles: "No vehicles found with the selected filters. Try another make or year.",
+        modalTitle: "Search all inventory",
+        modalPlaceholder: "Search by model, year, VIN…",
+        modalNoResults: "No results for",
+        priceLabel: "Price",
+        searchOpenLabel: "Open search",
+      }
+    : {
+        inventoryNav: "Inventario",
+        prequalifyNav: "Pre-Calificar",
+        contactNav: "Contacto",
+        call: "Llamar",
+        standard: "Estándar",
+        vehiclesAvailable: "vehículos disponibles",
+        allInventory: "Todo el inventario",
+        sort: "Ordenar",
+        sortHighLow: "Precio · Mayor a menor",
+        sortLowHigh: "Precio · Menor a mayor",
+        price: "Precio",
+        adjustInStore: "Ajustar en el dealer",
+        bhphNote: "Pregunta por opciones BHPH.",
+        year: "Año",
+        allYears: "Todos los años",
+        make: "Marca",
+        allMakes: "Todas las marcas",
+        model: "Modelo",
+        trim: "Versión",
+        bodyType: "Tipo de carrocería",
+        bodySubtype: "Subtipo de carrocería",
+        drivetrain: "Tracción",
+        seeAllFilters: "Ver todos los filtros",
+        comingSoon: "Próximamente",
+        estPayment: "Pago estimado",
+        noVehicles:
+          "No se encontraron vehículos con estos filtros. Prueba otra marca o año.",
+        modalTitle: "Buscar en todo el inventario",
+        modalPlaceholder: "Busca por modelo, año, VIN…",
+        modalNoResults: "Sin resultados para",
+        priceLabel: "Precio",
+        searchOpenLabel: "Abrir búsqueda",
+      };
+
   // modal de búsqueda con la lupa
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -108,16 +180,23 @@ export default function Inventory({ inventory }: InventoryProps) {
     });
   }, [inventory, searchQuery]);
 
+  // Recomendados por defecto (top 10 por precio)
+  const recommended = React.useMemo(() => {
+    const cars = [...inventory];
+    cars.sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
+    return cars.slice(0, 10);
+  }, [inventory]);
+
   const phone = "+1 747-354-4098";
 
   return (
     <main className="min-h-screen bg-[#050505] text-neutral-100 pb-16">
-      {/* HEADER TIPO DEALER */}
+      {/* HEADER */}
       <header className="border-b border-neutral-900 bg-black/90">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 gap-4">
           <Link href="/" className="flex items-center gap-3">
-            {/* Logo ~320x100 pero un poco más compacto visualmente */}
-            <div className="relative h-[80px] w-[260px]">
+            {/* Logo 3/4 más grande que antes */}
+            <div className="relative h-[120px] w-[360px]">
               <img
                 src="/logo. available hybrid premium.png"
                 alt="Available Hybrid R&M Inc. logo"
@@ -126,70 +205,105 @@ export default function Inventory({ inventory }: InventoryProps) {
             </div>
           </Link>
 
-          {/* navegación simple tipo "Shop / Finance" */}
-          <nav className="hidden items-center gap-6 text-xs font-medium text-neutral-300 sm:flex">
-            <span className="cursor-default hover:text-white">Shop</span>
-            <span className="cursor-default hover:text-white">
-              Electric Vehicles
-            </span>
-            <span className="cursor-default hover:text-white">Sell / Trade</span>
-            <span className="cursor-default hover:text-white">Finance</span>
-            <span className="cursor-default hover:text-white">Service</span>
+          {/* navegación */}
+          <nav className="hidden flex-1 items-center justify-center gap-6 text-xs font-medium text-neutral-300 sm:flex">
+            <Link
+              href="/inventory"
+              className="hover:text-white transition-colors"
+            >
+              {text.inventoryNav}
+            </Link>
+            <Link
+              href="/#prequalify"
+              className="hover:text-white transition-colors"
+            >
+              {text.prequalifyNav}
+            </Link>
+            <Link
+              href="/#contact"
+              className="hover:text-white transition-colors"
+            >
+              {text.contactNav}
+            </Link>
           </nav>
 
-          <div className="hidden flex-col items-end text-right text-[11px] text-neutral-400 sm:flex">
+          <div className="flex flex-col items-end text-right text-[11px] text-neutral-400 gap-2">
             <span>6726 Reseda Blvd Suite A7 · Reseda, CA 91335</span>
-            <a
-              href={`tel:${phone.replace(/[^+\d]/g, "")}`}
-              className="mt-1 inline-flex items-center justify-center rounded-full border border-neutral-700 bg-neutral-950 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-100 hover:border-neutral-300 hover:bg-neutral-800"
-            >
-              Call {phone}
-            </a>
+            <div className="flex items-center gap-2">
+              <a
+                href={`tel:${phone.replace(/[^+\d]/g, "")}`}
+                className="inline-flex items-center justify-center rounded-full border border-neutral-700 bg-neutral-950 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-100 hover:border-neutral-300 hover:bg-neutral-800"
+              >
+                {text.call} {phone}
+              </a>
+              {/* Toggle EN / ES */}
+              <button
+                type="button"
+                onClick={() => setLang(lang === "en" ? "es" : "en")}
+                className="rounded-full border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-200 hover:border-neutral-300 hover:bg-neutral-800"
+              >
+                {lang === "en" ? "ES" : "EN"}
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
       {/* LAYOUT PRINCIPAL: sidebar + contenido */}
       <div className="mx-auto flex max-w-6xl gap-6 px-4 pt-6">
-        {/* SIDEBAR IZQUIERDO TIPO J&S */}
+        {/* SIDEBAR IZQUIERDO */}
         <aside className="hidden w-60 flex-shrink-0 flex-col text-sm text-neutral-100 lg:flex">
-          {/* Standard / AI mode */}
+          {/* Solo Standard (sin Ai Mode) */}
           <div className="mb-5 grid grid-cols-2 gap-2">
-            <button className="rounded-lg bg-neutral-900 px-3 py-2 text-xs font-semibold text-white shadow-sm">
-              Standard
-            </button>
-            <button className="rounded-lg bg-neutral-900/40 px-3 py-2 text-xs font-medium text-neutral-400">
-              Ai Mode
+            <button className="col-span-2 rounded-lg bg-neutral-900 px-3 py-2 text-xs font-semibold text-white shadow-sm">
+              {text.standard}
             </button>
           </div>
 
-          {/* “filtros” tipo lista (solo Year y Make son funcionales) */}
-          <div className="space-y-2 text-[13px]">
-            {/* Price - texto informativo */}
-            <div className="rounded-lg bg-neutral-900/40 px-3 py-2">
+          {/* Filtros */}
+          <div className="space-y-3 text-[13px]">
+            {/* Price */}
+            <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-3">
               <div className="flex items-center justify-between">
-                <span>Price</span>
-                <span className="text-xs text-neutral-500">Adjust in-store</span>
+                <span>{text.price}</span>
+                <span className="text-[11px] text-neutral-500">
+                  {text.adjustInStore}
+                </span>
               </div>
               <p className="mt-1 text-[11px] text-neutral-500">
-                Ask for BHPH options.
+                {text.bhphNote}
               </p>
+
+              {/* Min / Max estáticos, solo visuales */}
+              <div className="mt-3 space-y-2">
+                <div className="h-[30px] rounded-md bg-neutral-900/80" />
+                <div className="flex items-center justify-between gap-2 text-[11px]">
+                  <div className="flex-1 rounded-md border border-neutral-800 bg-black/70 px-2 py-1.5">
+                    <p className="text-[10px] text-neutral-500">Min</p>
+                    <p className="text-neutral-100">$0</p>
+                  </div>
+                  <div className="flex-1 rounded-md border border-neutral-800 bg-black/70 px-2 py-1.5 text-right">
+                    <p className="text-[10px] text-neutral-500">Max</p>
+                    <p className="text-neutral-100">$30,000+</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Year (con select real) */}
-            <div className="rounded-lg bg-neutral-900/40 px-3 py-2">
+            {/* Year */}
+            <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-3">
               <div className="flex items-center justify-between">
-                <span>Year</span>
+                <span>{text.year}</span>
                 <span className="text-xs text-neutral-500">
-                  {yearFilter === "ALL" ? "All years" : yearFilter}
+                  {yearFilter === "ALL" ? text.allYears : yearFilter}
                 </span>
               </div>
               <select
                 value={yearFilter}
                 onChange={(e) => setYearFilter(e.target.value)}
-                className="mt-2 w-full rounded-md border border-neutral-800 bg-black/60 px-2 py-1.5 text-[11px] text-neutral-100 outline-none focus:border-neutral-400"
+                className="mt-2 w-full rounded-md border border-neutral-800 bg-black/70 px-2 py-1.5 text-[11px] text-neutral-100 outline-none focus:border-neutral-400"
               >
-                <option value="ALL">All years</option>
+                <option value="ALL">{text.allYears}</option>
                 {years.map((y) => (
                   <option key={y} value={y.toString()}>
                     {y}
@@ -198,20 +312,20 @@ export default function Inventory({ inventory }: InventoryProps) {
               </select>
             </div>
 
-            {/* Make (con select real) */}
-            <div className="rounded-lg bg-neutral-900/40 px-3 py-2">
+            {/* Make */}
+            <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-3">
               <div className="flex items-center justify-between">
-                <span>Make</span>
+                <span>{text.make}</span>
                 <span className="text-xs text-neutral-500">
-                  {makeFilter === "ALL" ? "All makes" : makeFilter}
+                  {makeFilter === "ALL" ? text.allMakes : makeFilter}
                 </span>
               </div>
               <select
                 value={makeFilter}
                 onChange={(e) => setMakeFilter(e.target.value)}
-                className="mt-2 w-full rounded-md border border-neutral-800 bg-black/60 px-2 py-1.5 text-[11px] text-neutral-100 outline-none focus:border-neutral-400"
+                className="mt-2 w-full rounded-md border border-neutral-800 bg-black/70 px-2 py-1.5 text-[11px] text-neutral-100 outline-none focus:border-neutral-400"
               >
-                <option value="ALL">All makes</option>
+                <option value="ALL">{text.allMakes}</option>
                 {makes.map((mk) => (
                   <option key={mk} value={mk}>
                     {mk}
@@ -220,30 +334,34 @@ export default function Inventory({ inventory }: InventoryProps) {
               </select>
             </div>
 
-            {/* Otros filtros solo visuales para parecerse al diseño */}
-            <div className="rounded-lg bg-neutral-900/30 px-3 py-2">
+            {/* Otros filtros solo visuales */}
+            <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-2">
               <div className="flex items-center justify-between">
-                <span>Model</span>
-                <span className="text-xs text-neutral-600">Coming soon</span>
+                <span>{text.model}</span>
+                <span className="text-xs text-neutral-600">
+                  {text.comingSoon}
+                </span>
               </div>
             </div>
-            <div className="rounded-lg bg-neutral-900/30 px-3 py-2">
+            <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-2">
               <div className="flex items-center justify-between">
-                <span>Trim</span>
-                <span className="text-xs text-neutral-600">Coming soon</span>
+                <span>{text.trim}</span>
+                <span className="text-xs text-neutral-600">
+                  {text.comingSoon}
+                </span>
               </div>
             </div>
-            <div className="rounded-lg bg-neutral-900/30 px-3 py-2">
-              <span>Body Type</span>
+            <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-2">
+              <span>{text.bodyType}</span>
             </div>
-            <div className="rounded-lg bg-neutral-900/30 px-3 py-2">
-              <span>Body Subtype</span>
+            <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-2">
+              <span>{text.bodySubtype}</span>
             </div>
-            <div className="rounded-lg bg-neutral-900/30 px-3 py-2">
-              <span>Drivetrain</span>
+            <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-2">
+              <span>{text.drivetrain}</span>
             </div>
             <button className="mt-2 text-left text-[11px] font-medium text-emerald-400 hover:text-emerald-300">
-              See all filters
+              {text.seeAllFilters}
             </button>
           </div>
         </aside>
@@ -252,10 +370,10 @@ export default function Inventory({ inventory }: InventoryProps) {
         <section className="flex-1">
           {/* contador de vehículos */}
           <p className="text-xs text-neutral-400">
-            {visible.length} vehicle{visible.length === 1 ? "" : "s"} available
+            {visible.length} {text.vehiclesAvailable}
           </p>
 
-          {/* Chips de marcas tipo “Mercedes-Benz / BMW / Porsche” */}
+          {/* Chips de marcas */}
           <div className="mt-4 flex flex-wrap gap-2">
             <button
               type="button"
@@ -266,7 +384,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                   : "bg-neutral-900 text-neutral-200 hover:bg-neutral-800"
               }`}
             >
-              All inventory
+              {text.allInventory}
             </button>
             {makes.map((mk) => (
               <button
@@ -284,27 +402,24 @@ export default function Inventory({ inventory }: InventoryProps) {
             ))}
           </div>
 
-          {/* fila: “Search X results on this page” + sort + lupa */}
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            {/* barra de “search” (abre modal con la lupa) */}
+          {/* fila derecha: lupa + sort */}
+          <div className="mt-5 flex items-center justify-end gap-3">
+            {/* Lupa sola que abre el modal */}
             <button
               type="button"
               onClick={() => {
                 setIsSearchOpen(true);
                 setSearchQuery("");
               }}
-              className="flex flex-1 items-center justify-between rounded-xl border border-neutral-800 bg-neutral-900/80 px-4 py-3 text-left text-xs text-neutral-400 hover:border-neutral-500 hover:bg-neutral-900"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-neutral-800 bg-neutral-950 text-sm text-neutral-300 hover:border-neutral-400 hover:bg-neutral-900"
+              aria-label={text.searchOpenLabel}
             >
-              <span>
-                Search {visible.length} result
-                {visible.length === 1 ? "" : "s"} on this page
-              </span>
-              <span className="text-sm">🔍</span>
+              🔍
             </button>
 
             {/* sort */}
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-neutral-500">Sort</span>
+              <span className="text-neutral-500">{text.sort}</span>
               <select
                 value={sortBy}
                 onChange={(e) =>
@@ -312,30 +427,29 @@ export default function Inventory({ inventory }: InventoryProps) {
                 }
                 className="rounded-full border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-[11px] text-neutral-100 outline-none hover:border-neutral-500"
               >
-                <option value="priceDesc">Price · High to Low</option>
-                <option value="priceAsc">Price · Low to High</option>
+                <option value="priceDesc">{text.sortHighLow}</option>
+                <option value="priceAsc">{text.sortLowHigh}</option>
               </select>
             </div>
           </div>
 
-          {/* GRID DE VEHÍCULOS (3 columnas en desktop grande) */}
+          {/* GRID DE VEHÍCULOS */}
           <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {visible.length === 0 ? (
-              <p className="text-sm text-neutral-400">
-                No vehicles found with the selected filters. Try another make or
-                year.
-              </p>
+              <p className="text-sm text-neutral-400">{text.noVehicles}</p>
             ) : (
               visible.map((car) => {
                 const mainPhoto = car.photos[0] ?? "/placeholder-car.jpg";
                 const priceLabel =
                   car.price != null
                     ? `$${car.price.toLocaleString()}`
-                    : "Call for price";
+                    : lang === "en"
+                    ? "Call for price"
+                    : "Llama para precio";
 
                 const monthly =
                   car.price != null
-                    ? Math.round(car.price / 60) // cálculo sencillo solo para mostrar algo visual
+                    ? Math.round(car.price / 60)
                     : null;
 
                 return (
@@ -344,7 +458,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                     href={`/${encodeURIComponent(car.id)}`}
                     className="group flex flex-col overflow-hidden rounded-xl border border-neutral-900 bg-neutral-900/70 shadow-[0_10px_30px_rgba(0,0,0,0.65)] transition hover:-translate-y-0.5 hover:border-neutral-500 hover:bg-neutral-900"
                   >
-                    {/* Imagen principal + badges arriba */}
+                    {/* Imagen principal + badges */}
                     <div className="relative h-52 w-full overflow-hidden bg-neutral-950">
                       <img
                         src={mainPhoto}
@@ -373,7 +487,6 @@ export default function Inventory({ inventory }: InventoryProps) {
                         {car.model || car.title}
                       </h3>
 
-                      {/* Specs cortos tipo “millas / fuel / transmisión” */}
                       <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-neutral-400">
                         {car.mileage != null && (
                           <span>{car.mileage.toLocaleString()} mi</span>
@@ -383,7 +496,6 @@ export default function Inventory({ inventory }: InventoryProps) {
                         {car.exterior && <span>· {car.exterior}</span>}
                       </div>
 
-                      {/* Pills pequeñas (VIN + auto) */}
                       <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
                         {car.vin && (
                           <span className="rounded-full border border-neutral-800 bg-neutral-950 px-2 py-0.5 font-mono uppercase text-neutral-400">
@@ -398,10 +510,12 @@ export default function Inventory({ inventory }: InventoryProps) {
                       </div>
                     </div>
 
-                    {/* Barra inferior tipo precio / mensual */}
+                    {/* Barra inferior precio / mensual */}
                     <div className="mt-auto flex items-center justify-between bg-black/80 px-4 py-3 text-sm">
                       <div>
-                        <p className="text-[11px] text-neutral-500">Price</p>
+                        <p className="text-[11px] text-neutral-500">
+                          {text.priceLabel}
+                        </p>
                         <p className="font-semibold text-neutral-50">
                           {priceLabel}
                         </p>
@@ -409,7 +523,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                       {monthly && (
                         <div className="text-right">
                           <p className="text-[11px] text-emerald-400/80">
-                            Est. payment
+                            {text.estPayment}
                           </p>
                           <p className="font-semibold text-emerald-400">
                             ${monthly.toLocaleString()}/mo
@@ -432,7 +546,7 @@ export default function Inventory({ inventory }: InventoryProps) {
             {/* header modal */}
             <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
               <p className="text-xs font-medium text-neutral-200">
-                Search all inventory
+                {text.modalTitle}
               </p>
               <button
                 type="button"
@@ -453,7 +567,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                   autoFocus
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by model, year, VIN…"
+                  placeholder={text.modalPlaceholder}
                   className="w-full rounded-full border border-neutral-800 bg-neutral-950 px-3 py-2 pl-7 text-sm text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-neutral-300"
                 />
               </div>
@@ -463,16 +577,20 @@ export default function Inventory({ inventory }: InventoryProps) {
             <div className="max-h-[60vh] overflow-y-auto px-2 pb-3">
               {searchQuery.trim() && searchResults.length === 0 && (
                 <p className="px-2 py-2 text-xs text-neutral-500">
-                  No results for “{searchQuery.trim()}”.
+                  {text.modalNoResults} “{searchQuery.trim()}”.
                 </p>
               )}
 
-              {searchResults.map((car) => {
+              {(
+                searchQuery.trim() ? searchResults : recommended
+              ).map((car) => {
                 const thumb = car.photos[0] ?? "/placeholder-car.jpg";
                 const price =
                   car.price != null
                     ? `$${car.price.toLocaleString()}`
-                    : "Call for price";
+                    : lang === "en"
+                    ? "Call for price"
+                    : "Llama para precio";
 
                 return (
                   <Link
