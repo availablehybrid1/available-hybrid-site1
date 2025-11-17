@@ -40,9 +40,20 @@ type InventoryProps = { inventory: Vehicle[] };
 export default function Inventory({ inventory }: InventoryProps) {
   const [yearFilter, setYearFilter] = React.useState<string>("ALL");
   const [makeFilter, setMakeFilter] = React.useState<string>("ALL");
-  const [sortBy, setSortBy] = React.useState<"priceDesc" | "priceAsc">(
-    "priceDesc"
-  );
+
+  // opciones de orden
+  const [sortBy, setSortBy] = React.useState<
+    | "priceDesc"
+    | "priceAsc"
+    | "yearDesc"
+    | "yearAsc"
+    | "mileageDesc"
+    | "mileageAsc"
+    | "photosDesc"
+    | "photosAsc"
+    | "makeAsc"
+    | "makeDesc"
+  >("priceDesc");
 
   // rango de precio
   const [priceMin, setPriceMin] = React.useState<number | null>(null);
@@ -60,8 +71,16 @@ export default function Inventory({ inventory }: InventoryProps) {
           vehiclesAvailable: "vehicles available",
           allInventory: "All inventory",
           sort: "Sort",
-          sortHighLow: "Price · High to Low",
-          sortLowHigh: "Price · Low to High",
+          sortHighestPrice: "Highest Price",
+          sortLowestPrice: "Lowest Price",
+          sortNewestYear: "Newest Year",
+          sortOldestYear: "Oldest Year",
+          sortHighestMileage: "Highest Mileage",
+          sortLowestMileage: "Lowest Mileage",
+          sortMostImages: "Most Images",
+          sortLeastImages: "Least Images",
+          sortMakeAZ: "Make A–Z",
+          sortMakeZA: "Make Z–A",
           price: "Price",
           adjustInStore: "Adjust in-store",
           year: "Year",
@@ -82,6 +101,10 @@ export default function Inventory({ inventory }: InventoryProps) {
           modalNoResults: "No results for",
           priceLabel: "Price",
           searchOpenLabel: "Open search",
+          filtersModalTitle: "Adjust filters",
+          applyFilters: "Close",
+          minLabel: "Min",
+          maxLabel: "Max",
         }
       : {
           filtersLabel: "Filtros",
@@ -90,8 +113,16 @@ export default function Inventory({ inventory }: InventoryProps) {
           vehiclesAvailable: "vehículos disponibles",
           allInventory: "Todo el inventario",
           sort: "Ordenar",
-          sortHighLow: "Precio · Mayor a menor",
-          sortLowHigh: "Precio · Menor a mayor",
+          sortHighestPrice: "Precio más alto",
+          sortLowestPrice: "Precio más bajo",
+          sortNewestYear: "Año más nuevo",
+          sortOldestYear: "Año más antiguo",
+          sortHighestMileage: "Mayor kilometraje",
+          sortLowestMileage: "Menor kilometraje",
+          sortMostImages: "Más fotos",
+          sortLeastImages: "Menos fotos",
+          sortMakeAZ: "Marca A–Z",
+          sortMakeZA: "Marca Z–A",
           price: "Precio",
           adjustInStore: "Ajustar en el dealer",
           year: "Año",
@@ -112,11 +143,18 @@ export default function Inventory({ inventory }: InventoryProps) {
           modalNoResults: "Sin resultados para",
           priceLabel: "Precio",
           searchOpenLabel: "Abrir búsqueda",
+          filtersModalTitle: "Ajustar filtros",
+          applyFilters: "Cerrar",
+          minLabel: "Mín",
+          maxLabel: "Máx",
         };
 
   // modal de búsqueda con la lupa
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
+
+  // modal de filtros para móvil
+  const [isFiltersOpen, setIsFiltersOpen] = React.useState(false);
 
   // años únicos
   const years = React.useMemo(() => {
@@ -169,15 +207,45 @@ export default function Inventory({ inventory }: InventoryProps) {
       cars = cars.filter((c) => (c.price ?? 0) <= priceMax);
     }
 
+    // helper para valores numéricos
+    const num = (n: number | null | undefined) => (typeof n === "number" ? n : 0);
+
     cars.sort((a, b) => {
-      const pa = a.price ?? 0;
-      const pb = b.price ?? 0;
-      if (sortBy === "priceDesc") return pb - pa;
-      return pa - pb;
+      switch (sortBy) {
+        case "priceDesc":
+          return num(b.price) - num(a.price);
+        case "priceAsc":
+          return num(a.price) - num(b.price);
+        case "yearDesc":
+          return num(b.year) - num(a.year);
+        case "yearAsc":
+          return num(a.year) - num(b.year);
+        case "mileageDesc":
+          return num(b.mileage) - num(a.mileage);
+        case "mileageAsc":
+          return num(a.mileage) - num(b.mileage);
+        case "photosDesc":
+          return (b.photos?.length ?? 0) - (a.photos?.length ?? 0);
+        case "photosAsc":
+          return (a.photos?.length ?? 0) - (b.photos?.length ?? 0);
+        case "makeAsc":
+          return (a.make || "").localeCompare(b.make || "");
+        case "makeDesc":
+          return (b.make || "").localeCompare(a.make || "");
+        default:
+          return num(b.price) - num(a.price);
+      }
     });
 
     return cars;
-  }, [inventory, yearFilter, makeFilter, sortBy, priceMin, priceMax]);
+  }, [
+    inventory,
+    yearFilter,
+    makeFilter,
+    sortBy,
+    priceMin,
+    priceMax,
+  ]);
 
   // Resultados para el modal de búsqueda
   const searchResults = React.useMemo(() => {
@@ -213,7 +281,10 @@ export default function Inventory({ inventory }: InventoryProps) {
       <header className="border-b border-neutral-900 bg-black/90">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center justify-center gap-3">
+          <Link
+            href="/"
+            className="flex items-center justify-center gap-3 sm:justify-start"
+          >
             <div className="relative h-16 w-40 sm:h-[120px] sm:w-[360px]">
               <img
                 src="/logo. available hybrid premium.png"
@@ -247,7 +318,7 @@ export default function Inventory({ inventory }: InventoryProps) {
             </span>
 
             <div className="flex w-full items-center justify-end gap-3">
-              {/* WhatsApp con logo (asegúrate de tener /public/whatsapp-green.png) */}
+              {/* WhatsApp con logo */}
               <a
                 href={`https://wa.me/${whatsappDigits}`}
                 target="_blank"
@@ -285,7 +356,7 @@ export default function Inventory({ inventory }: InventoryProps) {
 
       {/* LAYOUT PRINCIPAL: sidebar + contenido */}
       <div className="mx-auto flex max-w-6xl gap-6 px-4 pt-6">
-        {/* SIDEBAR IZQUIERDO */}
+        {/* SIDEBAR IZQUIERDO (solo desktop grande) */}
         <aside className="hidden w-60 flex-shrink-0 flex-col text-sm text-neutral-100 lg:flex">
           {/* Botón header de filtros */}
           <div className="mb-5">
@@ -307,7 +378,7 @@ export default function Inventory({ inventory }: InventoryProps) {
 
               <div className="mt-3 flex items-center justify-between gap-2 text-[11px]">
                 <div className="flex-1 rounded-md border border-neutral-800 bg-black/70 px-2 py-1.5">
-                  <p className="text-[10px] text-neutral-500">Min</p>
+                  <p className="text-[10px] text-neutral-500">{text.minLabel}</p>
                   <input
                     type="number"
                     inputMode="numeric"
@@ -325,7 +396,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                   />
                 </div>
                 <div className="flex-1 rounded-md border border-neutral-800 bg-black/70 px-2 py-1.5 text-right">
-                  <p className="text-[10px] text-neutral-500">Max</p>
+                  <p className="text-[10px] text-neutral-500">{text.maxLabel}</p>
                   <input
                     type="number"
                     inputMode="numeric"
@@ -437,34 +508,66 @@ export default function Inventory({ inventory }: InventoryProps) {
             ))}
           </div>
 
-          {/* fila derecha: lupa + sort */}
-          <div className="mt-5 flex items-center justify-end gap-3">
-            {/* Lupa sola que abre el modal */}
+          {/* fila superior: filtros (móvil) + lupa + sort */}
+          <div className="mt-5 flex items-center justify-between gap-3">
+            {/* Botón Filters para móvil */}
             <button
               type="button"
-              onClick={() => {
-                setIsSearchOpen(true);
-                setSearchQuery("");
-              }}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-neutral-800 bg-neutral-950 text-sm text-neutral-300 hover:border-neutral-400 hover:bg-neutral-900"
-              aria-label={text.searchOpenLabel}
+              onClick={() => setIsFiltersOpen(true)}
+              className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-xs text-neutral-200 hover:border-neutral-500 hover:bg-neutral-900 lg:hidden"
             >
-              🔍
+              <span>⚙</span>
+              <span>{text.filtersLabel}</span>
             </button>
 
-            {/* sort */}
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-neutral-500">{text.sort}</span>
-              <select
-                value={sortBy}
-                onChange={(e) =>
-                  setSortBy(e.target.value as "priceDesc" | "priceAsc")
-                }
-                className="rounded-full border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-[11px] text-neutral-100 outline-none hover:border-neutral-500"
+            <div className="ml-auto flex items-center gap-3">
+              {/* Lupa sola que abre el modal */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSearchOpen(true);
+                  setSearchQuery("");
+                }}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-neutral-800 bg-neutral-950 text-sm text-neutral-300 hover:border-neutral-400 hover:bg-neutral-900"
+                aria-label={text.searchOpenLabel}
               >
-                <option value="priceDesc">{text.sortHighLow}</option>
-                <option value="priceAsc">{text.sortLowHigh}</option>
-              </select>
+                🔍
+              </button>
+
+              {/* sort */}
+              <div className="flex items-center gap-2 text-xs">
+                <span className="text-neutral-500">{text.sort}</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) =>
+                    setSortBy(
+                      e.target.value as
+                        | "priceDesc"
+                        | "priceAsc"
+                        | "yearDesc"
+                        | "yearAsc"
+                        | "mileageDesc"
+                        | "mileageAsc"
+                        | "photosDesc"
+                        | "photosAsc"
+                        | "makeAsc"
+                        | "makeDesc"
+                    )
+                  }
+                  className="rounded-full border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-[11px] text-neutral-100 outline-none hover:border-neutral-500"
+                >
+                  <option value="priceDesc">{text.sortHighestPrice}</option>
+                  <option value="priceAsc">{text.sortLowestPrice}</option>
+                  <option value="yearDesc">{text.sortNewestYear}</option>
+                  <option value="yearAsc">{text.sortOldestYear}</option>
+                  <option value="mileageDesc">{text.sortHighestMileage}</option>
+                  <option value="mileageAsc">{text.sortLowestMileage}</option>
+                  <option value="photosDesc">{text.sortMostImages}</option>
+                  <option value="photosAsc">{text.sortLeastImages}</option>
+                  <option value="makeAsc">{text.sortMakeAZ}</option>
+                  <option value="makeDesc">{text.sortMakeZA}</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -568,7 +671,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                               </p>
                             </div>
 
-                            {/* Icono ? con tooltip (encima y fuera de la tarjeta) */}
+                            {/* Icono ? con tooltip */}
                             <div className="relative group/payment">
                               <button
                                 type="button"
@@ -605,6 +708,144 @@ export default function Inventory({ inventory }: InventoryProps) {
           </div>
         </section>
       </div>
+
+      {/* MODAL DE FILTROS (móvil) */}
+      {isFiltersOpen && (
+        <div className="fixed inset-0 z-40 flex items-start justify-center bg-black/70 px-4 pt-20 lg:hidden">
+          <div className="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-950/95 shadow-xl">
+            {/* header */}
+            <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
+              <p className="text-xs font-medium text-neutral-200">
+                {text.filtersModalTitle}
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsFiltersOpen(false)}
+                className="text-sm text-neutral-400 hover:text-neutral-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* contenido filtros */}
+            <div className="space-y-4 px-4 py-4 text-[13px]">
+              {/* Price */}
+              <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-3">
+                <div className="flex items-center justify-between">
+                  <span>{text.price}</span>
+                  <span className="text-[11px] text-neutral-500">
+                    {text.adjustInStore}
+                  </span>
+                </div>
+                <div className="mt-3 flex items-center justify-between gap-2 text-[11px]">
+                  <div className="flex-1 rounded-md border border-neutral-800 bg-black/70 px-2 py-1.5">
+                    <p className="text-[10px] text-neutral-500">
+                      {text.minLabel}
+                    </p>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      value={priceMin ?? ""}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        if (!v) return setPriceMin(null);
+                        const n = Number(v);
+                        if (!Number.isNaN(n)) setPriceMin(n);
+                      }}
+                      placeholder={
+                        priceStats.min ? priceStats.min.toString() : "0"
+                      }
+                      className="w-full bg-transparent text-neutral-100 outline-none text-[11px]"
+                    />
+                  </div>
+                  <div className="flex-1 rounded-md border border-neutral-800 bg-black/70 px-2 py-1.5 text-right">
+                    <p className="text-[10px] text-neutral-500">
+                      {text.maxLabel}
+                    </p>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      value={priceMax ?? ""}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        if (!v) return setPriceMax(null);
+                        const n = Number(v);
+                        if (!Number.isNaN(n)) setPriceMax(n);
+                      }}
+                      placeholder={
+                        priceStats.max ? priceStats.max.toString() : "30000"
+                      }
+                      className="w-full bg-transparent text-neutral-100 outline-none text-[11px] text-right"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Year */}
+              <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-3">
+                <div className="flex items-center justify-between">
+                  <span>{text.year}</span>
+                  <span className="text-xs text-neutral-500">
+                    {yearFilter === "ALL" ? text.allYears : yearFilter}
+                  </span>
+                </div>
+                <select
+                  value={yearFilter}
+                  onChange={(e) => setYearFilter(e.target.value)}
+                  className="mt-2 w-full rounded-md border border-neutral-800 bg-black/70 px-2 py-1.5 text-[11px] text-neutral-100 outline-none focus:border-neutral-400"
+                >
+                  <option value="ALL">{text.allYears}</option>
+                  {years.map((y) => (
+                    <option key={y} value={y.toString()}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Make */}
+              <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-3">
+                <div className="flex items-center justify-between">
+                  <span>{text.make}</span>
+                  <span className="text-xs text-neutral-500">
+                    {makeFilter === "ALL" ? text.allMakes : makeFilter}
+                  </span>
+                </div>
+                <select
+                  value={makeFilter}
+                  onChange={(e) => setMakeFilter(e.target.value)}
+                  className="mt-2 w-full rounded-md border border-neutral-800 bg-black/70 px-2 py-1.5 text-[11px] text-neutral-100 outline-none focus:border-neutral-400"
+                >
+                  <option value="ALL">{text.allMakes}</option>
+                  {makes.map((mk) => (
+                    <option key={mk} value={mk}>
+                      {mk}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Model info */}
+              <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-2">
+                <div className="flex items-center justify-between">
+                  <span>{text.model}</span>
+                  <span className="text-xs text-neutral-600">
+                    {text.comingSoon}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsFiltersOpen(false)}
+                className="mt-2 inline-flex w-full items-center justify-center rounded-full bg-neutral-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-black hover:bg-neutral-200"
+              >
+                {text.applyFilters}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* MODAL DE BÚSQUEDA (lupa) */}
       {isSearchOpen && (
