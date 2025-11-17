@@ -10,16 +10,58 @@ export default function PreQualification() {
   const [hasLicenseValue, setHasLicenseValue] = React.useState<string>("");
   const [heardAbout, setHeardAbout] = React.useState<string>("");
 
-  // Autollenar vehículo cuando viene desde /pre-qualification?id=...
+  // 🔹 Auto-fill desde la URL (id, vehicle, vin, lang, contact)
   React.useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
-    const v = params.get("id");
-    if (v) {
-      const input = document.querySelector(
-        "input[name='vehicle']"
-      ) as HTMLInputElement | null;
-      if (input) input.value = v.replace(/-/g, " ").trim();
+
+    const idParam = params.get("id");
+    const vehicleParam = params.get("vehicle");
+    const vinParam = params.get("vin");
+    const langParam = params.get("lang");
+    const contactParam = params.get("contact");
+
+    // Vehicle of Interest
+    const vehicleInput = document.querySelector(
+      "input[name='vehicle']"
+    ) as HTMLInputElement | null;
+    if (vehicleInput) {
+      if (vehicleParam && vehicleParam.trim().length > 0) {
+        vehicleInput.value = vehicleParam;
+      } else if (idParam) {
+        vehicleInput.value = idParam.replace(/-/g, " ").trim();
+      }
+    }
+
+    // VIN
+    const vinInput = document.querySelector(
+      "input[name='vin']"
+    ) as HTMLInputElement | null;
+    if (vinInput && vinParam) {
+      vinInput.value = vinParam;
+    }
+
+    // Idioma inicial EN/ES
+    if (langParam) {
+      const normalized = langParam.toUpperCase();
+      if (normalized === "ES") setUiLang("ES");
+      if (normalized === "EN") setUiLang("EN");
+    }
+
+    // Método de contacto preseleccionado
+    if (contactParam) {
+      const contactSelect = document.querySelector(
+        "select[name='contactMethod']"
+      ) as HTMLSelectElement | null;
+      if (contactSelect) {
+        const value = contactParam.toLowerCase();
+        if (value === "whatsapp") contactSelect.value = "WhatsApp";
+        if (value === "call" || value === "phone")
+          contactSelect.value = "Phone Call";
+        if (value === "text" || value === "sms")
+          contactSelect.value = "Text Message";
+        if (value === "email") contactSelect.value = "Email";
+      }
     }
   }, []);
 
@@ -171,7 +213,7 @@ export default function PreQualification() {
                   label={isEN ? "Phone *" : "Teléfono *"}
                   name="phone"
                   required
-                  placeholder="(818) 555-1234"
+                  placeholder="(747) 354-4098"
                 />
               </div>
 
@@ -422,9 +464,7 @@ export default function PreQualification() {
               {heardAbout === "friend" && (
                 <Field
                   label={
-                    isEN
-                      ? "Who referred you?"
-                      : "¿Quién te recomendó?"
+                    isEN ? "Who referred you?" : "¿Quién te recomendó?"
                   }
                   name="referralName"
                   placeholder={
@@ -548,6 +588,11 @@ function InfoDot({ text }: { text: string }) {
 
 function SuccessBox({ uiLang }: { uiLang: "EN" | "ES" }) {
   const isEN = uiLang === "EN";
+
+  const whatsappLink = isEN
+    ? "https://wa.me/17473544098?text=Hi!%20I%20just%20submitted%20a%20pre-qualification%20form%20on%20hybridrm.com%20and%20would%20like%20to%20know%20the%20next%20steps."
+    : "https://wa.me/17473544098?text=Hola!%20Acabo%20de%20enviar%20mi%20formulario%20de%20pre-calificaci%C3%B3n%20en%20hybridrm.com%20y%20me%20gustar%C3%ADa%20saber%20cu%C3%A1les%20son%20los%20siguientes%20pasos.";
+
   return (
     <div className="mt-10 rounded-3xl border border-emerald-500/40 bg-emerald-900/20 p-8 text-center shadow-lg">
       <h2 className="text-2xl font-bold text-emerald-400">
@@ -558,12 +603,31 @@ function SuccessBox({ uiLang }: { uiLang: "EN" | "ES" }) {
           ? "Thank you! We’ve received your information and will contact you shortly with the next steps."
           : "¡Gracias! Hemos recibido tu información y te contactaremos pronto con los siguientes pasos."}
       </p>
-      <a
-        href="/pre-qualification"
-        className="mt-5 inline-block rounded-2xl border border-emerald-400 bg-transparent px-5 py-2 text-sm font-medium text-emerald-300 hover:bg-emerald-500/10"
-      >
-        {isEN ? "Send another request" : "Enviar otra solicitud"}
-      </a>
+
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <a
+          href="/pre-qualification"
+          className="rounded-2xl border border-emerald-400 bg-transparent px-5 py-2 text-sm font-medium text-emerald-300 hover:bg-emerald-500/10"
+        >
+          {isEN ? "Send another request" : "Enviar otra solicitud"}
+        </a>
+
+        <a
+          href="/"
+          className="rounded-2xl bg-white px-5 py-2 text-sm font-semibold text-neutral-900 hover:bg-neutral-200"
+        >
+          {isEN ? "Back to inventory" : "Volver al inventario"}
+        </a>
+
+        <a
+          href={whatsappLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-2xl bg-emerald-500 px-5 py-2 text-sm font-semibold text-neutral-950 hover:bg-emerald-400"
+        >
+          {isEN ? "Message us on WhatsApp" : "Escribir por WhatsApp"}
+        </a>
+      </div>
     </div>
   );
 }
