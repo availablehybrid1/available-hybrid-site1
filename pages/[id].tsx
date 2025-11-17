@@ -58,20 +58,19 @@ type VinDecoded = {
 
 type DetailProps = {
   car: Vehicle | null;
+  suggestions: Vehicle[];
 };
 
-export default function VehicleDetail({ car }: DetailProps) {
+export default function VehicleDetail({ car, suggestions }: DetailProps) {
   const [current, setCurrent] = React.useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false);
 
   // zoom dentro del modal
   const [isZoomed, setIsZoomed] = React.useState(false);
-  const [zoomOrigin, setZoomOrigin] = React.useState<{ x: string; y: string }>(
-    {
-      x: "50%",
-      y: "50%",
-    }
-  );
+  const [zoomOrigin, setZoomOrigin] = React.useState<{ x: string; y: string }>({
+    x: "50%",
+    y: "50%",
+  });
 
   // VIN decoding
   const [vinInfo, setVinInfo] = React.useState<VinDecoded | null>(null);
@@ -80,10 +79,10 @@ export default function VehicleDetail({ car }: DetailProps) {
 
   // Panel derecho (tabs)
   const [activePanel, setActivePanel] = React.useState<
-    "availability" | "estimate" | "offer"
+    "availability" | "estimate" | "offer" | "testdrive"
   >("availability");
 
-  // BHPH estimator UI
+  // BHPH / estimator UI
   const [creditTier, setCreditTier] = React.useState<
     "low" | "midLow" | "midHigh" | "high"
   >("low");
@@ -182,11 +181,17 @@ export default function VehicleDetail({ car }: DetailProps) {
     return payment;
   }, [amountFinanced, termMonths, apr, vehiclePrice]);
 
+  // 💵 Estimación de taxes + fees (simple ejemplo para LA)
+  const taxRate = 0.1025; // 10.25% Los Angeles aprox.
+  const fixedFees = 85 + 58 + 65 + 21; // doc + reg + title + smog aprox.
+  const estimatedTax = vehiclePrice * taxRate;
+  const estimatedFees = vehiclePrice ? estimatedTax + fixedFees : 0;
+
   // 💌 Confirm availability
   const handleAvailabilitySubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
-       const formData = new FormData(form);
+    const formData = new FormData(form);
 
     const firstName = (formData.get("firstName") || "").toString();
     const lastName = (formData.get("lastName") || "").toString();
@@ -253,6 +258,47 @@ export default function VehicleDetail({ car }: DetailProps) {
     window.location.href = mailto;
   };
 
+  // 🚗 Manejar submit de "Schedule Test Drive"
+  const handleTestDriveSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    const name = (formData.get("name") || "").toString();
+    const phone = (formData.get("phone") || "").toString();
+    const email = (formData.get("email") || "").toString();
+    const preferred = (formData.get("preferred") || "").toString(); // text / email / whatsapp
+    const date = (formData.get("date") || "").toString();
+    const time = (formData.get("time") || "").toString();
+    const comments = (formData.get("comments") || "").toString();
+
+    const subject = `Test Drive Request - ${car.year ?? ""} ${car.make} ${
+      car.model
+    } (ID: ${car.id})`;
+    const bodyLines = [
+      `Vehicle: ${car.year ?? ""} ${car.make} ${car.model}`,
+      `ID: ${car.id}`,
+      car.vin ? `VIN: ${car.vin}` : "",
+      "",
+      `Name: ${name}`,
+      `Phone: ${phone}`,
+      email ? `Email: ${email}` : "",
+      `Preferred contact: ${preferred || "Not specified"}`,
+      "",
+      `Requested date: ${date || "Not specified"}`,
+      `Requested time: ${time || "Not specified"}`,
+      "",
+      "Comments:",
+      comments || "(No comments)",
+    ].filter(Boolean);
+
+    const mailto = `mailto:availablehybrid@gmail.com?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
+
+    window.location.href = mailto;
+  };
+
   // 👆 Click en la imagen dentro del modal: zoom al punto exacto
   const handleLightboxImageClick = (
     e: React.MouseEvent<HTMLImageElement, MouseEvent>
@@ -278,20 +324,6 @@ export default function VehicleDetail({ car }: DetailProps) {
   };
 
   const phone = "+1 747-354-4098";
-
-  const hasMultiplePhotos = car.photos.length > 1;
-
-  const goPrev = () => {
-    setCurrent((prev) =>
-      prev === 0 ? car.photos.length - 1 : prev - 1
-    );
-    setIsZoomed(false);
-  };
-
-  const goNext = () => {
-    setCurrent((prev) => (prev + 1) % car.photos.length);
-    setIsZoomed(false);
-  };
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
@@ -363,45 +395,20 @@ export default function VehicleDetail({ car }: DetailProps) {
               {/* Foto principal (ajustada) */}
               <div className="relative flex h-[220px] w-full items-center justify-center bg-neutral-800 sm:h-[280px] lg:h-[320px]">
                 {mainPhoto ? (
-                  <>
-                    {/* Botón imagen: abre lightbox */}
-                    <button
-                      type="button"
-                      onClick={() => setIsLightboxOpen(true)}
-                      className="group flex h-full w-full items-center justify-center"
-                    >
-                      <img
-                        src={mainPhoto}
-                        alt={car.title}
-                        className="max-h-full max-w-full max-w-[520px] object-contain"
-                      />
-                      <span className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
-                        Click to enlarge
-                      </span>
-                    </button>
-
-                    {/* Flecha izquierda */}
-                    {hasMultiplePhotos && (
-                      <button
-                        type="button"
-                        onClick={goPrev}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
-                      >
-                        ‹
-                      </button>
-                    )}
-
-                    {/* Flecha derecha */}
-                    {hasMultiplePhotos && (
-                      <button
-                        type="button"
-                        onClick={goNext}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
-                      >
-                        ›
-                      </button>
-                    )}
-                  </>
+                  <button
+                    type="button"
+                    onClick={() => setIsLightboxOpen(true)}
+                    className="group flex h-full w-full items-center justify-center"
+                  >
+                    <img
+                      src={mainPhoto}
+                      alt={car.title}
+                      className="max-h-full max-w-full max-w-[520px] object-contain"
+                    />
+                    <span className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
+                      Click to enlarge
+                    </span>
+                  </button>
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
                     Photo coming soon
@@ -409,7 +416,32 @@ export default function VehicleDetail({ car }: DetailProps) {
                 )}
               </div>
 
-              {/* ✅ Ya no mostramos miniaturas, solo la imagen principal con flechas */}
+              {/* Miniaturas */}
+              {car.photos.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto border-t border-neutral-800 bg-neutral-900/80 p-2">
+                  {car.photos.map((photo, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setCurrent(idx);
+                        setIsZoomed(false);
+                      }}
+                      className={`h-14 w-20 flex-none overflow-hidden rounded border ${
+                        idx === current
+                          ? "border-emerald-500"
+                          : "border-neutral-700"
+                      }`}
+                    >
+                      <img
+                        src={photo}
+                        alt={`${car.title} ${idx + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </section>
 
@@ -434,6 +466,20 @@ export default function VehicleDetail({ car }: DetailProps) {
                   <p className="text-xl font-semibold text-emerald-400 sm:text-2xl">
                     ${car.price.toLocaleString()}
                   </p>
+                  {estimatedFees > 0 && (
+                    <div className="mt-1 text-[10px] text-neutral-400">
+                      <p>
+                        Est. taxes &amp; fees:{" "}
+                        <span className="font-semibold text-neutral-200">
+                          ${estimatedFees.toFixed(0)}
+                        </span>
+                      </p>
+                      <p className="text-[9px] text-neutral-500">
+                        *Approximate for Los Angeles, may vary by city and
+                        credit.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -475,18 +521,23 @@ export default function VehicleDetail({ car }: DetailProps) {
             </dl>
 
             {/* Tabs de acciones */}
-            <div className="mt-5 grid grid-cols-3 gap-1 text-[11px]">
+            <div className="mt-5 grid grid-cols-4 gap-1 text-[11px]">
               {[
                 { id: "availability", label: "Confirm Availability" },
                 { id: "estimate", label: "Estimated Payment" },
                 { id: "offer", label: "Make an Offer" },
+                { id: "testdrive", label: "Schedule Test Drive" },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   type="button"
                   onClick={() =>
                     setActivePanel(
-                      tab.id as "availability" | "estimate" | "offer"
+                      tab.id as
+                        | "availability"
+                        | "estimate"
+                        | "offer"
+                        | "testdrive"
                     )
                   }
                   className={`rounded-sm px-2 py-1.5 text-center font-semibold ${
@@ -810,6 +861,105 @@ export default function VehicleDetail({ car }: DetailProps) {
                 </button>
               </form>
             )}
+
+            {/* Panel: Schedule Test Drive */}
+            {activePanel === "testdrive" && (
+              <form
+                onSubmit={handleTestDriveSubmit}
+                className="mt-4 space-y-3 rounded-lg border border-neutral-800 bg-neutral-950/80 p-3"
+              >
+                <p className="text-[11px] font-semibold text-neutral-200">
+                  Schedule Test Drive
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-neutral-400">
+                      Name
+                    </label>
+                    <input
+                      name="name"
+                      required
+                      className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-neutral-400">
+                      Phone
+                    </label>
+                    <input
+                      name="phone"
+                      required
+                      className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-neutral-400">
+                      Email (optional)
+                    </label>
+                    <input
+                      name="email"
+                      type="email"
+                      className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-neutral-400">
+                      Preferred contact
+                    </label>
+                    <select
+                      name="preferred"
+                      className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                    >
+                      <option value="">Select</option>
+                      <option value="Text">Text</option>
+                      <option value="WhatsApp">WhatsApp</option>
+                      <option value="Email">Email</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-neutral-400">
+                      Preferred date
+                    </label>
+                    <input
+                      type="date"
+                      name="date"
+                      className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-neutral-400">
+                      Preferred time
+                    </label>
+                    <input
+                      type="time"
+                      name="time"
+                      className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[11px] text-neutral-400">
+                    Comments
+                  </label>
+                  <textarea
+                    name="comments"
+                    rows={3}
+                    className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="mt-2 w-full rounded bg-neutral-100 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-black hover:bg-neutral-200"
+                >
+                  Send Request
+                </button>
+              </form>
+            )}
           </section>
         </div>
 
@@ -937,6 +1087,46 @@ export default function VehicleDetail({ car }: DetailProps) {
               View directions
             </Link>
           </div>
+
+          {/* YOU MAY ALSO LIKE */}
+          {suggestions.length > 0 && (
+            <div className="mt-4 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
+              <p className="mb-3 text-sm font-semibold text-neutral-100">
+                You may also like
+              </p>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {suggestions.map((s) => {
+                  const thumb = s.photos[0] ?? "/placeholder-car.jpg";
+                  return (
+                    <Link
+                      key={s.id}
+                      href={`/${encodeURIComponent(s.id)}`}
+                      className="group rounded-md border border-neutral-800 bg-neutral-950/70 p-2 hover:border-neutral-400"
+                    >
+                      <div className="h-24 w-full overflow-hidden rounded bg-neutral-900">
+                        <img
+                          src={thumb}
+                          alt={s.title}
+                          className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform"
+                        />
+                      </div>
+                      <p className="mt-2 text-[11px] text-neutral-400">
+                        {s.year} {s.make}
+                      </p>
+                      <p className="text-xs font-semibold text-neutral-50 line-clamp-1">
+                        {s.model || s.title}
+                      </p>
+                      {s.price != null && (
+                        <p className="mt-1 text-[11px] font-semibold text-emerald-400">
+                          ${s.price.toLocaleString()}
+                        </p>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </section>
       </div>
 
@@ -957,27 +1147,6 @@ export default function VehicleDetail({ car }: DetailProps) {
             >
               ✕
             </button>
-
-            {/* Flechas dentro del lightbox para navegar también */}
-            {hasMultiplePhotos && (
-              <button
-                type="button"
-                onClick={goPrev}
-                className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
-              >
-                ‹
-              </button>
-            )}
-            {hasMultiplePhotos && (
-              <button
-                type="button"
-                onClick={goNext}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
-              >
-                ›
-              </button>
-            )}
-
             <img
               src={mainPhoto}
               alt={car.title}
@@ -1019,7 +1188,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-// Carga datos de un vehículo por ID
+// Carga datos de un vehículo por ID + sugerencias
 export const getStaticProps: GetStaticProps<DetailProps> = async (ctx) => {
   const id = ctx.params?.id as string;
 
@@ -1036,53 +1205,70 @@ export const getStaticProps: GetStaticProps<DetailProps> = async (ctx) => {
     return {
       props: {
         car: null,
+        suggestions: [],
       },
       revalidate: 60,
     };
   }
 
-  const photoStrings = Object.entries(raw as any)
-    .filter(
-      ([key, value]) =>
-        typeof key === "string" &&
-        key.toLowerCase().startsWith("photo") &&
-        value != null
-    )
-    .map(([, value]) => String(value));
-  const rawPhotos = photoStrings.join(" ");
-  const photos = parsePhotos(rawPhotos);
+  // helper para convertir Car -> Vehicle
+  const mapCarToVehicle = (c: Car): Vehicle => {
+    const photoStrings = Object.entries(c as any)
+      .filter(
+        ([key, value]) =>
+          typeof key === "string" &&
+          key.toLowerCase().startsWith("photo") &&
+          value != null
+      )
+      .map(([, value]) => String(value));
+    const rawPhotos = photoStrings.join(" ");
+    const photos = parsePhotos(rawPhotos);
 
-  const titleBase = `${raw.year ?? ""} ${raw.make ?? ""} ${
-    raw.model ?? ""
-  }`.trim();
+    const titleBase = `${c.year ?? ""} ${c.make ?? ""} ${c.model ?? ""}`.trim();
 
-  const car: Vehicle = {
-    id: String(raw.id).trim(),
-    title: titleBase || String(raw.id),
-    year:
-      raw.year !== undefined && raw.year !== null ? Number(raw.year) : null,
-    make: raw.make ?? "",
-    model: raw.model ?? "",
-    mileage:
-      raw.mileage !== undefined && raw.mileage !== null
-        ? Number(raw.mileage)
-        : null,
-    price:
-      raw.price !== undefined && raw.price !== null
-        ? Number(raw.price)
-        : null,
-    transmission: raw.transmission ?? "",
-    fuel: raw.fuel ?? "",
-    exterior: raw.exterior ?? "",
-    vin: raw.vin ?? "",
-    status: (raw as any).status ?? "",
-    description: (raw as any).description ?? "",
-    photos,
+    return {
+      id: String(c.id).trim(),
+      title: titleBase || String(c.id),
+      year:
+        c.year !== undefined && c.year !== null ? Number(c.year) : null,
+      make: c.make ?? "",
+      model: c.model ?? "",
+      mileage:
+        c.mileage !== undefined && c.mileage !== null
+          ? Number(c.mileage)
+          : null,
+      price:
+        c.price !== undefined && c.price !== null
+          ? Number(c.price)
+          : null,
+      transmission: c.transmission ?? "",
+      fuel: c.fuel ?? "",
+      exterior: c.exterior ?? "",
+      vin: c.vin ?? "",
+      status: (c as any).status ?? "",
+      description: (c as any).description ?? "",
+      photos,
+    };
   };
+
+  const car = mapCarToVehicle(raw);
+
+  // sugerencias: mismo make si hay, si no cualquiera, máximo 3
+  const others = cars.filter((c) => String(c.id).trim() !== id);
+  const sameMake = others.filter(
+    (c) =>
+      c.make &&
+      raw.make &&
+      c.make.toLowerCase().trim() === raw.make.toLowerCase().trim()
+  );
+
+  const pool = (sameMake.length ? sameMake : others).slice(0, 3);
+  const suggestions = pool.map(mapCarToVehicle);
 
   return {
     props: {
       car,
+      suggestions,
     },
     revalidate: 60,
   };
