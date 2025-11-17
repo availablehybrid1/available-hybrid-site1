@@ -289,7 +289,7 @@ export default function VehicleDetail({ car }: DetailProps) {
 
           <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70">
             {/* FOTO PRINCIPAL */}
-            <div className="relative w-full bg-neutral-800 h-[260px] sm:h-[420px] flex items-center justify-center">
+            <div className="relative w-full bg-neutral-800 h-[240px] sm:h-[360px] flex items-center justify-center">
               {mainPhoto ? (
                 <button
                   type="button"
@@ -526,8 +526,9 @@ export default function VehicleDetail({ car }: DetailProps) {
                           ${vehiclePrice.toLocaleString()}
                         </p>
                         <p className="mt-0.5 text-[10px] text-neutral-500">
-                          *Price shown does not include sales tax, DMV
-                          registration, documentation, or other applicable fees.
+                          *Displayed price excludes sales tax, government fees,
+                          DMV registration, dealer documentation, and other
+                          applicable charges.
                         </p>
                       </div>
 
@@ -668,10 +669,17 @@ export default function VehicleDetail({ car }: DetailProps) {
                             : "--"}
                         </p>
                         <p className="mt-1 text-[10px] text-neutral-500">
-                          This calculation is for illustration only and does not
-                          include sales tax, DMV registration, documentation, or
-                          other applicable fees. Final terms are subject to full
-                          credit review and written approval.
+                          Estimated monthly payment is based on the vehicle
+                          price, selected APR, term, and down payment you enter.
+                          This example is for illustrative purposes only.
+                        </p>
+                        <p className="mt-1 text-[10px] text-neutral-500">
+                          This estimate does not include government fees, sales
+                          tax, finance charges, dealer or document fees,
+                          registration, delivery, or emissions testing fees.
+                          Not all applicants will qualify for the terms shown.
+                          All financing is subject to credit approval and a
+                          signed retail installment contract.
                         </p>
                       </div>
                     </div>
