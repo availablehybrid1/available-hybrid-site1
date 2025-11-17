@@ -76,16 +76,17 @@ export default function VehicleDetail({ car }: DetailProps) {
   const [vinLoading, setVinLoading] = React.useState(false);
   const [vinError, setVinError] = React.useState<string | null>(null);
 
+  // Panel derecho (tabs)
+  const [activePanel, setActivePanel] = React.useState<
+    "availability" | "estimate" | "offer"
+  >("availability");
+
   // BHPH estimator UI
-  const [showBhph, setShowBhph] = React.useState(false);
   const [creditTier, setCreditTier] = React.useState<
     "low" | "midLow" | "midHigh" | "high"
   >("low");
   const [termMonths, setTermMonths] = React.useState(24);
   const [downPayment, setDownPayment] = React.useState(2000);
-
-  // Make an offer UI
-  const [showOffer, setShowOffer] = React.useState(false);
 
   // ⌨️ Navegación con flechas izquierda/derecha y cerrar con ESC
   React.useEffect(() => {
@@ -179,6 +180,41 @@ export default function VehicleDetail({ car }: DetailProps) {
     return payment;
   }, [amountFinanced, termMonths, apr, vehiclePrice]);
 
+  // 💌 Confirm availability
+  const handleAvailabilitySubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    const firstName = (formData.get("firstName") || "").toString();
+    const lastName = (formData.get("lastName") || "").toString();
+    const phone = (formData.get("phone") || "").toString();
+    const email = (formData.get("email") || "").toString();
+    const comments = (formData.get("comments") || "").toString();
+
+    const subject = `Availability for ${car.year ?? ""} ${car.make} ${
+      car.model
+    } (ID: ${car.id})`;
+    const bodyLines = [
+      `Vehicle: ${car.year ?? ""} ${car.make} ${car.model}`,
+      `ID: ${car.id}`,
+      car.vin ? `VIN: ${car.vin}` : "",
+      "",
+      `Name: ${firstName} ${lastName}`.trim(),
+      `Phone: ${phone}`,
+      email ? `Email: ${email}` : "",
+      "",
+      "Comments:",
+      comments || "(No comments)",
+    ].filter(Boolean);
+
+    const mailto = `mailto:availablehybrid@gmail.com?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
+
+    window.location.href = mailto;
+  };
+
   // 💰 Manejar submit de "Make an Offer"
   const handleMakeOfferSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -243,292 +279,298 @@ export default function VehicleDetail({ car }: DetailProps) {
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
-      {/* HEADER CON LOGO GRANDE Y SIN ROJO */}
-      <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-        <Link href="/inventory" className="flex items-center gap-3 group">
-          <div className="relative h-11 w-11 sm:h-12 sm:w-12 overflow-hidden rounded-2xl bg-neutral-900/80 ring-1 ring-white/15 group-hover:ring-white/40 transition">
-            <img
-              src="/logo.%20available%20hybrid%20premium.png"
-              alt="Available Hybrid R&M Inc. logo"
-              className="h-full w-full object-contain"
-            />
-          </div>
-          <div className="leading-tight hidden sm:block">
-            <p className="text-[10px] font-semibold tracking-[0.26em] text-neutral-400 group-hover:text-neutral-200">
-              AVAILABLE HYBRID
-            </p>
-            <p className="text-sm font-semibold text-neutral-50">
-              R&amp;M Inc.
-            </p>
-            <p className="text-[11px] text-neutral-500">
-              Hybrid &amp; fuel-efficient vehicles in Reseda, CA.
-            </p>
-          </div>
-        </Link>
+      {/* HEADER ELEGANTE */}
+      <header className="border-b border-neutral-900 bg-black/90">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <Link href="/inventory" className="flex items-center gap-3 group">
+            <div className="relative h-10 w-10 overflow-hidden rounded-2xl bg-neutral-900/80 ring-1 ring-white/15 group-hover:ring-white/40 transition sm:h-12 sm:w-12">
+              <img
+                src="/logo.%20available%20hybrid%20premium.png"
+                alt="Available Hybrid R&M Inc. logo"
+                className="h-full w-full object-contain"
+              />
+            </div>
+            <div className="leading-tight">
+              <p className="text-[10px] font-semibold tracking-[0.26em] text-neutral-400 group-hover:text-neutral-200">
+                AVAILABLE HYBRID
+              </p>
+              <p className="text-sm font-semibold text-neutral-50">
+                R&amp;M Inc.
+              </p>
+              <p className="hidden text-[11px] text-neutral-500 sm:block">
+                Hybrid &amp; fuel-efficient vehicles in Reseda, CA.
+              </p>
+            </div>
+          </Link>
 
-        <div className="flex flex-col items-end gap-1 text-right text-[11px] text-neutral-400">
-          <span>6726 Reseda Blvd Suite A7 · Reseda, CA 91335</span>
-          <a
-            href={`tel:${phone.replace(/[^+\d]/g, "")}`}
-            className="mt-1 inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-white hover:bg-white/10"
-          >
-            Call {phone}
-          </a>
+          <div className="flex flex-col items-end gap-1 text-right text-[11px] text-neutral-400">
+            <span>6726 Reseda Blvd Suite A7 · Reseda, CA 91335</span>
+            <div className="flex items-center gap-2">
+              <a
+                href="https://wa.me/17473544098"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent"
+                aria-label="WhatsApp"
+              >
+                <img
+                  src="/whatsapp-green.png"
+                  alt="WhatsApp"
+                  className="h-full w-full object-contain"
+                />
+              </a>
+              <a
+                href={`tel:${phone.replace(/[^+\d]/g, "")}`}
+                className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-white hover:bg-white/10"
+              >
+                {phone}
+              </a>
+            </div>
+          </div>
         </div>
       </header>
 
-      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 pb-12 pt-2 lg:flex-row">
-        {/* IMAGEN GRANDE + MINIATURAS */}
-        <section className="flex-1">
-          <Link
-            href="/inventory"
-            className="mb-3 inline-flex text-xs text-neutral-400 underline-offset-2 hover:underline"
-          >
-            ← Back to inventory
-          </Link>
+      {/* CONTENIDO PRINCIPAL */}
+      <div className="mx-auto max-w-6xl px-4 pb-12 pt-4 space-y-6">
+        {/* Fila superior: galería + panel derecho */}
+        <div className="flex flex-col gap-6 lg:flex-row">
+          {/* Galería */}
+          <section className="flex-1">
+            <Link
+              href="/inventory"
+              className="mb-3 inline-flex text-xs text-neutral-400 underline-offset-2 hover:underline"
+            >
+              ← Back to inventory
+            </Link>
 
-          <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70">
-            {/* FOTO PRINCIPAL */}
-            <div className="relative w-full bg-neutral-800 h-[240px] sm:h-[360px] flex items-center justify-center">
-              {mainPhoto ? (
-                <button
-                  type="button"
-                  onClick={() => setIsLightboxOpen(true)}
-                  className="group flex h-full w-full items-center justify-center"
-                >
-                  <img
-                    src={mainPhoto}
-                    alt={car.title}
-                    className="max-h-full max-w-full object-contain"
-                  />
-                  <span className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
-                    Click to enlarge
-                  </span>
-                </button>
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
-                  Foto próximamente
+            <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70">
+              {/* Foto principal */}
+              <div className="relative flex h-[260px] w-full items-center justify-center bg-neutral-800 sm:h-[360px]">
+                {mainPhoto ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsLightboxOpen(true)}
+                    className="group flex h-full w-full items-center justify-center"
+                  >
+                    <img
+                      src={mainPhoto}
+                      alt={car.title}
+                      className="max-h-full max-w-full object-contain"
+                    />
+                    <span className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
+                      Click to enlarge
+                    </span>
+                  </button>
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
+                    Photo coming soon
+                  </div>
+                )}
+              </div>
+
+              {/* Miniaturas */}
+              {car.photos.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto border-t border-neutral-800 bg-neutral-900/80 p-2">
+                  {car.photos.map((photo, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setCurrent(idx);
+                        setIsZoomed(false);
+                      }}
+                      className={`h-14 w-20 flex-none overflow-hidden rounded border ${
+                        idx === current
+                          ? "border-emerald-500"
+                          : "border-neutral-700"
+                      }`}
+                    >
+                      <img
+                        src={photo}
+                        alt={`${car.title} ${idx + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Panel derecho tipo J&S */}
+          <section className="flex-1 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-xs sm:p-5">
+            {/* Título + precio */}
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-500">
+                  Available Hybrid
+                </p>
+                <h1 className="mt-1 text-base font-semibold text-neutral-50 sm:text-lg">
+                  {car.year} {car.make} {car.model}
+                </h1>
+                <p className="mt-1 text-[11px] text-neutral-400">
+                  Hybrid &amp; fuel-efficient vehicles in Reseda, CA.
+                </p>
+              </div>
+              {car.price != null && (
+                <div className="text-right">
+                  <p className="text-[11px] text-neutral-500">Our Price</p>
+                  <p className="text-xl font-semibold text-emerald-400 sm:text-2xl">
+                    ${car.price.toLocaleString()}
+                  </p>
                 </div>
               )}
             </div>
 
-            {/* MINIATURAS */}
-            {car.photos.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto border-t border-neutral-800 bg-neutral-900/80 p-2">
-                {car.photos.map((photo, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => {
-                      setCurrent(idx);
-                      setIsZoomed(false);
-                    }}
-                    className={`h-14 w-20 flex-none overflow-hidden rounded border ${
-                      idx === current
-                        ? "border-emerald-500"
-                        : "border-neutral-700"
-                    }`}
-                  >
-                    <img
-                      src={photo}
-                      alt={`${car.title} ${idx + 1}`}
-                      className="h-full w-full object-cover"
-                    />
-                  </button>
-                ))}
+            {car.status && (
+              <span className="mt-3 inline-flex items-center rounded-full bg-emerald-600/15 px-2 py-[2px] text-[10px] font-medium text-emerald-400">
+                {car.status}
+              </span>
+            )}
+
+            {/* Specs rápidos */}
+            <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-[11px] text-neutral-300">
+              <div>
+                <dt className="text-neutral-500">Mileage</dt>
+                <dd>
+                  {car.mileage != null
+                    ? `${car.mileage.toLocaleString()} mi`
+                    : "N/A"}
+                </dd>
               </div>
-            )}
-          </div>
-        </section>
+              <div>
+                <dt className="text-neutral-500">Fuel</dt>
+                <dd>{car.fuel || "N/A"}</dd>
+              </div>
+              <div>
+                <dt className="text-neutral-500">Transmission</dt>
+                <dd>{car.transmission || "N/A"}</dd>
+              </div>
+              <div>
+                <dt className="text-neutral-500">Exterior</dt>
+                <dd>{car.exterior || "N/A"}</dd>
+              </div>
+              <div className="col-span-2">
+                <dt className="text-neutral-500">VIN</dt>
+                <dd className="font-mono text-[10px] uppercase">
+                  {car.vin || "N/A"}
+                </dd>
+              </div>
+            </dl>
 
-        {/* INFO DEL VEHÍCULO */}
-        <section className="flex-1 rounded-lg border border-neutral-800 bg-neutral-900/70 p-4 text-xs sm:p-5">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <h1 className="text-base font-semibold">
-                {car.year} {car.make} {car.model}
-              </h1>
-              <p className="mt-1 text-[11px] text-neutral-400">
-                Marca n/a · Prius V
-              </p>
+            {/* Tabs de acciones */}
+            <div className="mt-5 grid grid-cols-3 gap-1 text-[11px]">
+              {[
+                { id: "availability", label: "Confirm Availability" },
+                { id: "estimate", label: "Estimated Payment" },
+                { id: "offer", label: "Make an Offer" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() =>
+                    setActivePanel(tab.id as "availability" | "estimate" | "offer")
+                  }
+                  className={`rounded-sm px-2 py-1.5 text-center font-semibold ${
+                    activePanel === tab.id
+                      ? "bg-neutral-100 text-black"
+                      : "bg-neutral-900 text-neutral-200 hover:bg-neutral-800"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
-            {car.price != null && (
-              <p className="text-lg font-semibold text-emerald-400">
-                ${car.price.toLocaleString()}
-              </p>
-            )}
-          </div>
 
-          {car.status && (
-            <span className="mt-3 inline-flex w-fit items-center rounded-full bg-emerald-600/15 px-2 py-[2px] text-[10px] font-medium text-emerald-400">
-              {car.status}
-            </span>
-          )}
-
-          <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-[11px] text-neutral-300">
-            <div>
-              <dt className="text-neutral-500">Mileage</dt>
-              <dd>
-                {car.mileage != null
-                  ? `${car.mileage.toLocaleString()} mi`
-                  : "N/A"}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-neutral-500">Fuel</dt>
-              <dd>{car.fuel || "N/A"}</dd>
-            </div>
-            <div>
-              <dt className="text-neutral-500">Transmission</dt>
-              <dd>{car.transmission || "N/A"}</dd>
-            </div>
-            <div>
-              <dt className="text-neutral-500">Exterior</dt>
-              <dd>{car.exterior || "N/A"}</dd>
-            </div>
-            <div className="col-span-2">
-              <dt className="text-neutral-500">VIN</dt>
-              <dd className="font-mono text-[10px] uppercase">
-                {car.vin || "N/A"}
-              </dd>
-            </div>
-          </dl>
-
-          {/* BLOQUE: Info extra desde el VIN */}
-          <div className="mt-4 rounded border border-neutral-800 bg-neutral-900/80 p-3 text-[11px]">
-            <p className="mb-2 text-[11px] font-semibold text-neutral-200">
-              Info decodificada del VIN
-            </p>
-
-            {vinLoading && (
-              <p className="text-neutral-400">Decoding VIN…</p>
-            )}
-
-            {vinError && (
-              <p className="text-red-400 text-[11px]">{vinError}</p>
-            )}
-
-            {!vinLoading && !vinError && vinInfo && (
-              <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-neutral-300">
-                {vinInfo.trim && (
-                  <div>
-                    <dt className="text-neutral-500">Trim</dt>
-                    <dd>{vinInfo.trim}</dd>
+            {/* Panel: Confirm Availability */}
+            {activePanel === "availability" && (
+              <form
+                onSubmit={handleAvailabilitySubmit}
+                className="mt-4 space-y-3 rounded-lg border border-neutral-800 bg-neutral-950/80 p-3"
+              >
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-neutral-400">
+                      First Name
+                    </label>
+                    <input
+                      name="firstName"
+                      required
+                      className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                    />
                   </div>
-                )}
-                {vinInfo.bodyClass && (
-                  <div>
-                    <dt className="text-neutral-500">Body</dt>
-                    <dd>{vinInfo.bodyClass}</dd>
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-neutral-400">
+                      Last Name
+                    </label>
+                    <input
+                      name="lastName"
+                      required
+                      className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                    />
                   </div>
-                )}
-                {vinInfo.engineCylinders && (
-                  <div>
-                    <dt className="text-neutral-500">Engine</dt>
-                    <dd>
-                      {vinInfo.engineCylinders} cyl
-                      {vinInfo.engineDisplacementL &&
-                        ` · ${vinInfo.engineDisplacementL}L`}
-                    </dd>
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-neutral-400">
+                      Phone Number
+                    </label>
+                    <input
+                      name="phone"
+                      required
+                      className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                    />
                   </div>
-                )}
-                {vinInfo.transmission && (
-                  <div>
-                    <dt className="text-neutral-500">Transmission</dt>
-                    <dd>{vinInfo.transmission}</dd>
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-neutral-400">
+                      Email Address (optional)
+                    </label>
+                    <input
+                      name="email"
+                      type="email"
+                      className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                    />
                   </div>
-                )}
-                {vinInfo.driveType && (
-                  <div>
-                    <dt className="text-neutral-500">Drive</dt>
-                    <dd>{vinInfo.driveType}</dd>
-                  </div>
-                )}
-              </dl>
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[11px] text-neutral-400">
+                    Comments (optional)
+                  </label>
+                  <textarea
+                    name="comments"
+                    rows={3}
+                    className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="mt-2 w-full rounded bg-neutral-100 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-black hover:bg-neutral-200"
+                >
+                  Confirm Availability
+                </button>
+              </form>
             )}
 
-            {!vinLoading && !vinError && !vinInfo && (
-              <p className="text-neutral-500">
-                No extra VIN data available.
-              </p>
-            )}
-          </div>
-
-          {car.description && (
-            <p className="mt-4 text-[11px] leading-relaxed text-neutral-300">
-              {car.description}
-            </p>
-          )}
-
-          {/* ACCIONES */}
-          <div className="mt-5 flex flex-wrap gap-2 text-[11px]">
-            <a
-              href="https://wa.me/14352564487"
-              target="_blank"
-              rel="noreferrer"
-              className="rounded bg-emerald-500 px-3 py-1 font-medium text-neutral-900 hover:bg-emerald-400"
-            >
-              WhatsApp
-            </a>
-            <a
-              href={`tel:${phone.replace(/[^+\d]/g, "")}`}
-              className="rounded bg-neutral-800 px-3 py-1 font-medium text-neutral-100 hover:bg-neutral-700"
-            >
-              Call Dealer
-            </a>
-            <Link
-              href={`/pre-qualification?id=${encodeURIComponent(car.id)}`}
-              className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-emerald-500 hover:text-emerald-400"
-            >
-              Pre-Qualify
-            </Link>
-            <button
-              type="button"
-              onClick={() => {
-                setShowBhph((prev) => !prev);
-                setShowOffer(false);
-              }}
-              className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-blue-500 hover:text-blue-400"
-            >
-              BHPH Estimate
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setShowOffer((prev) => !prev);
-                setShowBhph(false);
-              }}
-              className="rounded border border-neutral-700 px-3 py-1 font-medium text-neutral-100 hover:border-emerald-500 hover:text-emerald-400"
-            >
-              Make an Offer
-            </button>
-          </div>
-
-          {/* PANEL BHPH */}
-          {showBhph && (
-            <div className="mt-5 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 space-y-4">
-              <p className="text-[11px] font-semibold text-neutral-200">
-                BHPH Payment Estimator (this vehicle)
-              </p>
-
-              {!vehiclePrice ? (
-                <p className="text-[11px] text-neutral-400">
-                  Price is not set for this vehicle. Please contact the dealer
-                  for BHPH options.
+            {/* Panel: Estimated Payment (BHPH) */}
+            {activePanel === "estimate" && (
+              <div className="mt-4 rounded-lg border border-neutral-800 bg-neutral-950/80 p-3 space-y-4">
+                <p className="text-[11px] font-semibold text-neutral-200">
+                  Estimate your payment (example only)
                 </p>
-              ) : (
-                <>
+
+                {!vehiclePrice ? (
+                  <p className="text-[11px] text-neutral-400">
+                    Price is not set for this vehicle. Please contact the dealer
+                    for financing options.
+                  </p>
+                ) : (
                   <div className="grid gap-3 sm:grid-cols-2 text-[11px]">
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <div>
                         <p className="text-neutral-500">Vehicle price*</p>
-                        <p className="font-semibold text-neutral-100">
+                        <p className="text-sm font-semibold text-neutral-100">
                           ${vehiclePrice.toLocaleString()}
                         </p>
-                        <p className="mt-0.5 text-[10px] text-neutral-500">
-                          *Displayed price excludes sales tax, government fees,
-                          DMV registration, dealer documentation, and other
-                          applicable charges.
+                        <p className="mt-1 text-[10px] text-neutral-500">
+                          *Price excludes taxes, DMV fees and dealer charges.
                         </p>
                       </div>
 
@@ -543,9 +585,7 @@ export default function VehicleDetail({ car }: DetailProps) {
                               checked={creditTier === "low"}
                               onChange={() => setCreditTier("low")}
                             />
-                            <span>
-                              {"<"} 600 or no credit · 22% APR
-                            </span>
+                            <span>{"<"} 600 or no credit · 22% APR</span>
                           </label>
                           <label className="flex items-center gap-2">
                             <input
@@ -620,7 +660,7 @@ export default function VehicleDetail({ car }: DetailProps) {
                       </div>
                     </div>
 
-                    <div className="space-y-2 rounded border border-neutral-800 bg-neutral-950/80 p-3">
+                    <div className="space-y-2 rounded border border-neutral-800 bg-neutral-900 p-3">
                       <p className="text-[11px] font-semibold text-neutral-200">
                         Estimated terms
                       </p>
@@ -628,7 +668,8 @@ export default function VehicleDetail({ car }: DetailProps) {
                         <div className="flex justify-between">
                           <span>Vehicle price</span>
                           <span>
-                            ${vehiclePrice.toLocaleString(undefined, {
+                            $
+                            {vehiclePrice.toLocaleString(undefined, {
                               maximumFractionDigits: 2,
                             })}
                           </span>
@@ -661,7 +702,7 @@ export default function VehicleDetail({ car }: DetailProps) {
                         </div>
                       </div>
 
-                      <div className="mt-3 rounded bg-neutral-900 p-3 text-[11px]">
+                      <div className="mt-3 rounded bg-neutral-950 p-3 text-[11px]">
                         <p className="text-neutral-500">Estimated payment</p>
                         <p className="text-lg font-semibold text-emerald-400">
                           {monthlyPayment
@@ -669,96 +710,215 @@ export default function VehicleDetail({ car }: DetailProps) {
                             : "--"}
                         </p>
                         <p className="mt-1 text-[10px] text-neutral-500">
-                          Estimated monthly payment is based on the vehicle
-                          price, selected APR, term, and down payment you enter.
-                          This example is for illustrative purposes only.
-                        </p>
-                        <p className="mt-1 text-[10px] text-neutral-500">
-                          This estimate does not include government fees, sales
-                          tax, finance charges, dealer or document fees,
-                          registration, delivery, or emissions testing fees.
-                          Not all applicants will qualify for the terms shown.
-                          All financing is subject to credit approval and a
-                          signed retail installment contract.
+                          Example only. Does not include taxes, DMV fees or
+                          dealer charges. Not all customers will qualify for
+                          these terms. Subject to credit approval and signed
+                          contract.
                         </p>
                       </div>
                     </div>
                   </div>
-                </>
+                )}
+              </div>
+            )}
+
+            {/* Panel: Make an Offer */}
+            {activePanel === "offer" && (
+              <form
+                onSubmit={handleMakeOfferSubmit}
+                className="mt-4 space-y-3 rounded-lg border border-neutral-800 bg-neutral-950/80 p-3"
+              >
+                <p className="text-[11px] font-semibold text-neutral-200">
+                  Make an Offer
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-neutral-400">
+                      Name
+                    </label>
+                    <input
+                      name="name"
+                      required
+                      className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-neutral-400">
+                      Phone
+                    </label>
+                    <input
+                      name="phone"
+                      required
+                      className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-neutral-400">
+                      Email (optional)
+                    </label>
+                    <input
+                      name="email"
+                      type="email"
+                      className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-neutral-400">
+                      Offer amount (USD)
+                    </label>
+                    <input
+                      name="offer"
+                      type="number"
+                      min={0}
+                      className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[11px] text-neutral-400">
+                    Message
+                  </label>
+                  <textarea
+                    name="message"
+                    rows={3}
+                    className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="mt-2 w-full rounded bg-neutral-100 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-black hover:bg-neutral-200"
+                >
+                  Send Offer
+                </button>
+              </form>
+            )}
+          </section>
+        </div>
+
+        {/* SECCIONES INFERIORES: similar a “Basic information / Description / Location” */}
+        <section className="space-y-4">
+          {/* Basic information + VIN extra */}
+          <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
+            <p className="mb-3 text-sm font-semibold text-neutral-100">
+              Basic information
+            </p>
+            <div className="grid gap-x-6 gap-y-2 sm:grid-cols-3">
+              <div>
+                <p className="text-neutral-500">Condition</p>
+                <p className="text-neutral-200">Used</p>
+              </div>
+              <div>
+                <p className="text-neutral-500">Mileage</p>
+                <p className="text-neutral-200">
+                  {car.mileage != null
+                    ? `${car.mileage.toLocaleString()} mi`
+                    : "N/A"}
+                </p>
+              </div>
+              <div>
+                <p className="text-neutral-500">Engine</p>
+                <p className="text-neutral-200">
+                  {vinInfo?.engineCylinders
+                    ? `${vinInfo.engineCylinders} cyl${
+                        vinInfo.engineDisplacementL
+                          ? ` · ${vinInfo.engineDisplacementL}L`
+                          : ""
+                      }`
+                    : "N/A"}
+                </p>
+              </div>
+              <div>
+                <p className="text-neutral-500">Body Type</p>
+                <p className="text-neutral-200">
+                  {vinInfo?.bodyClass || "N/A"}
+                </p>
+              </div>
+              <div>
+                <p className="text-neutral-500">Transmission</p>
+                <p className="text-neutral-200">
+                  {vinInfo?.transmission || car.transmission || "N/A"}
+                </p>
+              </div>
+              <div>
+                <p className="text-neutral-500">Drivetrain</p>
+                <p className="text-neutral-200">
+                  {vinInfo?.driveType || "N/A"}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 border-t border-neutral-800 pt-3">
+              <p className="mb-2 text-[11px] font-semibold text-neutral-200">
+                VIN decoded details
+              </p>
+              {vinLoading && (
+                <p className="text-neutral-400">Decoding VIN…</p>
               )}
+              {vinError && (
+                <p className="text-[11px] text-red-400">{vinError}</p>
+              )}
+              {!vinLoading && !vinError && vinInfo && (
+                <div className="grid gap-x-6 gap-y-1 text-[11px] text-neutral-300 sm:grid-cols-3">
+                  {vinInfo.trim && (
+                    <div>
+                      <p className="text-neutral-500">Trim</p>
+                      <p>{vinInfo.trim}</p>
+                    </div>
+                  )}
+                  {vinInfo.make && (
+                    <div>
+                      <p className="text-neutral-500">Make</p>
+                      <p>{vinInfo.make}</p>
+                    </div>
+                  )}
+                  {vinInfo.model && (
+                    <div>
+                      <p className="text-neutral-500">Model</p>
+                      <p>{vinInfo.model}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+              {!vinLoading && !vinError && !vinInfo && (
+                <p className="text-neutral-500 text-[11px]">
+                  No extra VIN data available.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Description */}
+          {car.description && (
+            <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
+              <p className="mb-2 text-sm font-semibold text-neutral-100">
+                Description
+              </p>
+              <p className="leading-relaxed text-neutral-300">
+                {car.description}
+              </p>
             </div>
           )}
 
-          {/* FORMULARIO MAKE AN OFFER */}
-          {showOffer && (
-            <form
-              onSubmit={handleMakeOfferSubmit}
-              className="mt-5 space-y-3 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4"
+          {/* Vehicle location */}
+          <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
+            <p className="mb-2 text-sm font-semibold text-neutral-100">
+              Vehicle Location
+            </p>
+            <p className="text-neutral-300">
+              Available Hybrid R&amp;M Inc.
+              <br />
+              6726 Reseda Blvd Suite A7
+              <br />
+              Reseda, CA 91335
+            </p>
+            <Link
+              href="https://maps.app.goo.gl/"
+              target="_blank"
+              className="mt-3 inline-flex text-[11px] text-emerald-400 underline-offset-2 hover:underline"
             >
-              <p className="text-[11px] font-semibold text-neutral-200">
-                Make an Offer
-              </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <label className="block text-[11px] text-neutral-400">
-                    Name
-                  </label>
-                  <input
-                    name="name"
-                    required
-                    className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-[11px] text-neutral-400">
-                    Phone
-                  </label>
-                  <input
-                    name="phone"
-                    required
-                    className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-[11px] text-neutral-400">
-                    Email (optional)
-                  </label>
-                  <input
-                    name="email"
-                    type="email"
-                    className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-[11px] text-neutral-400">
-                    Offer amount (USD)
-                  </label>
-                  <input
-                    name="offer"
-                    type="number"
-                    min={0}
-                    className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
-                  />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <label className="block text-[11px] text-neutral-400">
-                  Message
-                </label>
-                <textarea
-                  name="message"
-                  rows={3}
-                  className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
-                />
-              </div>
-              <button
-                type="submit"
-                className="mt-2 rounded bg-white px-3 py-1 text-[11px] font-medium text-neutral-900 hover:bg-neutral-200"
-              >
-                Send Offer
-              </button>
-            </form>
-          )}
+              View directions
+            </Link>
+          </div>
         </section>
       </div>
 
