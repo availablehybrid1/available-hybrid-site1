@@ -241,7 +241,7 @@ export default function Inventory({ inventory }: InventoryProps) {
           <div className="flex flex-col items-end text-right text-[11px] text-neutral-400 gap-2">
             <span>6726 Reseda Blvd Suite A7 · Reseda, CA 91335</span>
             <div className="flex items-center gap-3">
-              {/* WhatsApp con logo (guarda el ícono como /public/whatsapp-green.png) */}
+              {/* WhatsApp con logo (asegúrate de tener /public/whatsapp-green.png) */}
               <a
                 href={`https://wa.me/${whatsappDigits}`}
                 target="_blank"
@@ -490,7 +490,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                   <Link
                     key={car.id}
                     href={`/${encodeURIComponent(car.id)}`}
-                    className="group flex flex-col overflow-hidden rounded-xl border border-neutral-900 bg-neutral-900/70 shadow-[0_10px_30px_rgba(0,0,0,0.65)] transition hover:-translate-y-0.5 hover:border-neutral-500 hover:bg-neutral-900"
+                    className="group flex flex-col rounded-xl border border-neutral-900 bg-neutral-900/70 shadow-[0_10px_30px_rgba(0,0,0,0.65)] transition hover:-translate-y-0.5 hover:border-neutral-500 hover:bg-neutral-900 overflow-visible"
                   >
                     {/* Imagen principal + badges */}
                     <div className="relative h-52 w-full overflow-hidden bg-neutral-950">
@@ -545,7 +545,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                     </div>
 
                     {/* Barra inferior precio + cuadro negro de pago mensual + ? */}
-                    <div className="mt-auto bg-black/80 px-4 py-3 text-sm">
+                    <div className="mt-auto bg-black/80 px-4 py-3 text-sm relative">
                       <div className="flex items-center justify-between gap-3">
                         <div>
                           <p className="text-[11px] text-neutral-500">
@@ -568,7 +568,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                               </p>
                             </div>
 
-                            {/* Icono ? con tooltip (ahora encima y más legible) */}
+                            {/* Icono ? con tooltip (encima y fuera de la tarjeta) */}
                             <div className="relative group/payment">
                               <button
                                 type="button"
