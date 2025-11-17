@@ -44,16 +44,20 @@ export default function Inventory({ inventory }: InventoryProps) {
     "priceDesc"
   );
 
+  // rango de precio
+  const [priceMin, setPriceMin] = React.useState<number | null>(null);
+  const [priceMax, setPriceMax] = React.useState<number | null>(null);
+
   // idioma EN / ES
   const [lang, setLang] = React.useState<"en" | "es">("en");
 
   const text = lang === "en"
     ? {
+        filtersLabel: "Filters",
         inventoryNav: "Inventory",
         prequalifyNav: "Pre-Qualify",
         contactNav: "Contact",
         call: "Call",
-        standard: "Standard",
         vehiclesAvailable: "vehicles available",
         allInventory: "All inventory",
         sort: "Sort",
@@ -61,20 +65,17 @@ export default function Inventory({ inventory }: InventoryProps) {
         sortLowHigh: "Price · Low to High",
         price: "Price",
         adjustInStore: "Adjust in-store",
-        bhphNote: "Ask for BHPH options.",
         year: "Year",
         allYears: "All years",
         make: "Make",
         allMakes: "All makes",
         model: "Model",
-        trim: "Trim",
-        bodyType: "Body Type",
-        bodySubtype: "Body Subtype",
-        drivetrain: "Drivetrain",
-        seeAllFilters: "See all filters",
         comingSoon: "Coming soon",
         estPayment: "Est. payment",
-        noVehicles: "No vehicles found with the selected filters. Try another make or year.",
+        paymentDisclaimer:
+          "Example based on up to 16 monthly payments. Amount may vary. Only for approved customers.",
+        noVehicles:
+          "No vehicles found with the selected filters. Try another make or year.",
         modalTitle: "Search all inventory",
         modalPlaceholder: "Search by model, year, VIN…",
         modalNoResults: "No results for",
@@ -82,11 +83,11 @@ export default function Inventory({ inventory }: InventoryProps) {
         searchOpenLabel: "Open search",
       }
     : {
+        filtersLabel: "Filtros",
         inventoryNav: "Inventario",
         prequalifyNav: "Pre-Calificar",
         contactNav: "Contacto",
         call: "Llamar",
-        standard: "Estándar",
         vehiclesAvailable: "vehículos disponibles",
         allInventory: "Todo el inventario",
         sort: "Ordenar",
@@ -94,19 +95,15 @@ export default function Inventory({ inventory }: InventoryProps) {
         sortLowHigh: "Precio · Menor a mayor",
         price: "Precio",
         adjustInStore: "Ajustar en el dealer",
-        bhphNote: "Pregunta por opciones BHPH.",
         year: "Año",
         allYears: "Todos los años",
         make: "Marca",
         allMakes: "Todas las marcas",
         model: "Modelo",
-        trim: "Versión",
-        bodyType: "Tipo de carrocería",
-        bodySubtype: "Subtipo de carrocería",
-        drivetrain: "Tracción",
-        seeAllFilters: "Ver todos los filtros",
         comingSoon: "Próximamente",
         estPayment: "Pago estimado",
+        paymentDisclaimer:
+          "Ejemplo basado en hasta 16 pagos mensuales. El monto puede variar. Solo para clientes aprobados.",
         noVehicles:
           "No se encontraron vehículos con estos filtros. Prueba otra marca o año.",
         modalTitle: "Buscar en todo el inventario",
@@ -138,6 +135,18 @@ export default function Inventory({ inventory }: InventoryProps) {
     return Array.from(set).sort();
   }, [inventory]);
 
+  // stats de precio para placeholder
+  const priceStats = React.useMemo(() => {
+    const prices = inventory
+      .map((c) => c.price)
+      .filter((p): p is number => typeof p === "number" && p > 0);
+    if (!prices.length) return { min: 0, max: 0 };
+    return {
+      min: Math.min(...prices),
+      max: Math.max(...prices),
+    };
+  }, [inventory]);
+
   // Filtrado + orden para el grid principal
   const visible = React.useMemo(() => {
     let cars = [...inventory];
@@ -152,6 +161,13 @@ export default function Inventory({ inventory }: InventoryProps) {
       );
     }
 
+    if (priceMin != null) {
+      cars = cars.filter((c) => (c.price ?? 0) >= priceMin);
+    }
+    if (priceMax != null) {
+      cars = cars.filter((c) => (c.price ?? 0) <= priceMax);
+    }
+
     cars.sort((a, b) => {
       const pa = a.price ?? 0;
       const pb = b.price ?? 0;
@@ -160,7 +176,7 @@ export default function Inventory({ inventory }: InventoryProps) {
     });
 
     return cars;
-  }, [inventory, yearFilter, makeFilter, sortBy]);
+  }, [inventory, yearFilter, makeFilter, sortBy, priceMin, priceMax]);
 
   // Resultados para el modal de búsqueda
   const searchResults = React.useMemo(() => {
@@ -214,13 +230,13 @@ export default function Inventory({ inventory }: InventoryProps) {
               {text.inventoryNav}
             </Link>
             <Link
-              href="/#prequalify"
+              href="/pre-qualification"
               className="hover:text-white transition-colors"
             >
               {text.prequalifyNav}
             </Link>
             <Link
-              href="/#contact"
+              href="/financing"
               className="hover:text-white transition-colors"
             >
               {text.contactNav}
@@ -253,16 +269,16 @@ export default function Inventory({ inventory }: InventoryProps) {
       <div className="mx-auto flex max-w-6xl gap-6 px-4 pt-6">
         {/* SIDEBAR IZQUIERDO */}
         <aside className="hidden w-60 flex-shrink-0 flex-col text-sm text-neutral-100 lg:flex">
-          {/* Solo Standard (sin Ai Mode) */}
-          <div className="mb-5 grid grid-cols-2 gap-2">
-            <button className="col-span-2 rounded-lg bg-neutral-900 px-3 py-2 text-xs font-semibold text-white shadow-sm">
-              {text.standard}
+          {/* Botón header de filtros */}
+          <div className="mb-5">
+            <button className="w-full rounded-lg bg-neutral-900 px-3 py-2 text-xs font-semibold text-white shadow-sm">
+              {text.filtersLabel}
             </button>
           </div>
 
           {/* Filtros */}
           <div className="space-y-3 text-[13px]">
-            {/* Price */}
+            {/* Price con rango editable */}
             <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-3">
               <div className="flex items-center justify-between">
                 <span>{text.price}</span>
@@ -270,22 +286,48 @@ export default function Inventory({ inventory }: InventoryProps) {
                   {text.adjustInStore}
                 </span>
               </div>
-              <p className="mt-1 text-[11px] text-neutral-500">
-                {text.bhphNote}
-              </p>
 
-              {/* Min / Max estáticos, solo visuales */}
-              <div className="mt-3 space-y-2">
-                <div className="h-[30px] rounded-md bg-neutral-900/80" />
-                <div className="flex items-center justify-between gap-2 text-[11px]">
-                  <div className="flex-1 rounded-md border border-neutral-800 bg-black/70 px-2 py-1.5">
-                    <p className="text-[10px] text-neutral-500">Min</p>
-                    <p className="text-neutral-100">$0</p>
-                  </div>
-                  <div className="flex-1 rounded-md border border-neutral-800 bg-black/70 px-2 py-1.5 text-right">
-                    <p className="text-[10px] text-neutral-500">Max</p>
-                    <p className="text-neutral-100">$30,000+</p>
-                  </div>
+              {/* Min / Max reales */}
+              <div className="mt-3 flex items-center justify-between gap-2 text-[11px]">
+                <div className="flex-1 rounded-md border border-neutral-800 bg-black/70 px-2 py-1.5">
+                  <p className="text-[10px] text-neutral-500">Min</p>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={priceMin ?? ""}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (!v) return setPriceMin(null);
+                      const n = Number(v);
+                      if (!Number.isNaN(n)) setPriceMin(n);
+                    }}
+                    placeholder={
+                      priceStats.min
+                        ? priceStats.min.toString()
+                        : "0"
+                    }
+                    className="w-full bg-transparent text-neutral-100 outline-none text-[11px]"
+                  />
+                </div>
+                <div className="flex-1 rounded-md border border-neutral-800 bg-black/70 px-2 py-1.5 text-right">
+                  <p className="text-[10px] text-neutral-500">Max</p>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={priceMax ?? ""}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (!v) return setPriceMax(null);
+                      const n = Number(v);
+                      if (!Number.isNaN(n)) setPriceMax(n);
+                    }}
+                    placeholder={
+                      priceStats.max
+                        ? priceStats.max.toString()
+                        : "30000"
+                    }
+                    className="w-full bg-transparent text-neutral-100 outline-none text-[11px] text-right"
+                  />
                 </div>
               </div>
             </div>
@@ -334,7 +376,7 @@ export default function Inventory({ inventory }: InventoryProps) {
               </select>
             </div>
 
-            {/* Otros filtros solo visuales */}
+            {/* Model solo informativo */}
             <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-2">
               <div className="flex items-center justify-between">
                 <span>{text.model}</span>
@@ -343,26 +385,6 @@ export default function Inventory({ inventory }: InventoryProps) {
                 </span>
               </div>
             </div>
-            <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-2">
-              <div className="flex items-center justify-between">
-                <span>{text.trim}</span>
-                <span className="text-xs text-neutral-600">
-                  {text.comingSoon}
-                </span>
-              </div>
-            </div>
-            <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-2">
-              <span>{text.bodyType}</span>
-            </div>
-            <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-2">
-              <span>{text.bodySubtype}</span>
-            </div>
-            <div className="rounded-lg border border-neutral-800 bg-[#050505] px-3 py-2">
-              <span>{text.drivetrain}</span>
-            </div>
-            <button className="mt-2 text-left text-[11px] font-medium text-emerald-400 hover:text-emerald-300">
-              {text.seeAllFilters}
-            </button>
           </div>
         </aside>
 
@@ -447,9 +469,10 @@ export default function Inventory({ inventory }: InventoryProps) {
                     ? "Call for price"
                     : "Llama para precio";
 
+                // pago estimado basado en 16 meses
                 const monthly =
                   car.price != null
-                    ? Math.round(car.price / 60)
+                    ? Math.round(car.price / 16)
                     : null;
 
                 return (
@@ -510,25 +533,32 @@ export default function Inventory({ inventory }: InventoryProps) {
                       </div>
                     </div>
 
-                    {/* Barra inferior precio / mensual */}
-                    <div className="mt-auto flex items-center justify-between bg-black/80 px-4 py-3 text-sm">
-                      <div>
-                        <p className="text-[11px] text-neutral-500">
-                          {text.priceLabel}
-                        </p>
-                        <p className="font-semibold text-neutral-50">
-                          {priceLabel}
-                        </p>
-                      </div>
-                      {monthly && (
-                        <div className="text-right">
-                          <p className="text-[11px] text-emerald-400/80">
-                            {text.estPayment}
+                    {/* Barra inferior precio / mensual + aclaración */}
+                    <div className="mt-auto bg-black/80 px-4 py-3 text-sm">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-[11px] text-neutral-500">
+                            {text.priceLabel}
                           </p>
-                          <p className="font-semibold text-emerald-400">
-                            ${monthly.toLocaleString()}/mo
+                          <p className="font-semibold text-neutral-50">
+                            {priceLabel}
                           </p>
                         </div>
+                        {monthly && (
+                          <div className="text-right">
+                            <p className="text-[11px] text-emerald-400/80">
+                              {text.estPayment}
+                            </p>
+                            <p className="font-semibold text-emerald-400">
+                              ${monthly.toLocaleString()}/mo
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      {monthly && (
+                        <p className="mt-1 text-[10px] leading-snug text-neutral-400">
+                          {text.paymentDisclaimer}
+                        </p>
                       )}
                     </div>
                   </Link>
@@ -581,9 +611,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                 </p>
               )}
 
-              {(
-                searchQuery.trim() ? searchResults : recommended
-              ).map((car) => {
+              {(searchQuery.trim() ? searchResults : recommended).map((car) => {
                 const thumb = car.photos[0] ?? "/placeholder-car.jpg";
                 const price =
                   car.price != null
