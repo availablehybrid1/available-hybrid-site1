@@ -56,8 +56,6 @@ export default function Inventory({ inventory }: InventoryProps) {
         filtersLabel: "Filters",
         inventoryNav: "Inventory",
         prequalifyNav: "Pre-Qualify",
-        call: "Call",
-        whatsapp: "WhatsApp",
         vehiclesAvailable: "vehicles available",
         allInventory: "All inventory",
         sort: "Sort",
@@ -73,7 +71,7 @@ export default function Inventory({ inventory }: InventoryProps) {
         comingSoon: "Coming soon",
         estPayment: "Est. payment",
         paymentDisclaimer:
-          "Example based on up to 16 monthly payments. Amount may vary. Only for approved customers.",
+          "Example based on up to 12 monthly payments. Amount may vary. Only for approved customers.",
         tooltipTitlePrefix: "Monthly payment of",
         getPrequalified: "Get Pre-Qualified",
         noVehicles:
@@ -88,8 +86,6 @@ export default function Inventory({ inventory }: InventoryProps) {
         filtersLabel: "Filtros",
         inventoryNav: "Inventario",
         prequalifyNav: "Pre-Calificar",
-        call: "Llamar",
-        whatsapp: "WhatsApp",
         vehiclesAvailable: "vehículos disponibles",
         allInventory: "Todo el inventario",
         sort: "Ordenar",
@@ -105,7 +101,7 @@ export default function Inventory({ inventory }: InventoryProps) {
         comingSoon: "Próximamente",
         estPayment: "Pago estimado",
         paymentDisclaimer:
-          "Ejemplo basado en hasta 16 pagos mensuales. El monto puede variar. Solo para clientes aprobados.",
+          "Ejemplo basado en hasta 12 pagos mensuales. El monto puede variar. Solo para clientes aprobados.",
         tooltipTitlePrefix: "Pago mensual de",
         getPrequalified: "Solicitar pre-calificación",
         noVehicles:
@@ -226,7 +222,7 @@ export default function Inventory({ inventory }: InventoryProps) {
             </div>
           </Link>
 
-          {/* navegación (solo inventario + pre-qualify) */}
+          {/* navegación (inventario + pre-qualify) */}
           <nav className="hidden flex-1 items-center justify-center gap-6 text-xs font-medium text-neutral-300 sm:flex">
             <Link
               href="/inventory"
@@ -244,23 +240,25 @@ export default function Inventory({ inventory }: InventoryProps) {
 
           <div className="flex flex-col items-end text-right text-[11px] text-neutral-400 gap-2">
             <span>6726 Reseda Blvd Suite A7 · Reseda, CA 91335</span>
-            <div className="flex items-center gap-2">
-              {/* Call */}
-              <a
-                href={`tel:${phone.replace(/[^+\d]/g, "")}`}
-                className="inline-flex items-center justify-center rounded-full border border-neutral-700 bg-neutral-950 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-100 hover:border-neutral-300 hover:bg-neutral-800"
-              >
-                {text.call} {phone}
-              </a>
-
-              {/* WhatsApp */}
+            <div className="flex items-center gap-3">
+              {/* WhatsApp solo icono */}
               <a
                 href={`https://wa.me/${whatsappDigits}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center rounded-full border border-emerald-500 bg-emerald-500 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-black hover:bg-emerald-400 hover:border-emerald-400"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-emerald-500 bg-emerald-500 text-[14px] font-semibold text-black shadow hover:bg-emerald-400 hover:border-emerald-400"
+                aria-label="WhatsApp"
               >
-                {text.whatsapp}
+                {/* pseudo-logo simple */}
+                🟢
+              </a>
+
+              {/* Teléfono solo número */}
+              <a
+                href={`tel:${phone.replace(/[^+\d]/g, "")}`}
+                className="inline-flex items-center justify-center rounded-full border border-neutral-700 bg-neutral-950 px-4 py-1.5 text-[11px] font-semibold tracking-[0.18em] text-neutral-100 hover:border-neutral-300 hover:bg-neutral-800"
+              >
+                {phone}
               </a>
 
               {/* Toggle EN / ES */}
@@ -479,10 +477,10 @@ export default function Inventory({ inventory }: InventoryProps) {
                     ? "Call for price"
                     : "Llama para precio";
 
-                // pago estimado basado en 16 meses
+                // pago estimado basado en 12 meses
                 const monthly =
                   car.price != null
-                    ? Math.round(car.price / 16)
+                    ? Math.round(car.price / 12)
                     : null;
 
                 return (
@@ -543,9 +541,9 @@ export default function Inventory({ inventory }: InventoryProps) {
                       </div>
                     </div>
 
-                    {/* Barra inferior precio / mensual con popup */}
+                    {/* Barra inferior precio + cuadro negro de pago mensual + ? */}
                     <div className="mt-auto bg-black/80 px-4 py-3 text-sm">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-3">
                         <div>
                           <p className="text-[11px] text-neutral-500">
                             {text.priceLabel}
@@ -556,31 +554,42 @@ export default function Inventory({ inventory }: InventoryProps) {
                         </div>
 
                         {monthly && (
-                          <div className="relative group/payment">
-                            <button
-                              type="button"
-                              onClick={(e) => e.preventDefault()}
-                              className="rounded-md bg-emerald-500 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-black shadow hover:bg-emerald-400"
-                            >
-                              ${monthly.toLocaleString()}/mo
-                            </button>
+                          <div className="flex items-center gap-2">
+                            {/* Cuadro negro con pago mensual en verde */}
+                            <div className="rounded-md bg-neutral-900 px-3 py-1.5 text-right">
+                              <p className="text-[10px] text-neutral-400">
+                                {text.estPayment}
+                              </p>
+                              <p className="text-[13px] font-semibold text-emerald-400">
+                                ${monthly.toLocaleString()}/mo
+                              </p>
+                            </div>
 
-                            {/* Tooltip tipo popup */}
-                            <div className="pointer-events-none absolute right-0 top-full z-20 mt-2 w-64 rounded-md border border-neutral-700 bg-black px-3 py-2 text-[11px] opacity-0 shadow-xl transition-opacity group-hover/payment:opacity-100 group-hover/payment:pointer-events-auto">
-                              <p className="text-xs font-semibold text-neutral-100">
-                                {text.tooltipTitlePrefix} $
-                                {monthly.toLocaleString()}
-                              </p>
-                              <p className="mt-1 text-[11px] text-neutral-300">
-                                {text.paymentDisclaimer}
-                              </p>
-                              <Link
-                                href="/pre-qualification"
-                                onClick={(e) => e.stopPropagation()}
-                                className="mt-2 inline-flex w-full items-center justify-center rounded-sm bg-neutral-100 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-black hover:bg-neutral-200"
+                            {/* Icono ? con tooltip */}
+                            <div className="relative group/payment">
+                              <button
+                                type="button"
+                                onClick={(e) => e.preventDefault()}
+                                className="flex h-6 w-6 items-center justify-center rounded-full border border-neutral-500 bg-neutral-900 text-xs font-bold text-neutral-100 hover:border-neutral-300"
                               >
-                                {text.getPrequalified}
-                              </Link>
+                                ?
+                              </button>
+                              <div className="pointer-events-none absolute right-0 top-full z-20 mt-2 w-64 rounded-md border border-neutral-700 bg-black px-3 py-2 text-[11px] opacity-0 shadow-xl transition-opacity group-hover/payment:opacity-100 group-hover/payment:pointer-events-auto">
+                                <p className="text-xs font-semibold text-neutral-100">
+                                  {text.tooltipTitlePrefix} $
+                                  {monthly.toLocaleString()}
+                                </p>
+                                <p className="mt-1 text-[11px] text-neutral-300">
+                                  {text.paymentDisclaimer}
+                                </p>
+                                <Link
+                                  href="/pre-qualification"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="mt-2 inline-flex w-full items-center justify-center rounded-sm bg-neutral-100 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-black hover:bg-neutral-200"
+                                >
+                                  {text.getPrequalified}
+                                </Link>
+                              </div>
                             </div>
                           </div>
                         )}
@@ -596,7 +605,7 @@ export default function Inventory({ inventory }: InventoryProps) {
 
       {/* MODAL DE BÚSQUEDA (lupa) */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 px-4 pt-16">
+        <div className="fixed inset-0 z-50 flex items-start justifycenter bg-black/70 px-4 pt-16">
           <div className="w-full max-w-2xl rounded-2xl border border-neutral-800 bg-neutral-950/95 shadow-xl">
             {/* header modal */}
             <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
