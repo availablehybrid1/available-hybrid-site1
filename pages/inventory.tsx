@@ -56,8 +56,8 @@ export default function Inventory({ inventory }: InventoryProps) {
         filtersLabel: "Filters",
         inventoryNav: "Inventory",
         prequalifyNav: "Pre-Qualify",
-        contactNav: "Contact",
         call: "Call",
+        whatsapp: "WhatsApp",
         vehiclesAvailable: "vehicles available",
         allInventory: "All inventory",
         sort: "Sort",
@@ -74,6 +74,8 @@ export default function Inventory({ inventory }: InventoryProps) {
         estPayment: "Est. payment",
         paymentDisclaimer:
           "Example based on up to 16 monthly payments. Amount may vary. Only for approved customers.",
+        tooltipTitlePrefix: "Monthly payment of",
+        getPrequalified: "Get Pre-Qualified",
         noVehicles:
           "No vehicles found with the selected filters. Try another make or year.",
         modalTitle: "Search all inventory",
@@ -86,8 +88,8 @@ export default function Inventory({ inventory }: InventoryProps) {
         filtersLabel: "Filtros",
         inventoryNav: "Inventario",
         prequalifyNav: "Pre-Calificar",
-        contactNav: "Contacto",
         call: "Llamar",
+        whatsapp: "WhatsApp",
         vehiclesAvailable: "vehículos disponibles",
         allInventory: "Todo el inventario",
         sort: "Ordenar",
@@ -104,6 +106,8 @@ export default function Inventory({ inventory }: InventoryProps) {
         estPayment: "Pago estimado",
         paymentDisclaimer:
           "Ejemplo basado en hasta 16 pagos mensuales. El monto puede variar. Solo para clientes aprobados.",
+        tooltipTitlePrefix: "Pago mensual de",
+        getPrequalified: "Solicitar pre-calificación",
         noVehicles:
           "No se encontraron vehículos con estos filtros. Prueba otra marca o año.",
         modalTitle: "Buscar en todo el inventario",
@@ -204,6 +208,7 @@ export default function Inventory({ inventory }: InventoryProps) {
   }, [inventory]);
 
   const phone = "+1 747-354-4098";
+  const whatsappDigits = "17473544098";
 
   return (
     <main className="min-h-screen bg-[#050505] text-neutral-100 pb-16">
@@ -211,7 +216,7 @@ export default function Inventory({ inventory }: InventoryProps) {
       <header className="border-b border-neutral-900 bg-black/90">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 gap-4">
           <Link href="/" className="flex items-center gap-3">
-            {/* Logo 3/4 más grande que antes */}
+            {/* Logo grande */}
             <div className="relative h-[120px] w-[360px]">
               <img
                 src="/logo. available hybrid premium.png"
@@ -221,7 +226,7 @@ export default function Inventory({ inventory }: InventoryProps) {
             </div>
           </Link>
 
-          {/* navegación */}
+          {/* navegación (solo inventario + pre-qualify) */}
           <nav className="hidden flex-1 items-center justify-center gap-6 text-xs font-medium text-neutral-300 sm:flex">
             <Link
               href="/inventory"
@@ -235,23 +240,29 @@ export default function Inventory({ inventory }: InventoryProps) {
             >
               {text.prequalifyNav}
             </Link>
-            <Link
-              href="/financing"
-              className="hover:text-white transition-colors"
-            >
-              {text.contactNav}
-            </Link>
           </nav>
 
           <div className="flex flex-col items-end text-right text-[11px] text-neutral-400 gap-2">
             <span>6726 Reseda Blvd Suite A7 · Reseda, CA 91335</span>
             <div className="flex items-center gap-2">
+              {/* Call */}
               <a
                 href={`tel:${phone.replace(/[^+\d]/g, "")}`}
                 className="inline-flex items-center justify-center rounded-full border border-neutral-700 bg-neutral-950 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-100 hover:border-neutral-300 hover:bg-neutral-800"
               >
                 {text.call} {phone}
               </a>
+
+              {/* WhatsApp */}
+              <a
+                href={`https://wa.me/${whatsappDigits}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center rounded-full border border-emerald-500 bg-emerald-500 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-black hover:bg-emerald-400 hover:border-emerald-400"
+              >
+                {text.whatsapp}
+              </a>
+
               {/* Toggle EN / ES */}
               <button
                 type="button"
@@ -287,7 +298,6 @@ export default function Inventory({ inventory }: InventoryProps) {
                 </span>
               </div>
 
-              {/* Min / Max reales */}
               <div className="mt-3 flex items-center justify-between gap-2 text-[11px]">
                 <div className="flex-1 rounded-md border border-neutral-800 bg-black/70 px-2 py-1.5">
                   <p className="text-[10px] text-neutral-500">Min</p>
@@ -533,7 +543,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                       </div>
                     </div>
 
-                    {/* Barra inferior precio / mensual + aclaración */}
+                    {/* Barra inferior precio / mensual con popup */}
                     <div className="mt-auto bg-black/80 px-4 py-3 text-sm">
                       <div className="flex items-center justify-between">
                         <div>
@@ -544,22 +554,37 @@ export default function Inventory({ inventory }: InventoryProps) {
                             {priceLabel}
                           </p>
                         </div>
+
                         {monthly && (
-                          <div className="text-right">
-                            <p className="text-[11px] text-emerald-400/80">
-                              {text.estPayment}
-                            </p>
-                            <p className="font-semibold text-emerald-400">
+                          <div className="relative group/payment">
+                            <button
+                              type="button"
+                              onClick={(e) => e.preventDefault()}
+                              className="rounded-md bg-emerald-500 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-black shadow hover:bg-emerald-400"
+                            >
                               ${monthly.toLocaleString()}/mo
-                            </p>
+                            </button>
+
+                            {/* Tooltip tipo popup */}
+                            <div className="pointer-events-none absolute right-0 top-full z-20 mt-2 w-64 rounded-md border border-neutral-700 bg-black px-3 py-2 text-[11px] opacity-0 shadow-xl transition-opacity group-hover/payment:opacity-100 group-hover/payment:pointer-events-auto">
+                              <p className="text-xs font-semibold text-neutral-100">
+                                {text.tooltipTitlePrefix} $
+                                {monthly.toLocaleString()}
+                              </p>
+                              <p className="mt-1 text-[11px] text-neutral-300">
+                                {text.paymentDisclaimer}
+                              </p>
+                              <Link
+                                href="/pre-qualification"
+                                onClick={(e) => e.stopPropagation()}
+                                className="mt-2 inline-flex w-full items-center justify-center rounded-sm bg-neutral-100 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-black hover:bg-neutral-200"
+                              >
+                                {text.getPrequalified}
+                              </Link>
+                            </div>
                           </div>
                         )}
                       </div>
-                      {monthly && (
-                        <p className="mt-1 text-[10px] leading-snug text-neutral-400">
-                          {text.paymentDisclaimer}
-                        </p>
-                      )}
                     </div>
                   </Link>
                 );
