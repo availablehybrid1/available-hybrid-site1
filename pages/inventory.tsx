@@ -335,12 +335,26 @@ export default function Inventory({ inventory }: InventoryProps) {
               </a>
 
               {/* Teléfono solo número */}
-              <a
-                href={`tel:${phone.replace(/[^+\d]/g, "")}`}
-                className="inline-flex items-center justify-center rounded-full border border-neutral-700 bg-neutral-950 px-3 py-1.5 text-[10px] font-semibold tracking-[0.18em] text-neutral-100 hover:border-neutral-300 hover:bg-neutral-800 sm:px-4 sm:text-[11px]"
-              >
-                {phone}
-              </a>
+             <a
+  href={`tel:${phone.replace(/[^+\d]/g, "")}`}
+  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition-all duration-300 hover:border-white hover:bg-white/[0.08] hover:text-white"
+  aria-label="Call"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    className="h-4 w-4"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.6 2.6a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6.09 6.09l1.48-1.21a2 2 0 0 1 2.11-.45c.83.28 1.7.48 2.6.6A2 2 0 0 1 22 16.92z"
+    />
+  </svg>
+</a>
 
               {/* Toggle EN / ES */}
               <button
