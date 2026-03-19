@@ -1185,22 +1185,7 @@ const [touchEndX, setTouchEndX] = React.useState<number | null>(null);
           <div
   className="relative max-h-[90vh] max-w-[90vw] overflow-hidden"
 >
-<div
-  onClick={(e) => {
-    e.stopPropagation();
-    goPrev();
-  }}
-  className="absolute left-0 top-0 z-10 h-full w-1/2"
-  style={{ pointerEvents: "auto" }}
-/>
-<div
-  onClick={(e) => {
-    e.stopPropagation();
-    goNext();
-  }}
-  className="absolute right-0 top-0 z-10 h-full w-1/2"
-  style={{ pointerEvents: "auto" }}
-/>
+
             <button
               type="button"
               onClick={closeLightbox}
