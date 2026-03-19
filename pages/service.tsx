@@ -235,12 +235,8 @@ export default function ServicePage() {
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
-  <form onSubmit={handleSubmit} className="space-y-4">
-
-    {/* inputs aquí (NO toques esto) */}
-
-  </form>
-</div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
                 <label
                   htmlFor="name"
                   className="mb-2 block text-sm text-white/70"
@@ -328,7 +324,9 @@ export default function ServicePage() {
                   </option>
                   <option value="Diagnostic">{t.diagnostic}</option>
                   <option value="Oil Change">{t.oilChange}</option>
-                  <option value="Hybrid Battery Service">{t.hybridBattery}</option>
+                  <option value="Hybrid Battery Service">
+                    {t.hybridBattery}
+                  </option>
                   <option value="Brake Service">{t.brakeService}</option>
                   <option value="General Maintenance">
                     {t.generalMaintenance}
@@ -369,14 +367,15 @@ export default function ServicePage() {
               {error && <p className="text-sm text-red-400">{error}</p>}
             </form>
           </div>
-    <div className="mt-10 border-t border-white/10 pt-6">
-  <p className="text-sm text-white/50">{t.categories}</p>
-  <ul className="mt-3 space-y-2 text-sm text-white/75">
-    {t.categoryList.map((item) => (
-      <li key={item}>{item}</li>
-    ))}
-  </ul>
-</div>
+
+          <div className="mt-10 border-t border-white/10 pt-6">
+            <p className="text-sm text-white/50">{t.categories}</p>
+            <ul className="mt-3 space-y-2 text-sm text-white/75">
+              {t.categoryList.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
         </section>
       </main>
     </>
