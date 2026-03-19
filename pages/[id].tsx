@@ -1263,7 +1263,7 @@ if (!car) {
   setTouchStartX(null);
   setTouchEndX(null);
 }}
-  className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain transition-transform duration-300"
+  className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain transition-all duration-300"
   style={{
     transformOrigin: `${zoomOrigin.x} ${zoomOrigin.y}`,
     transform: isZoomed ? "scale(2)" : "scale(1)",
