@@ -1285,32 +1285,35 @@ if (!car) {
         </div>
       )}
       <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center px-4 sm:hidden">
-    <div className="flex w-full max-w-md gap-2">
+  <div className="flex w-full max-w-md gap-2">
 
-      <a
+    <a
       href={`https://wa.me/17473544098?text=${encodeURIComponent(
-  `Hi, I am interested in this vehicle: ${car.title} - $${car.price}`
-)}`}
-        target="_blank"
-        className="flex-1 rounded-lg bg-green-500 px-4 py-3 text-center text-sm font-semibold text-white"
-      >
-        WhatsApp
-      </a>
+        `Hi, I am interested in this vehicle: ${car.title} - $${car.price}`
+      )}`}
+      target="_blank"
+      className="flex-1 rounded-lg bg-green-500 px-4 py-3 text-center text-sm font-semibold text-white"
+    >
+      WhatsApp
+    </a>
 
-      <a
-        href="tel:+17473544098"
-        className="flex-1 rounded-lg bg-white px-4 py-3 text-center text-sm font-semibold text-black"
-      >
-        Call
-      </a>
+    <a
+      href="tel:+17473544098"
+      className="flex-1 rounded-lg bg-white px-4 py-3 text-center text-sm font-semibold text-black"
+    >
+      Call
+    </a>
 
-      <a
-        href="https://instagram.com/availablehybridrm"
-        target="_blank"
-        className="flex-1 rounded-lg bg-gradient-to-r from-pink-500 to-yellow-500 px-4 py-3 text-center text-sm font-semibold text-white"
-      >
-        IG
-      </a>
+    <a
+      href="https://instagram.com/availablehybrid"
+      target="_blank"
+      className="flex-1 rounded-lg bg-gradient-to-r from-pink-500 to-yellow-500 px-4 py-3 text-center text-sm font-semibold text-white"
+    >
+      IG
+    </a>
+
+  </div>
+</div>
     </main>
   );
 }
