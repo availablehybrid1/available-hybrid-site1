@@ -1307,12 +1307,13 @@ if (!car) {
     </a>
 
     <a
-      href="https://instagram.com/availablehybrid"
-      target="_blank"
-      className="flex-1 rounded-lg bg-gradient-to-r from-pink-500 to-yellow-500 px-4 py-3 text-center text-sm font-semibold text-white"
-    >
-      IG
-    </a>
+  href="https://www.instagram.com/availablehybridrm/"
+  target="_blank"
+  rel="noreferrer"
+  className="flex-1 rounded-lg bg-gradient-to-r from-pink-500 to-yellow-500 px-4 py-3 text-center text-sm font-semibold text-white"
+>
+  IG
+</a>
 
   </div>
 </div>
