@@ -369,6 +369,14 @@ export default function ServicePage() {
               {error && <p className="text-sm text-red-400">{error}</p>}
             </form>
           </div>
+    <div className="mt-10 border-t border-white/10 pt-6">
+  <p className="text-sm text-white/50">{t.categories}</p>
+  <ul className="mt-3 space-y-2 text-sm text-white/75">
+    {t.categoryList.map((item) => (
+      <li key={item}>{item}</li>
+    ))}
+  </ul>
+</div>
         </section>
       </main>
     </>
