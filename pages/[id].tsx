@@ -1197,17 +1197,19 @@ if (!car) {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4"
           onClick={closeLightbox}
         >
-          <div
-  className="relative max-h-[90vh] max-w-[90vw] overflow-hidden"
->
+        <div className="relative max-h-[90vh] max-w-[90vw] overflow-hidden">
 
-            <button
-              type="button"
-              onClick={closeLightbox}
-              className="absolute -top-3 -right-3 rounded-full bg-black/80 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
-            >
-              ✕
-            </button>
+  <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 rounded bg-black/70 px-3 py-1 text-[11px] text-neutral-100">
+    {current + 1} / {car.photos.length}
+  </div>
+
+  <button
+    type="button"
+    onClick={closeLightbox}
+    className="absolute -top-3 -right-3 rounded-full bg-black/80 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
+  >
+    ✕
+  </button>
 
             {hasMultiplePhotos && (
               <button
