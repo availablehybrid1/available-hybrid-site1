@@ -1200,12 +1200,23 @@ if (!car) {
         <div className="relative max-h-[90vh] max-w-[90vw] overflow-hidden">
 
   <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 rounded bg-black/70 px-3 py-1 text-[11px] text-neutral-100">
-    {current + 1} / {car.photos.length}
-  </div>
+  {current + 1} / {car.photos.length}
+</div>
 
-  <button
-    type="button"
-    onClick={closeLightbox}
+<div className="absolute bottom-10 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+  {car.photos.map((_, i) => (
+    <span
+      key={i}
+      className={`h-2 w-2 rounded-full ${
+        current === i ? "bg-white" : "bg-white/35"
+      }`}
+    />
+  ))}
+</div>
+
+<button
+  type="button"
+  onClick={closeLightbox}
     className="absolute -top-3 -right-3 rounded-full bg-black/80 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
   >
     ✕
