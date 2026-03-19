@@ -1288,8 +1288,8 @@ if (!car) {
     <div className="flex w-full max-w-md gap-2">
 
       <a
-       href={`https://wa.me/17473544098?text=${encodeURIComponent(
-  `Hi, I'm interested in this vehicle: ${car.title} - $${car.price}`
+      href={`https://wa.me/17473544098?text=${encodeURIComponent(
+  `Hi, I am interested in this vehicle: ${car.title} - $${car.price}`
 )}`}
         target="_blank"
         className="flex-1 rounded-lg bg-green-500 px-4 py-3 text-center text-sm font-semibold text-white"
