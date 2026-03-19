@@ -459,9 +459,14 @@ if (!car) {
   fill
   className="object-contain"
 />
-                      <span className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
-                        Click to enlarge
-                      </span>
+                     <div className="pointer-events-none absolute bottom-2 right-2 flex items-center gap-2">
+  <span className="rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
+    {current + 1} / {car.photos.length}
+  </span>
+  <span className="rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
+    Click to enlarge
+  </span>
+</div>
                     </button>
 
                     {hasMultiplePhotos && (
