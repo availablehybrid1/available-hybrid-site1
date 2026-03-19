@@ -411,7 +411,9 @@ if (!car) {
             <span>6726 Reseda Blvd Suite A7 · Reseda, CA 91335</span>
             <div className="flex items-center gap-2">
               <a
-                href="https://wa.me/17473544098"
+              href={`https://wa.me/17473544098?text=${encodeURIComponent(
+  `Hi, I am interested in this vehicle: ${car.title} - $${car.price}`
+)}`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent"
