@@ -457,7 +457,7 @@ if (!car) {
   src={mainPhoto}
   alt={car.title}
   fill
-  className="object-contain"
+  className="object-contain transition-opacity duration-300"
 />
                      <div className="pointer-events-none absolute bottom-2 right-2 flex items-center gap-2">
   <span className="rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
