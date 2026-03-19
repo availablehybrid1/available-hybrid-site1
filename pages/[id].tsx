@@ -477,8 +477,31 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
                   </div>
                 )}
               </div>
-            </div>
-          </section>
+</div>
+
+{/* THUMBNAILS */}
+<div className="mt-3 flex gap-2 overflow-x-auto">
+  {car.photos.map((photo, i) => (
+    <button
+      key={i}
+      onClick={() => setCurrent(i)}
+      className={`relative h-16 w-24 flex-shrink-0 overflow-hidden rounded border ${
+        current === i
+          ? "border-white"
+          : "border-neutral-700"
+      }`}
+    >
+      <Image
+        src={photo}
+        alt={`thumb-${i}`}
+        fill
+        className="object-cover"
+      />
+    </button>
+  ))}
+</div>
+
+</section>
 
           <section className="flex-1 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-xs sm:p-5">
             <div className="flex items-start justify-between gap-3">
