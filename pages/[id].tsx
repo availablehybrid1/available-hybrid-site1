@@ -68,6 +68,8 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
 
   // zoom dentro del modal
   const [isZoomed, setIsZoomed] = React.useState(false);
+  const [touchStartX, setTouchStartX] = React.useState<number | null>(null);
+const [touchEndX, setTouchEndX] = React.useState<number | null>(null);
   const [zoomOrigin, setZoomOrigin] = React.useState<{ x: string; y: string }>(
     {
       x: "50%",
@@ -1226,19 +1228,44 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
               </button>
             )}
 
-            <img
-              src={mainPhoto}
-              alt={car.title}
-              onClick={(e) => {
-  e.stopPropagation();
-  handleLightboxImageClick(e);
-}}
-              className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain transition-transform duration-300"
-              style={{
-                transformOrigin: `${zoomOrigin.x} ${zoomOrigin.y}`,
-                transform: isZoomed ? "scale(2)" : "scale(1)",
-                cursor: isZoomed ? "zoom-out" : "zoom-in",
-              }}
+      <img
+  src={mainPhoto}
+  alt={car.title}
+
+  onClick={(e) => {
+    e.stopPropagation();
+    handleLightboxImageClick(e);
+  }}
+
+  onTouchStart={(e) => {
+    setTouchStartX(e.touches[0].clientX);
+  }}
+
+  onTouchMove={(e) => {
+    setTouchEndX(e.touches[0].clientX);
+  }}
+
+  onTouchEnd={() => {
+    if (touchStartX === null || touchEndX === null) return;
+
+    const distance = touchStartX - touchEndX;
+
+    if (distance > 50) {
+      goNext();
+    }
+
+    if (distance < -50) {
+      goPrev();
+    }
+  }}
+
+  className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain"
+  style={{
+    transformOrigin: `${zoomOrigin.x} ${zoomOrigin.y}`,
+    transform: isZoomed ? "scale(2)" : "scale(1)",
+    cursor: isZoomed ? "zoom-out" : "zoom-in",
+  }}
+/>
             />
           </div>
         </div>
