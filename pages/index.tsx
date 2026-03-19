@@ -43,7 +43,7 @@ const copy = {
 
     navInventory: "Inventario",
     navPrequal: "Pre-Calificación",
-
+navservice: "AGENDA TU SERVICIO"
     heroTitle: "HYBRID, RACING AND MOTORSPORT",
     heroSubtitle:
   "Vehículos híbridos, deportivos y especiales en Los Ángeles. Especialistas en sistemas híbridos, incluyendo servicio de baterías y diagnóstico, además de mantenimiento y reparación completa para todo tipo de vehículos.",
