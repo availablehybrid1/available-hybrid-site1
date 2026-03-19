@@ -605,7 +605,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                       <div className="absolute left-3 top-3 flex gap-2 text-[10px] uppercase tracking-[0.16em]">
                         <span className="inline-flex items-center gap-1 rounded-full bg-black/80 px-2 py-0.5 text-neutral-200">
                           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                          Available Hybrid
+                         {car.fuel || "Available"}
                         </span>
                         {car.year && (
                           <span className="rounded-full bg-black/80 px-2 py-0.5 text-neutral-300">
