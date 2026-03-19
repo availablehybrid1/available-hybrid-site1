@@ -633,18 +633,18 @@ export default function Inventory({ inventory }: InventoryProps) {
                         {car.exterior && <span>· {car.exterior}</span>}
                       </div>
 
-                      <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
-                        {car.vin && (
-                          <span className="rounded-full border border-neutral-800 bg-neutral-950 px-2 py-0.5 font-mono uppercase text-neutral-400">
-                            VIN {car.vin.slice(0, 8)}…
-                          </span>
-                        )}
-                        {car.fuel && (
-                          <span className="rounded-full border border-neutral-800 bg-neutral-950 px-2 py-0.5 text-neutral-300">
-                            Hybrid
-                          </span>
-                        )}
-                      </div>
+                     <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
+  {car.vin && (
+    <span className="rounded-full border border-neutral-800 bg-neutral-950 px-2 py-0.5 font-mono uppercase text-neutral-400">
+      VIN {car.vin.slice(0, 8)}…
+    </span>
+  )}
+  {car.fuel && (
+    <span className="rounded-full border border-neutral-800 bg-neutral-950 px-2 py-0.5 text-neutral-300">
+      {car.fuel}
+    </span>
+  )}
+</div>
                     </div>
 
                     {/* Barra inferior precio + cuadro negro de pago mensual + ? */}
