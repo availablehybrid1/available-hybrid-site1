@@ -20,7 +20,7 @@ const copy = {
     ctaInventory: "View Inventory",
     ctaPrequal: "Get Pre-Qualified",
     ctaWhatsapp: "WhatsApp",
-
+ctaService: "Schedule Service",
     trust: [
       { title: "Hybrid Specialists", desc: "Toyota Prius · Lexus CT200h · More" },
       { title: "DMV Dealer", desc: "Temporary plates, ROS/TLP online" },
@@ -51,7 +51,7 @@ const copy = {
     ctaInventory: "Ver inventario",
     ctaPrequal: "Pre-Calificación",
     ctaWhatsapp: "WhatsApp",
-
+ctaService: "Agenda tu servicio",
     trust: [
       { title: "Especialistas", desc: "Prius · Lexus · Más" },
       { title: "Dealer DMV", desc: "Procesos completos" },
@@ -182,7 +182,7 @@ export default function Home() {
   href="/service"
   className="inline-flex items-center justify-center rounded-2xl border border-white/30 text-white px-5 py-3 font-semibold hover:bg-white/10 transition"
 >
-  Schedule Service
+{t.ctaService}
 </Link>
                 <Link href="/pre-qualification" className="border border-white/20 px-5 py-3 rounded-xl text-white">
                   {t.ctaPrequal}
