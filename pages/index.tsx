@@ -86,7 +86,13 @@ export default function Home() {
       </Head>
 
       {/* HEADER */}
-      <div className="flex items-center rounded-full border border-white/30 bg-black/40 px-1 py-0.5 text-[11px] mr-2">
+      <header className="fixed inset-x-0 top-0 z-40 backdrop-blur bg-black/30 border-b border-white/10">
+        <div className="mx-auto max-w-7xl px-4 h-16 flex items-center justify-between">
+
+          <Image src="/logo. available hybrid premium.png" alt="logo" width={220} height={70} />
+
+          <div className="flex items-center gap-3">
+<div className="flex items-center rounded-full border border-white/30 bg-black/40 px-1 py-0.5 text-[11px] mr-2">
   <button
     type="button"
     onClick={() => setLang("EN")}
@@ -111,13 +117,6 @@ export default function Home() {
     ES
   </button>
 </div>
-      <header className="fixed inset-x-0 top-0 z-40 backdrop-blur bg-black/30 border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-4 h-16 flex items-center justify-between">
-
-          <Image src="/logo. available hybrid premium.png" alt="logo" width={220} height={70} />
-
-          <div className="flex items-center gap-3">
-
             {/* WhatsApp (igual que tenías) */}
             <a href={whatsapp} target="_blank" rel="noreferrer"
               className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-transparent">
