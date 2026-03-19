@@ -409,41 +409,67 @@ if (!car) {
 
           <div className="flex flex-col items-end gap-1 text-right text-[11px] text-neutral-400">
             <span>6726 Reseda Blvd Suite A7 · Reseda, CA 91335</span>
-   <div className="flex items-center gap-3">
-  <a
-    href={`https://wa.me/17473544098?text=${encodeURIComponent(
-      `Hi, I am interested in this vehicle: ${car.title} - $${car.price}`
-    )}`}
-    target="_blank"
-    rel="noreferrer"
-    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-transparent"
-    aria-label="WhatsApp"
+ <a
+  href={`tel:${phone.replace(/[^+\d]/g, "")}`}
+  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition-all duration-300 hover:border-white hover:bg-white/[0.08] hover:text-white"
+  aria-label="Call"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    className="h-4 w-4"
   >
-    <img
-      src="/whatsapp-green.png"
-      alt="WhatsApp"
-      className="h-full w-full object-contain"
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.6 2.6a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6.09 6.09l1.48-1.21a2 2 0 0 1 2.11-.45c.83.28 1.7.48 2.6.6A2 2 0 0 1 22 16.92z"
     />
-  </a>
+  </svg>
+</a>
 
-  <a
-    href={`tel:${phone.replace(/[^+\d]/g, "")}`}
-    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-white/5 text-white hover:bg-white/10"
-    aria-label="Call"
+<a
+  href="https://www.instagram.com/availablehybridrm/"
+  target="_blank"
+  rel="noreferrer"
+  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition-all duration-300 hover:border-white hover:bg-white/[0.08] hover:text-white"
+  aria-label="Instagram"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    className="h-4 w-4"
   >
-    📞
-  </a>
-
-  <a
-    href="https://www.instagram.com/availablehybridrm/"
-    target="_blank"
-    rel="noreferrer"
-    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-yellow-500 text-[11px] font-semibold text-white"
-    aria-label="Instagram"
-  >
-    IG
-  </a>
-</div>
+    <rect
+      x="3"
+      y="3"
+      width="18"
+      height="18"
+      rx="5"
+      ry="5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M16 11.37a4 4 0 1 1-7.75 1.26 4 4 0 0 1 7.75-1.26z"
+    />
+    <line
+      x1="17.5"
+      y1="6.5"
+      x2="17.51"
+      y2="6.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+</a>
           </div>
         </div>
       </header>
