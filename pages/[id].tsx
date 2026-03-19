@@ -292,7 +292,7 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
     const email = (formData.get("email") || "").toString();
     const preferredContact = (
       formData.get("preferredContact") || ""
-    ).toString(); // Text / Email / WhatsApp
+    ).toString();
     const preferredDate = (formData.get("preferredDate") || "").toString();
     const preferredTime = (formData.get("preferredTime") || "").toString();
     const comments = (formData.get("comments") || "").toString();
@@ -371,7 +371,6 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
-      {/* HEADER ELEGANTE */}
       <header className="border-b border-neutral-900 bg-black/90">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
           <Link href="/inventory" className="flex items-center gap-3 group">
@@ -422,11 +421,8 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
         </div>
       </header>
 
-      {/* CONTENIDO PRINCIPAL */}
       <div className="mx-auto max-w-6xl px-4 pb-12 pt-4 space-y-6">
-        {/* Fila superior: galería + panel derecho */}
         <div className="flex flex-col gap-6 lg:flex-row">
-          {/* Galería */}
           <section className="flex-1">
             <Link
               href="/inventory"
@@ -436,7 +432,6 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
             </Link>
 
             <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70">
-              {/* Foto principal (ajustada, sin miniaturas) */}
               <div className="relative flex h-[220px] w-full items-center justify-center bg-neutral-800 sm:h-[280px] lg:h-[320px]">
                 {mainPhoto ? (
                   <>
@@ -483,9 +478,7 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
             </div>
           </section>
 
-          {/* Panel derecho tipo J&S */}
           <section className="flex-1 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-xs sm:p-5">
-            {/* Título + precio */}
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-500">
@@ -528,7 +521,6 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
               </span>
             )}
 
-            {/* Specs rápidos */}
             <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-[11px] text-neutral-300">
               <div>
                 <dt className="text-neutral-500">Mileage</dt>
@@ -558,7 +550,6 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
               </div>
             </dl>
 
-            {/* Tabs de acciones */}
             <div className="mt-5 grid grid-cols-4 gap-1 text-[11px]">
               {[
                 { id: "availability", label: "Confirm Availability" },
@@ -589,7 +580,6 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
               ))}
             </div>
 
-            {/* Panel: Confirm Availability */}
             {activePanel === "availability" && (
               <form
                 onSubmit={handleAvailabilitySubmit}
@@ -656,7 +646,6 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
               </form>
             )}
 
-            {/* Panel: Estimated Payment (BHPH) */}
             {activePanel === "estimate" && (
               <div className="mt-4 rounded-lg border border-neutral-800 bg-neutral-950/80 p-3 space-y-4">
                 <p className="text-[11px] font-semibold text-neutral-200">
@@ -829,7 +818,6 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
               </div>
             )}
 
-            {/* Panel: Make an Offer */}
             {activePanel === "offer" && (
               <form
                 onSubmit={handleMakeOfferSubmit}
@@ -900,7 +888,6 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
               </form>
             )}
 
-            {/* Panel: Schedule Test Drive */}
             {activePanel === "testdrive" && (
               <form
                 onSubmit={handleTestDriveSubmit}
@@ -1001,9 +988,7 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
           </section>
         </div>
 
-        {/* SECCIONES INFERIORES */}
         <section className="space-y-4">
-          {/* Basic information + VIN extra */}
           <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
             <p className="mb-3 text-sm font-semibold text-neutral-100">
               Basic information
@@ -1093,7 +1078,6 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
             </div>
           </div>
 
-          {/* Description */}
           {car.description && (
             <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
               <p className="mb-2 text-sm font-semibold text-neutral-100">
@@ -1105,7 +1089,6 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
             </div>
           )}
 
-          {/* Vehicle location */}
           <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
             <p className="mb-2 text-sm font-semibold text-neutral-100">
               Vehicle Location
@@ -1126,7 +1109,6 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
             </Link>
           </div>
 
-          {/* YOU MAY ALSO LIKE */}
           {suggestions.length > 0 && (
             <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
               <p className="mb-3 text-sm font-semibold text-neutral-100">
@@ -1168,7 +1150,6 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
         </section>
       </div>
 
-      {/* LIGHTBOX / MODAL DE IMAGEN GRANDE CON ZOOM POR CLICK */}
       {isLightboxOpen && mainPhoto && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4"
@@ -1242,7 +1223,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   return {
     paths,
-    fallback: false,
+    fallback: "blocking",
   };
 };
 
@@ -1278,12 +1259,11 @@ export const getStaticProps: GetStaticProps<DetailProps> = async (ctx) => {
           value != null
       )
       .map(([, value]) => String(value));
+
     const rawPhotos = photoStrings.join(" ");
     const photos = parsePhotos(rawPhotos);
 
-    const titleBase = `${c.year ?? ""} ${c.make ?? ""} ${
-      c.model ?? ""
-    }`.trim();
+    const titleBase = `${c.year ?? ""} ${c.make ?? ""} ${c.model ?? ""}`.trim();
 
     return {
       id: String(c.id).trim(),
@@ -1312,7 +1292,6 @@ export const getStaticProps: GetStaticProps<DetailProps> = async (ctx) => {
 
   const car = mapCarToVehicle(raw);
 
-  // sugerencias: mismo make si es posible, si no cualquier otro, máximo 3
   const others = cars.filter((c) => String(c.id).trim() !== id);
   const sameMake = others.filter(
     (c) =>
