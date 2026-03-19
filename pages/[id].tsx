@@ -440,11 +440,12 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
                       onClick={() => setIsLightboxOpen(true)}
                       className="group flex h-full w-full items-center justify-center"
                     >
-                      <img
-                        src={mainPhoto}
-                        alt={car.title}
-                        className="max-h-full max-w-full max-w-[520px] object-contain"
-                      />
+                      <Image
+  src={mainPhoto}
+  alt={car.title}
+  fill
+  className="object-contain"
+/>
                       <span className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
                         Click to enlarge
                       </span>
