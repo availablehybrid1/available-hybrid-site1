@@ -1182,8 +1182,21 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
         >
           <div
             className="relative max-h-[90vh] max-w-[90vw] overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
+  <div
+  onClick={(e) => {
+    e.stopPropagation();
+    goPrev();
+  }}
+  className="absolute left-0 top-0 z-10 h-full w-1/2"
+/>
+
+<div
+  onClick={(e) => {
+    e.stopPropagation();
+    goNext();
+  }}
+  className="absolute right-0 top-0 z-10 h-full w-1/2"
+/>
             <button
               type="button"
               onClick={closeLightbox}
