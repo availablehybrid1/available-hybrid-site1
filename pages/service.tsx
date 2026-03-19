@@ -127,15 +127,16 @@ export default function ServicePage() {
     const formData = new FormData(form);
 
     const data = {
-      name: String(formData.get("name") || ""),
-      phone: String(formData.get("phone") || ""),
-      email: String(formData.get("email") || ""),
-      date: String(formData.get("date") || ""),
-      vehicle: String(formData.get("vehicle") || ""),
-      service: String(formData.get("service") || ""),
-      message: String(formData.get("message") || ""),
-    };
-
+  name: String(formData.get("name") || ""),
+  phone: String(formData.get("phone") || ""),
+  email: String(formData.get("email") || ""),
+  date: String(formData.get("date") || ""),
+  vehicle: String(formData.get("vehicle") || ""),
+  service: String(formData.get("service") || ""),
+  message: String(formData.get("message") || ""),
+  language: lang,
+  page_url: typeof window !== "undefined" ? window.location.href : "",
+};
     try {
       const res = await fetch("/api/service", {
         method: "POST",
