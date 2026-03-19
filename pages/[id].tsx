@@ -487,8 +487,8 @@ export default function VehicleDetail({ car, suggestions }: DetailProps) {
       onClick={() => setCurrent(i)}
       className={`relative h-16 w-24 flex-shrink-0 overflow-hidden rounded border ${
         current === i
-          ? "border-white"
-          : "border-neutral-700"
+  ? "border-white scale-105"
+  : "border-neutral-700 opacity-70 hover:opacity-100"
       }`}
     >
       <Image
