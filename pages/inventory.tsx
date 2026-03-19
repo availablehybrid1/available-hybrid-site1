@@ -355,7 +355,26 @@ export default function Inventory({ inventory }: InventoryProps) {
     />
   </svg>
 </a>
-
+<a
+  href="https://www.instagram.com/availablehybridrm/"
+  target="_blank"
+  rel="noreferrer"
+  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition-all duration-300 hover:border-white hover:bg-white/[0.08] hover:text-white"
+  aria-label="Instagram"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    className="h-4 w-4"
+  >
+    <rect x="3" y="3" width="18" height="18" rx="5" ry="5" />
+    <path d="M16 11.37a4 4 0 1 1-7.75 1.26 4 4 0 0 1 7.75-1.26z" />
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+  </svg>
+</a>
               {/* Toggle EN / ES */}
               <button
                 type="button"
