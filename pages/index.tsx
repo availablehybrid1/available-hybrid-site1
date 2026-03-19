@@ -2,6 +2,7 @@ import * as React from "react";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 const copy = {
   EN: {
@@ -9,17 +10,40 @@ const copy = {
     metaDescription:
       "Premium hybrid, performance and specialty vehicles in Los Angeles. DMV licensed dealer.",
 
+    navInventory: "Inventory",
+    navPrequal: "Pre-Qualify",
+
     heroTitle: "HYBRID, RACING AND MOTORSPORT",
     heroSubtitle:
       "Premium selection of hybrid, performance and specialty vehicles in Los Angeles. DMV licensed dealer. Bilingual service and flexible financing options available.",
 
     ctaInventory: "View Inventory",
     ctaPrequal: "Get Pre-Qualified",
+    ctaWhatsapp: "WhatsApp",
+
+    trust: [
+      { title: "Specialty Vehicles", desc: "Hybrid · Performance · Motorsport" },
+      { title: "DMV Licensed", desc: "ROS, TLP, compliant operations" },
+      { title: "Flexible Financing", desc: "In-house & structured plans" },
+    ],
+
+    featuredTitle: "Featured Unit",
+    featuredSubtitle: "Clean title • Performance ready",
+    featuredButton: "View more",
+
+    footerDealerName: "AVAILABLE HYBRID R&M INC.",
+    footerAddress: "6726 Reseda Blvd Unit A7, Reseda, CA 91335",
+    footerHoursLabel: "Hours",
+    footerHoursValue: "Mon–Sat • 10:00–6:00",
   },
+
   ES: {
     pageTitle: "AVAILABLE HYBRID R&M INC.",
     metaDescription:
       "Vehículos híbridos, deportivos y especiales en Los Ángeles.",
+
+    navInventory: "Inventario",
+    navPrequal: "Pre-Calificación",
 
     heroTitle: "HYBRID, RACING AND MOTORSPORT",
     heroSubtitle:
@@ -27,11 +51,37 @@ const copy = {
 
     ctaInventory: "Ver inventario",
     ctaPrequal: "Pre-Calificación",
+    ctaWhatsapp: "WhatsApp",
+
+    trust: [
+      { title: "Vehículos Especiales", desc: "Híbridos · Performance · Motorsport" },
+      { title: "Dealer DMV", desc: "Procesos legales completos" },
+      { title: "Financiamiento", desc: "Opciones internas flexibles" },
+    ],
+
+    featuredTitle: "Unidad Destacada",
+    featuredSubtitle: "Listo • Excelente condición",
+    featuredButton: "Ver más",
+
+    footerDealerName: "AVAILABLE HYBRID R&M INC.",
+    footerAddress: "6726 Reseda Blvd Unit A7, Reseda, CA 91335",
+    footerHoursLabel: "Horario",
+    footerHoursValue: "Lun–Sáb • 10:00–6:00",
   },
 } as const;
 
 export default function Home() {
   const [lang, setLang] = React.useState<"EN" | "ES">("EN");
+
+  React.useEffect(() => {
+    const stored = window.localStorage.getItem("ah-lang");
+    if (stored === "EN" || stored === "ES") setLang(stored);
+  }, []);
+
+  React.useEffect(() => {
+    window.localStorage.setItem("ah-lang", lang);
+  }, [lang]);
+
   const t = copy[lang];
 
   const whatsapp =
@@ -47,108 +97,71 @@ export default function Home() {
 
       {/* HEADER */}
       <header className="fixed inset-x-0 top-0 z-40 backdrop-blur bg-black/30 border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-4 h-16 flex items-center justify-between">
-          <Image
-            src="/logo. available hybrid premium.png"
-            alt="logo"
-            width={200}
-            height={60}
-          />
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <Link href="/">
+            <Image
+              src="/logo. available hybrid premium.png"
+              alt="logo"
+              width={220}
+              height={70}
+            />
+          </Link>
 
           <div className="flex items-center gap-3">
             {/* WhatsApp */}
-            <a
-              href={whatsapp}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/[0.03]"
-            >
+            <a href={whatsapp} target="_blank" rel="noreferrer"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.03]">
               <img src="/whatsapp-green.png" className="h-4 w-4" />
             </a>
 
             {/* Phone */}
-            <a
-              href={`tel:${phone.replace(/[^+\d]/g, "")}`}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.6 2.6a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6.09 6.09l1.48-1.21a2 2 0 0 1 2.11-.45c.83.28 1.7.48 2.6.6A2 2 0 0 1 22 16.92z"
-                />
-              </svg>
+            <a href={`tel:${phone.replace(/[^+\d]/g, "")}`}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80">
+              📞
             </a>
 
             {/* Instagram */}
-            <a
-              href="https://www.instagram.com/availablehybridrm/"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                viewBox="0 0 24 24"
-              >
-                <rect x="3" y="3" width="18" height="18" rx="5" />
-                <path d="M16 11.37a4 4 0 1 1-7.75 1.26" />
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-              </svg>
+            <a href="https://www.instagram.com/availablehybridrm/" target="_blank" rel="noreferrer"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80">
+              IG
             </a>
           </div>
         </div>
       </header>
 
       {/* HERO */}
-      <main>
+      <main className="relative">
         <section className="relative min-h-[88vh] flex items-stretch">
-          {/* Background */}
           <div className="absolute inset-0 -z-10">
-            <Image
-              src="/lux-hero.jpg"
-              alt="hero"
-              fill
-              className="object-cover"
-              priority
-            />
+            <Image src="/lux-hero.jpg" alt="hero" fill className="object-cover" />
             <div className="absolute inset-0 bg-black/70" />
           </div>
 
-          <div className="w-full max-w-7xl mx-auto px-4 pt-28 pb-20">
-            <h1 className="text-white text-5xl font-semibold tracking-[-0.02em]">
-              {t.heroTitle}
-            </h1>
+          <div className="relative w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid lg:grid-cols-12 gap-10 items-center pt-28 pb-20">
+            <div className="lg:col-span-7">
+              <h1 className="text-white text-5xl font-semibold tracking-[-0.02em]">
+                {t.heroTitle}
+              </h1>
 
-            <p className="mt-4 text-white/80 max-w-xl">
-              {t.heroSubtitle}
-            </p>
+              <p className="mt-4 text-white/80 max-w-xl">
+                {t.heroSubtitle}
+              </p>
 
-            <div className="mt-6 flex gap-3">
-              <Link
-                href="/inventory"
-                className="bg-white text-black px-5 py-3 rounded-xl"
-              >
-                {t.ctaInventory}
-              </Link>
+              <div className="mt-8 flex gap-3">
+                <Link href="/inventory" className="bg-white text-black px-5 py-3 rounded-xl">
+                  {t.ctaInventory}
+                </Link>
 
-              <Link
-                href="/pre-qualification"
-                className="border border-white/20 px-5 py-3 rounded-xl text-white"
-              >
-                {t.ctaPrequal}
-              </Link>
+                <Link href="/pre-qualification" className="border border-white/20 px-5 py-3 rounded-xl text-white">
+                  {t.ctaPrequal}
+                </Link>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5">
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+                <Image src="/placeholder-car.jpg" alt="car" width={500} height={300} className="rounded-xl" />
+              </div>
             </div>
           </div>
         </section>
