@@ -2,6 +2,7 @@
 import * as React from "react";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { getInventory, type Car } from "../lib/getInventory";
 
 // misma función que en index.tsx para convertir links de Drive a imágenes
