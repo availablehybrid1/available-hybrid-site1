@@ -15,7 +15,7 @@ const copy = {
 
     heroTitle: "HYBRID, RACING AND MOTORSPORT",
     heroSubtitle:
-      "Premium selection of hybrid, performance and specialty vehicles in Los Angeles.",
+  "Premium selection of hybrid, performance and specialty vehicles in Los Angeles. DMV licensed dealer. Bilingual service. We also offer maintenance services including oil changes, hybrid battery replacement, and vehicle purchasing.",
 
     ctaInventory: "View Inventory",
     ctaPrequal: "Get Pre-Qualified",
@@ -45,7 +45,8 @@ const copy = {
     navPrequal: "Pre-Calificación",
 
     heroTitle: "HYBRID, RACING AND MOTORSPORT",
-    heroSubtitle: "Selección premium de vehículos en Los Ángeles.",
+    heroSubtitle:
+  "Selección premium de vehículos híbridos, deportivos y especiales en Los Ángeles. Dealer licenciado. Servicio bilingüe. También ofrecemos servicios como cambio de aceite, reemplazo de batería híbrida y compra de vehículos.",
 
     ctaInventory: "Ver inventario",
     ctaPrequal: "Pre-Calificación",
