@@ -115,45 +115,55 @@ const [touchEndX, setTouchEndX] = React.useState<number | null>(null);
     return () => window.removeEventListener("keydown", handleKey);
   }, [car]);
 
-  // 🧠 Decodificar VIN automáticamente
-  React.useEffect(() => {
-    if (!car?.vin) return;
+ // 🧠 Decodificar VIN automáticamente
+React.useEffect(() => {
+  if (!car?.vin) return;
 
-    setVinLoading(true);
-    setVinError(null);
+  setVinLoading(true);
+  setVinError(null);
 
-    fetch(`/api/decode-vin?vin=${encodeURIComponent(car.vin)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.error) {
-          setVinError(data.error);
-        } else {
-          setVinInfo(data);
-        }
-      })
-      .catch(() => {
-        setVinError("Could not decode VIN");
-      })
-      .finally(() => {
-        setVinLoading(false);
-      });
-  }, [car?.vin]);
+  fetch(`/api/decode-vin?vin=${encodeURIComponent(car.vin)}`)
+    .then((res) => res.json())
+    .then((data) => {
+      if (data?.error) {
+        setVinError(data.error);
+      } else {
+        setVinInfo(data);
+      }
+    })
+    .catch(() => {
+      setVinError("Could not decode VIN");
+    })
+    .finally(() => {
+      setVinLoading(false);
+    });
+}, [car?.vin]);
 
-  if (!car) {
-    return (
-      <main className="min-h-screen bg-neutral-950 text-neutral-100">
-        <div className="mx-auto max-w-4xl px-4 py-10">
-          <p className="text-sm text-neutral-400">Vehicle not found.</p>
-          <Link
-            href="/"
-            className="mt-4 inline-flex text-sm text-neutral-300 underline-offset-2 hover:underline"
-          >
-            ← Back to inventory
-          </Link>
-        </div>
-      </main>
-    );
-  }
+// 🚀 PRELOAD DE IMÁGENES (NUEVO)
+React.useEffect(() => {
+  if (!car?.photos?.length) return;
+
+  car.photos.forEach((url) => {
+    const img = new window.Image();
+    img.src = url;
+  });
+}, [car]);
+
+if (!car) {
+  return (
+    <main className="min-h-screen bg-neutral-950 text-neutral-100">
+      <div className="mx-auto max-w-4xl px-4 py-10">
+        <p className="text-sm text-neutral-400">Vehicle not found.</p>
+        <Link
+          href="/"
+          className="mt-4 inline-flex text-sm text-neutral-300 underline-offset-2 hover:underline"
+        >
+          ← Back to inventory
+        </Link>
+      </div>
+    </main>
+  );
+}
 
   const mainPhoto = car.photos[current] ?? "";
 
