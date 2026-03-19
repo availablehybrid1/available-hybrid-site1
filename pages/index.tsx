@@ -86,6 +86,31 @@ export default function Home() {
       </Head>
 
       {/* HEADER */}
+      <div className="flex items-center rounded-full border border-white/30 bg-black/40 px-1 py-0.5 text-[11px] mr-2">
+  <button
+    type="button"
+    onClick={() => setLang("EN")}
+    className={`px-2 py-0.5 rounded-full ${
+      lang === "EN"
+        ? "bg-white text-black"
+        : "text-white/70 hover:text-white"
+    }`}
+  >
+    EN
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setLang("ES")}
+    className={`px-2 py-0.5 rounded-full ${
+      lang === "ES"
+        ? "bg-white text-black"
+        : "text-white/70 hover:text-white"
+    }`}
+  >
+    ES
+  </button>
+</div>
       <header className="fixed inset-x-0 top-0 z-40 backdrop-blur bg-black/30 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 h-16 flex items-center justify-between">
 
