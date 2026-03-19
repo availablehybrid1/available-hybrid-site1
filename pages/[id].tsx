@@ -1228,23 +1228,19 @@ const [touchEndX, setTouchEndX] = React.useState<number | null>(null);
               </button>
             )}
 
-      <img
+     <img
   src={mainPhoto}
   alt={car.title}
-
   onClick={(e) => {
     e.stopPropagation();
     handleLightboxImageClick(e);
   }}
-
   onTouchStart={(e) => {
     setTouchStartX(e.touches[0].clientX);
   }}
-
   onTouchMove={(e) => {
     setTouchEndX(e.touches[0].clientX);
   }}
-
   onTouchEnd={() => {
     if (touchStartX === null || touchEndX === null) return;
 
@@ -1258,15 +1254,13 @@ const [touchEndX, setTouchEndX] = React.useState<number | null>(null);
       goPrev();
     }
   }}
-
-  className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain"
+  className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain transition-transform duration-300"
   style={{
     transformOrigin: `${zoomOrigin.x} ${zoomOrigin.y}`,
     transform: isZoomed ? "scale(2)" : "scale(1)",
     cursor: isZoomed ? "zoom-out" : "zoom-in",
   }}
 />
-            />
           </div>
         </div>
       )}
