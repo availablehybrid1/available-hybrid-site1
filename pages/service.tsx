@@ -130,6 +130,7 @@ export default function ServicePage() {
       name: String(formData.get("name") || ""),
       phone: String(formData.get("phone") || ""),
       email: String(formData.get("email") || ""),
+      date: String(formData.get("date") || ""),
       vehicle: String(formData.get("vehicle") || ""),
       service: String(formData.get("service") || ""),
       message: String(formData.get("message") || ""),
@@ -351,7 +352,21 @@ export default function ServicePage() {
                   placeholder={t.describePlaceholder}
                 />
               </div>
-
+<div>
+  <label
+    htmlFor="date"
+    className="mb-2 block text-sm text-white/70"
+  >
+    {lang === "EN" ? "Preferred Date" : "Fecha preferida"}
+  </label>
+  <input
+    id="date"
+    name="date"
+    type="date"
+    required
+    className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none focus:border-white/30"
+  />
+</div>
               <button
                 type="submit"
                 disabled={loading}
