@@ -178,7 +178,12 @@ export default function Home() {
                 <Link href="/inventory" className="bg-white text-black px-5 py-3 rounded-xl">
                   {t.ctaInventory}
                 </Link>
-
+<Link
+  href="/service"
+  className="inline-flex items-center justify-center rounded-2xl border border-white/30 text-white px-5 py-3 font-semibold hover:bg-white/10 transition"
+>
+  Schedule Service
+</Link>
                 <Link href="/pre-qualification" className="border border-white/20 px-5 py-3 rounded-xl text-white">
                   {t.ctaPrequal}
                 </Link>
