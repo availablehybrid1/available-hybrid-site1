@@ -1227,18 +1227,25 @@ const [touchEndX, setTouchEndX] = React.useState<number | null>(null);
     setTouchEndX(e.touches[0].clientX);
   }}
   onTouchEnd={() => {
-    if (touchStartX === null || touchEndX === null) return;
+  if (touchStartX === null || touchEndX === null) {
+    setTouchStartX(null);
+    setTouchEndX(null);
+    return;
+  }
 
-    const distance = touchStartX - touchEndX;
+  const distance = touchStartX - touchEndX;
 
-    if (distance > 50) {
+  if (Math.abs(distance) > 50) {
+    if (distance > 0) {
       goNext();
-    }
-
-    if (distance < -50) {
+    } else {
       goPrev();
     }
-  }}
+  }
+
+  setTouchStartX(null);
+  setTouchEndX(null);
+}}
   className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain transition-transform duration-300"
   style={{
     transformOrigin: `${zoomOrigin.x} ${zoomOrigin.y}`,
