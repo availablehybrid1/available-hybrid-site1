@@ -8,7 +8,7 @@ import { getInventory, type Car } from "../lib/getInventory";
 function parsePhotos(raw?: string | null): string[] {
   if (!raw || typeof raw !== "string") return [];
   return raw
-    .split(/[\s;]+/)
+    .split(/[\s,;]+/)
     .map((u) => u.trim())
     .filter((u) => u.startsWith("http"))
     .map((u) => {
