@@ -2,6 +2,7 @@
 import * as React from "react";
 import type { GetStaticProps } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { getInventory, type Car } from "../lib/getInventory";
 
 // Convierte fotos de Drive a imágenes visibles
