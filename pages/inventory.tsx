@@ -597,11 +597,12 @@ export default function Inventory({ inventory }: InventoryProps) {
                   >
                     {/* Imagen principal + badges */}
                     <div className="relative h-52 w-full overflow-hidden bg-neutral-950">
-                      <img
-                        src={mainPhoto}
-                        alt={car.title}
-                        className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
-                      />
+                      <Image
+  src={mainPhoto}
+  alt={car.title}
+  fill
+  className="object-cover transition duration-700 group-hover:scale-[1.04]"
+/>
                       <div className="absolute left-3 top-3 flex gap-2 text-[10px] uppercase tracking-[0.16em]">
                         <span className="inline-flex items-center gap-1 rounded-full bg-black/80 px-2 py-0.5 text-neutral-200">
                           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
