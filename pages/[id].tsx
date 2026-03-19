@@ -409,29 +409,41 @@ if (!car) {
 
           <div className="flex flex-col items-end gap-1 text-right text-[11px] text-neutral-400">
             <span>6726 Reseda Blvd Suite A7 · Reseda, CA 91335</span>
-            <div className="flex items-center gap-2">
-              <a
-              href={`https://wa.me/17473544098?text=${encodeURIComponent(
-  `Hi, I am interested in this vehicle: ${car.title} - $${car.price}`
-)}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent"
-                aria-label="WhatsApp"
-              >
-                <img
-                  src="/whatsapp-green.png"
-                  alt="WhatsApp"
-                  className="h-full w-full object-contain"
-                />
-              </a>
-              <a
-                href={`tel:${phone.replace(/[^+\d]/g, "")}`}
-                className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-white hover:bg-white/10"
-              >
-                {phone}
-              </a>
-            </div>
+   <div className="flex items-center gap-3">
+  <a
+    href={`https://wa.me/17473544098?text=${encodeURIComponent(
+      `Hi, I am interested in this vehicle: ${car.title} - $${car.price}`
+    )}`}
+    target="_blank"
+    rel="noreferrer"
+    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-transparent"
+    aria-label="WhatsApp"
+  >
+    <img
+      src="/whatsapp-green.png"
+      alt="WhatsApp"
+      className="h-full w-full object-contain"
+    />
+  </a>
+
+  <a
+    href={`tel:${phone.replace(/[^+\d]/g, "")}`}
+    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-white/5 text-white hover:bg-white/10"
+    aria-label="Call"
+  >
+    📞
+  </a>
+
+  <a
+    href="https://www.instagram.com/availablehybridrm/"
+    target="_blank"
+    rel="noreferrer"
+    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-yellow-500 text-[11px] font-semibold text-white"
+    aria-label="Instagram"
+  >
+    IG
+  </a>
+</div>
           </div>
         </div>
       </header>
