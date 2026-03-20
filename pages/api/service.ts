@@ -39,6 +39,7 @@ export default async function handler(
     message,
     language,
     page_url,
+    time,
   } = req.body || {};
 
   if (!name || !phone || !vehicle || !service || !date) {
@@ -93,6 +94,7 @@ ${safe(page_url)}
     language,
     page_url,
     summary,
+    time,
   };
 
   try {
