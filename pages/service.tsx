@@ -368,6 +368,25 @@ export default function ServicePage() {
     min={new Date().toISOString().split("T")[0]}
 className="w-full rounded-xl border border-white/10 bg-white text-black px-4 py-3 outline-none"  />
 </div>
+              <div>
+  <label
+    htmlFor="time"
+    className="mb-2 block text-sm text-white/70"
+  >
+    {lang === "EN" ? "Drop-off Time" : "Hora de entrega"}
+  </label>
+
+  <input
+    id="time"
+    name="time"
+    type="time"
+    required
+    min="08:00"
+    max="16:00"
+    step="1800"
+    className="w-full rounded-xl border border-white/10 bg-white text-black px-4 py-3 outline-none"
+  />
+</div>
               <button
                 type="submit"
                 disabled={loading}
