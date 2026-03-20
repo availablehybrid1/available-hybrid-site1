@@ -365,6 +365,7 @@ export default function ServicePage() {
     name="date"
     type="date"
     required
+    min={new Date().toISOString().split("T")[0]}
     className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none focus:border-white/30"
   />
 </div>
