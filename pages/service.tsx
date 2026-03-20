@@ -366,8 +366,7 @@ export default function ServicePage() {
     type="date"
     required
     min={new Date().toISOString().split("T")[0]}
-    className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none focus:border-white/30"
-  />
+className="w-full rounded-xl border border-white/10 bg-white text-black px-4 py-3 outline-none"  />
 </div>
               <button
                 type="submit"
