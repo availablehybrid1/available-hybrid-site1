@@ -134,6 +134,7 @@ export default function ServicePage() {
   vehicle: String(formData.get("vehicle") || ""),
   service: String(formData.get("service") || ""),
   message: String(formData.get("message") || ""),
+      time: String(formData.get("time") || ""),
   language: lang,
   page_url: typeof window !== "undefined" ? window.location.href : "",
 };
