@@ -7,7 +7,10 @@ import {
 } from "../../lib/telegram";
 import {
   deleteDraft,
+  deleteStoredVehicle,
   getDraft,
+  getStoredVehicle,
+  listStoredVehicles,
   saveDraft,
   saveVehicle,
   type BotDraft,
@@ -339,6 +342,160 @@ function titleKeyboard() {
   };
 }
 
+
+function inventoryKeyboard(vehicle: StoredVehicle) {
+  const isSold = String(vehicle.status || "").toLowerCase() === "sold";
+
+  return {
+    inline_keyboard: isSold
+      ? [
+          [
+            { text: "↩️ Restore", callback_data: `restore:${vehicle.id}` },
+            { text: "🗑 Delete", callback_data: `delete:${vehicle.id}` },
+          ],
+        ]
+      : [
+          [
+            { text: "✏️ Edit", callback_data: `edit:${vehicle.id}` },
+            { text: "✅ Sold", callback_data: `sold:${vehicle.id}` },
+          ],
+          [
+            { text: "🗑 Delete", callback_data: `delete:${vehicle.id}` },
+          ],
+        ],
+  };
+}
+
+function deleteConfirmKeyboard(id: string) {
+  return {
+    inline_keyboard: [
+      [
+        { text: "Yes, delete", callback_data: `confirmdelete:${id}` },
+        { text: "Cancel", callback_data: `nodelete:${id}` },
+      ],
+    ],
+  };
+}
+
+async function sendInventoryList(chatId: number) {
+  const vehicles = await listStoredVehicles();
+  if (!vehicles.length) {
+    await sendTelegramMessage(chatId, "No vehicles are stored yet.");
+    return;
+  }
+
+  const sorted = [...vehicles].sort((a, b) => {
+    const aSold = String(a.status || "").toLowerCase() === "sold" ? 1 : 0;
+    const bSold = String(b.status || "").toLowerCase() === "sold" ? 1 : 0;
+    if (aSold !== bSold) return aSold - bSold;
+    return Number(b.year || 0) - Number(a.year || 0);
+  });
+
+  const available = sorted.filter(
+    (v) => String(v.status || "").toLowerCase() !== "sold"
+  ).length;
+  const sold = sorted.length - available;
+
+  await sendTelegramMessage(
+    chatId,
+    `🚗 <b>Inventory</b>\n\nAvailable: ${available}\nSold: ${sold}\nTotal stored: ${sorted.length}`
+  );
+
+  for (const vehicle of sorted.slice(0, 30)) {
+    const status =
+      String(vehicle.status || "").toLowerCase() === "sold"
+        ? "SOLD"
+        : "AVAILABLE";
+
+    await sendTelegramMessage(
+      chatId,
+      [
+        `<b>${escapeHtml(
+          [vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(" ")
+        )}</b>`,
+        `Status: ${status}`,
+        vehicle.price
+          ? `Price: ${Number(vehicle.price).toLocaleString()}`
+          : "",
+        vehicle.mileage
+          ? `Mileage: ${Number(vehicle.mileage).toLocaleString()}`
+          : "",
+        vehicle.vin ? `VIN: ${escapeHtml(vehicle.vin)}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+      inventoryKeyboard(vehicle)
+    );
+  }
+
+  if (sorted.length > 30) {
+    await sendTelegramMessage(
+      chatId,
+      `Showing the first 30 of ${sorted.length} vehicles.`
+    );
+  }
+}
+
+function vehicleToDraft(vehicle: StoredVehicle): BotDraft {
+  const photoUrls = Object.entries(vehicle)
+    .filter(
+      ([key, value]) =>
+        key.toLowerCase().startsWith("photo") &&
+        typeof value === "string" &&
+        value.startsWith("http")
+    )
+    .map(([, value]) => String(value));
+
+  return {
+    sessionId: `edit-${vehicle.id}-${Date.now()}`,
+    step: "edit",
+    editingVehicleId: vehicle.id,
+    vin: vehicle.vin || "",
+    year: vehicle.year || "",
+    make: vehicle.make || "",
+    model: vehicle.model || "",
+    transmission: vehicle.transmission || "",
+    mileage: vehicle.mileage || "",
+    price: vehicle.price || "",
+    titleStatus: vehicle.titleStatus || "",
+    exterior: vehicle.exterior || "",
+    fuel: vehicle.fuel || "",
+    trim: vehicle.trim || "",
+    bodyClass: vehicle.bodyClass || "",
+    driveType: vehicle.driveType || "",
+    engine: vehicle.engine || "",
+    notes: vehicle.notes || "",
+    description: vehicle.description || "",
+    photos: photoUrls,
+  };
+}
+
+function applyDraftToVehicle(
+  draft: BotDraft,
+  vehicle: StoredVehicle
+): StoredVehicle {
+  return {
+    ...vehicle,
+    year: draft.year || vehicle.year || "",
+    make: draft.make || vehicle.make || "",
+    model: draft.model || vehicle.model || "",
+    mileage: draft.mileage || vehicle.mileage || "",
+    price: draft.price || vehicle.price || "",
+    exterior: draft.exterior || vehicle.exterior || "",
+    transmission: draft.transmission || vehicle.transmission || "",
+    fuel: draft.fuel || vehicle.fuel || "",
+    vin: draft.vin || vehicle.vin || "",
+    titleStatus: draft.titleStatus || vehicle.titleStatus || "",
+    trim: draft.trim || vehicle.trim || "",
+    bodyClass: draft.bodyClass || vehicle.bodyClass || "",
+    driveType: draft.driveType || vehicle.driveType || "",
+    engine: draft.engine || vehicle.engine || "",
+    notes: draft.notes || vehicle.notes || "",
+    description: buildAutomaticDescription(draft),
+  };
+}
+
+
 function publishKeyboard() {
   return {
     inline_keyboard: [
@@ -360,6 +517,110 @@ async function handleCallback(query: TelegramCallbackQuery) {
     await sendTelegramMessage(chatId, "No active vehicle. Use /addcar.");
     return;
   }
+
+
+  if (query.data?.startsWith("sold:")) {
+    const id = query.data.slice("sold:".length);
+    const vehicle = await getStoredVehicle(id);
+    if (!vehicle) {
+      await sendTelegramMessage(chatId, "Vehicle not found.");
+      return;
+    }
+    vehicle.status = "Sold";
+    await saveVehicle(vehicle);
+    await sendTelegramMessage(
+      chatId,
+      `✅ ${escapeHtml(
+        [vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(" ")
+      )} marked as SOLD and removed from active website inventory.`
+    );
+    return;
+  }
+
+  if (query.data?.startsWith("restore:")) {
+    const id = query.data.slice("restore:".length);
+    const vehicle = await getStoredVehicle(id);
+    if (!vehicle) {
+      await sendTelegramMessage(chatId, "Vehicle not found.");
+      return;
+    }
+    vehicle.status = "Available";
+    await saveVehicle(vehicle);
+    await sendTelegramMessage(
+      chatId,
+      `↩️ ${escapeHtml(
+        [vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(" ")
+      )} is available again.`
+    );
+    return;
+  }
+
+  if (query.data?.startsWith("edit:")) {
+    const id = query.data.slice("edit:".length);
+    const vehicle = await getStoredVehicle(id);
+    if (!vehicle) {
+      await sendTelegramMessage(chatId, "Vehicle not found.");
+      return;
+    }
+
+    const editDraft = vehicleToDraft(vehicle);
+    await deleteDraft(chatId);
+    await saveDraft(chatId, editDraft);
+
+    await sendTelegramMessage(
+      chatId,
+      [
+        "✏️ <b>Edit vehicle</b>",
+        "",
+        `<b>${escapeHtml(draftSummary(editDraft))}</b>`,
+        "",
+        "Send the changes naturally in one message.",
+        "",
+        "Examples:",
+        "<i>$6500</i>",
+        "<i>190k miles, black</i>",
+        "<i>salvage title, $5999</i>",
+        "",
+        "You can send more changes after that. Type /done when finished.",
+      ].join("\n")
+    );
+    return;
+  }
+
+  if (query.data?.startsWith("delete:")) {
+    const id = query.data.slice("delete:".length);
+    const vehicle = await getStoredVehicle(id);
+    if (!vehicle) {
+      await sendTelegramMessage(chatId, "Vehicle not found.");
+      return;
+    }
+    await sendTelegramMessage(
+      chatId,
+      `Delete <b>${escapeHtml(
+        [vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(" ")
+      )}</b> permanently from inventory and delete its photos?`,
+      deleteConfirmKeyboard(id)
+    );
+    return;
+  }
+
+  if (query.data?.startsWith("confirmdelete:")) {
+    const id = query.data.slice("confirmdelete:".length);
+    const removed = await deleteStoredVehicle(id, true);
+    await sendTelegramMessage(
+      chatId,
+      removed
+        ? "🗑 Vehicle deleted permanently."
+        : "Vehicle was already removed."
+    );
+    return;
+  }
+
+  if (query.data?.startsWith("nodelete:")) {
+    await sendTelegramMessage(chatId, "Delete canceled.");
+    return;
+  }
+
 
   if (query.data?.startsWith("title:")) {
     draft.titleStatus = query.data.slice("title:".length);
@@ -459,19 +720,24 @@ async function handleMessage(message: TelegramMessage) {
 
   const text = message.text?.trim() ?? "";
 
-  if (text === "/start") {
+  if (text === "/start" || text === "/help") {
     await sendTelegramMessage(
       chatId,
       [
         "🚗 <b>Available Hybrid Inventory Bot</b>",
         "",
-        "Connected and ready.",
-        "",
         "/addcar - add a vehicle",
-        "/inventory - inventory tools",
-        "/cancel - cancel current vehicle",
+        "/inventory - manage available and sold vehicles",
+        "/cancel - cancel current add/edit session",
+        "/id - show this Telegram chat ID",
+        "/help - show commands",
       ].join("\n")
     );
+    return;
+  }
+
+  if (text === "/id") {
+    await sendTelegramMessage(chatId, `Chat ID: <code>${chatId}</code>`);
     return;
   }
 
@@ -508,16 +774,87 @@ async function handleMessage(message: TelegramMessage) {
   }
 
   if (text === "/inventory") {
-    await sendTelegramMessage(
-      chatId,
-      "Inventory management will be added after the publishing flow is tested."
-    );
+    await sendInventoryList(chatId);
     return;
   }
 
   const draft = await getDraft(chatId);
   if (!draft) {
     await sendTelegramMessage(chatId, "Use /addcar to add a vehicle.");
+    return;
+  }
+
+
+
+  if (draft.step === "edit") {
+    const id = draft.editingVehicleId;
+    if (!id) {
+      await deleteDraft(chatId);
+      await sendTelegramMessage(chatId, "Edit session expired. Use /inventory.");
+      return;
+    }
+
+    if (text === "/done") {
+      const vehicle = await getStoredVehicle(id);
+      if (!vehicle) {
+        await deleteDraft(chatId);
+        await sendTelegramMessage(chatId, "Vehicle not found.");
+        return;
+      }
+
+      const updated = applyDraftToVehicle(draft, vehicle);
+      await saveVehicle(updated);
+      await deleteDraft(chatId);
+
+      await sendTelegramMessage(
+        chatId,
+        [
+          "✅ <b>Vehicle updated</b>",
+          "",
+          `<b>${escapeHtml(draftSummary(draft))}</b>`,
+          "",
+          `Description: ${escapeHtml(updated.description || "")}`,
+        ].join("\n")
+      );
+      return;
+    }
+
+    if (!text) {
+      await sendTelegramMessage(
+        chatId,
+        "Send the change, or type /done when finished."
+      );
+      return;
+    }
+
+    await enrichDraftFromText(draft, text);
+
+    const color = normalizeColor(text);
+    if (color) draft.exterior = color;
+
+    if (/\b(clean title|titulo limpio|título limpio|clean)\b/i.test(text)) {
+      draft.titleStatus = "Clean Title";
+    } else if (/\b(salvage|salvamento)\b/i.test(text)) {
+      draft.titleStatus = "Salvage Title";
+    } else if (
+      /\b(rebuilt|rebuild|reconstruido|reconstruida)\b/i.test(text)
+    ) {
+      draft.titleStatus = "Rebuilt Title";
+    }
+
+    draft.description = buildAutomaticDescription(draft);
+    await saveDraft(chatId, draft);
+
+    await sendTelegramMessage(
+      chatId,
+      [
+        "Updated in draft:",
+        "",
+        `<b>${escapeHtml(draftSummary(draft))}</b>`,
+        "",
+        "Send another change, or type /done to save.",
+      ].join("\n")
+    );
     return;
   }
 
@@ -769,6 +1106,19 @@ export default async function handler(
   if (req.method !== "POST") {
     res.setHeader("Allow", "GET, POST");
     return res.status(405).json({ ok: false });
+  }
+
+  const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID?.trim();
+  if (
+    req.method === "POST" &&
+    adminChatId &&
+    String(
+      (req.body as TelegramUpdate)?.message?.chat?.id ??
+        (req.body as TelegramUpdate)?.callback_query?.message?.chat?.id ??
+        ""
+    ) !== adminChatId
+  ) {
+    return res.status(200).json({ ok: true });
   }
 
   try {
