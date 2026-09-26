@@ -11,6 +11,7 @@ export type BotDraft = {
     | "exterior"
     | "notes"
     | "photos"
+    | "cover"
     | "confirm"
     | "edit";
   vin?: string;
@@ -31,6 +32,7 @@ export type BotDraft = {
   description?: string;
   photos: string[];
   editingVehicleId?: string;
+  coverPhotoIndex?: number;
 };
 
 export type StoredVehicle = {
