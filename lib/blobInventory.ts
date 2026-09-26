@@ -37,39 +37,45 @@ export type StoredVehicle = {
   [key: string]: string;
 };
 
-function draftPath(chatId: number | string) {
-  return `telegram/drafts/${chatId}.json`;
+function draftPrefix(chatId: number | string) {
+  return `telegram/drafts/${chatId}/`;
 }
 
 export async function saveDraft(
   chatId: number | string,
   draft: BotDraft
 ): Promise<void> {
-  await put(draftPath(chatId), JSON.stringify(draft), {
+  const path = `${draftPrefix(chatId)}${Date.now()}.json`;
+  await put(path, JSON.stringify(draft), {
     access: "public",
-    addRandomSuffix: false,
-    allowOverwrite: true,
+    addRandomSuffix: true,
     contentType: "application/json",
-    cacheControlMaxAge: 0,
+    cacheControlMaxAge: 60,
   });
 }
 
 export async function getDraft(
   chatId: number | string
 ): Promise<BotDraft | null> {
-  const result = await list({ prefix: draftPath(chatId), limit: 1 });
-  const blob = result.blobs.find((b) => b.pathname === draftPath(chatId));
+  const result = await list({ prefix: draftPrefix(chatId), limit: 100 });
+  const blob = [...result.blobs]
+    .filter((b) => b.pathname.endsWith(".json"))
+    .sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime())[0];
+
   if (!blob) return null;
 
-  const res = await fetch(blob.url, { cache: "no-store" });
+  const res = await fetch(`${blob.url}?v=${Date.now()}`, {
+    cache: "no-store",
+  });
   if (!res.ok) return null;
   return (await res.json()) as BotDraft;
 }
 
 export async function deleteDraft(chatId: number | string): Promise<void> {
-  const result = await list({ prefix: draftPath(chatId), limit: 1 });
-  const blob = result.blobs.find((b) => b.pathname === draftPath(chatId));
-  if (blob) await del(blob.url);
+  const result = await list({ prefix: draftPrefix(chatId), limit: 100 });
+  if (result.blobs.length) {
+    await del(result.blobs.map((b) => b.url));
+  }
 }
 
 export async function saveVehicle(vehicle: StoredVehicle): Promise<void> {
@@ -81,7 +87,7 @@ export async function saveVehicle(vehicle: StoredVehicle): Promise<void> {
       addRandomSuffix: false,
       allowOverwrite: true,
       contentType: "application/json",
-      cacheControlMaxAge: 0,
+      cacheControlMaxAge: 60,
     }
   );
 }
@@ -93,7 +99,9 @@ export async function listStoredVehicles(): Promise<StoredVehicle[]> {
   for (const blob of result.blobs) {
     if (!blob.pathname.endsWith(".json")) continue;
     try {
-      const res = await fetch(blob.url, { cache: "no-store" });
+      const res = await fetch(`${blob.url}?v=${Date.now()}`, {
+        cache: "no-store",
+      });
       if (!res.ok) continue;
       vehicles.push((await res.json()) as StoredVehicle);
     } catch {
