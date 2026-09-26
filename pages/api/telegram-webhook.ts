@@ -200,7 +200,7 @@ function buildAutomaticDescription(draft: BotDraft) {
   ].filter(Boolean);
 
   const sentences = [
-    vehicleName ? `${vehicleName} available at Available Hybrid R&M Inc.` : "",
+    vehicleName ? `${vehicleName}.` : "",
     details.length ? `${details.join(" · ")}.` : "",
     draft.notes?.trim() || "",
   ].filter(Boolean);
