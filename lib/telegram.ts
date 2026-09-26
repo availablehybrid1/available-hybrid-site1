@@ -32,11 +32,31 @@ export async function telegramApi<T = any>(
 
 export async function sendTelegramMessage(
   chatId: number | string,
-  text: string
+  text: string,
+  replyMarkup?: Record<string, unknown>
 ) {
   return telegramApi("sendMessage", {
     chat_id: chatId,
     text,
     parse_mode: "HTML",
+    ...(replyMarkup ? { reply_markup: replyMarkup } : {}),
   });
+}
+
+export async function answerCallbackQuery(callbackQueryId: string) {
+  return telegramApi("answerCallbackQuery", {
+    callback_query_id: callbackQueryId,
+  });
+}
+
+export async function getTelegramFileUrl(fileId: string): Promise<string> {
+  const file = await telegramApi<{ file_path?: string }>("getFile", {
+    file_id: fileId,
+  });
+
+  if (!file?.file_path || !BOT_TOKEN) {
+    throw new Error("Telegram did not return a file path");
+  }
+
+  return `https://api.telegram.org/file/bot${BOT_TOKEN}/${file.file_path}`;
 }
