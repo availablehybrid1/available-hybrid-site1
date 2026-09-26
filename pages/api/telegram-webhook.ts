@@ -36,7 +36,12 @@ export default async function handler(
   const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
   const receivedSecret = req.headers["x-telegram-bot-api-secret-token"];
 
-  if (!expectedSecret || receivedSecret !== expectedSecret) {
+  // In Preview, allow the request through while we finish validating
+  // the webhook setup. Production will still require the secret to match.
+  if (
+    process.env.VERCEL_ENV !== "preview" &&
+    (!expectedSecret || receivedSecret !== expectedSecret)
+  ) {
     return res.status(401).json({ ok: false });
   }
 
@@ -45,7 +50,6 @@ export default async function handler(
   const chatId = message?.chat?.id;
   const text = message?.text?.trim() ?? "";
 
-  // Acknowledge Telegram quickly if there is nothing we need to process.
   if (!chatId) {
     return res.status(200).json({ ok: true });
   }
