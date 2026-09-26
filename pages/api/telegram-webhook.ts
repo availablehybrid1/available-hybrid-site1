@@ -751,6 +751,24 @@ async function handleMessage(message: TelegramMessage) {
 
   const text = message.text?.trim() ?? "";
 
+
+  if (/^(hola|hello|hi|hey|buenas|buenos dias|buenos días|buenas tardes|buenas noches)$/i.test(text)) {
+    await sendTelegramMessage(
+      chatId,
+      [
+        "👋 <b>Available Hybrid Inventory Bot</b>",
+        "",
+        "Commands:",
+        "/addcar - add a vehicle",
+        "/inventory - manage available and sold vehicles",
+        "/cancel - cancel current add/edit session",
+        "/id - show this Telegram chat ID",
+        "/help - show commands",
+      ].join("\n")
+    );
+    return;
+  }
+
   if (text === "/start" || text === "/help") {
     await sendTelegramMessage(
       chatId,
