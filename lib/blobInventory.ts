@@ -61,7 +61,7 @@ export async function getDraft(
   const result = await list({ prefix: draftPrefix(chatId), limit: 100 });
   const blob = [...result.blobs]
     .filter((b) => b.pathname.endsWith(".json"))
-    .sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime())[0];
+    .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())[0];
 
   if (!blob) return null;
 
@@ -86,7 +86,6 @@ export async function saveVehicle(vehicle: StoredVehicle): Promise<void> {
     {
       access: "public",
       addRandomSuffix: false,
-      allowOverwrite: true,
       contentType: "application/json",
       cacheControlMaxAge: 60,
     }
