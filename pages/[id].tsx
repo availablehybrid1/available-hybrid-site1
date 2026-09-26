@@ -557,30 +557,7 @@ if (!car) {
               </div>
             </div>
 
-            {car.photos.length > 1 && (
-              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-                {car.photos.map((photo, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrent(i)}
-                    className={`relative h-16 w-24 flex-shrink-0 overflow-hidden rounded-md border transition sm:h-20 sm:w-28 ${
-                      current === i
-                        ? "border-white opacity-100"
-                        : "border-neutral-800 opacity-60 hover:opacity-100"
-                    }`}
-                    aria-label={`View photo ${i + 1}`}
-                  >
-                    <Image
-                      src={photo}
-                      alt={`Vehicle photo ${i + 1}`}
-                      fill
-                      sizes="112px"
-                      className="object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
+
 
 </section>
 
