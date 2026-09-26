@@ -174,6 +174,52 @@ if (!car) {
     .replace(/\s{2,}/g, " ")
     .trim();
 
+  const friendlyOverview = (() => {
+    const name = [car.year, car.make, car.model].filter(Boolean).join(" ");
+    const body = vinInfo?.bodyClass || "";
+    const drive = vinInfo?.driveType || "";
+    const pieces: string[] = [];
+
+    if (body) {
+      pieces.push(
+        `This ${name} is a ${body.toLowerCase()} with a straightforward, practical setup for everyday driving.`
+      );
+    } else {
+      pieces.push(
+        `This ${name} is a practical option for everyday driving.`
+      );
+    }
+
+    if (/hybrid/i.test(car.fuel || "")) {
+      pieces.push("Its hybrid powertrain is designed to help reduce fuel use in daily driving.");
+    } else if (car.fuel) {
+      pieces.push(`It uses ${car.fuel.toLowerCase()} fuel.`);
+    }
+
+    if (/all.?wheel|awd|4x4/i.test(drive)) {
+      pieces.push("All-wheel drive adds extra traction when road conditions are less ideal.");
+    }
+
+    const notesOnly = cleanDescription
+      .replace(/\bClean Title\b[\s·.-]*/gi, "")
+      .replace(/\bSalvage Title\b[\s·.-]*/gi, "")
+      .replace(/\bRebuilt Title\b[\s·.-]*/gi, "")
+      .replace(/\b[\d,]+ miles\b[\s·.-]*/gi, "")
+      .replace(/\b(?:Gasoline|Hybrid|Electric|Diesel)\b[\s·.-]*/gi, "")
+      .replace(/\b(?:Automatic|Manual)\b[\s·.-]*/gi, "")
+      .replace(/\b(?:Black|White|Silver|Gray|Grey|Red|Blue|Green|Beige|Brown|Gold) exterior\b[\s·.-]*/gi, "")
+      .replace(/\b(?:FWD|RWD|AWD|4WD|4x4|Front-Wheel Drive|Rear-Wheel Drive|All-Wheel Drive)\b[\s·.-]*/gi, "")
+      .replace(/\b\d+ cyl\b[\s·.-]*/gi, "")
+      .replace(/\b\d(?:\.\d+)?L\b[\s·.-]*/gi, "")
+      .replace(/\s{2,}/g, " ")
+      .replace(/^[\s·.-]+|[\s·.-]+$/g, "")
+      .trim();
+
+    if (notesOnly.length > 12) pieces.push(notesOnly);
+
+    return pieces.join(" ");
+  })();
+
   // APR según rango de crédito
   const apr = React.useMemo(() => {
     switch (creditTier) {
@@ -1116,13 +1162,13 @@ if (!car) {
               </div>
             </div>
 
-            {cleanDescription && (
+            {friendlyOverview && (
               <div className="mt-5 border-t border-neutral-800 pt-4">
                 <p className="mb-2 text-[10px] uppercase tracking-[0.14em] text-neutral-600">
-                  Description
+                  Overview
                 </p>
                 <p className="max-w-4xl leading-relaxed text-neutral-300">
-                  {cleanDescription}
+                  {friendlyOverview}
                 </p>
               </div>
             )}
