@@ -28,8 +28,17 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (req.method === "GET") {
+    return res.status(200).json({
+      ok: true,
+      vercelEnv: process.env.VERCEL_ENV ?? null,
+      hasBotToken: Boolean(process.env.TELEGRAM_BOT_TOKEN),
+      hasWebhookSecret: Boolean(process.env.TELEGRAM_WEBHOOK_SECRET),
+    });
+  }
+
   if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
+    res.setHeader("Allow", "GET, POST");
     return res.status(405).json({ ok: false });
   }
 
