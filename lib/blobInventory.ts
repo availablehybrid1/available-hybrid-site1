@@ -7,7 +7,8 @@ export type BotDraft = {
     | "mileage"
     | "price"
     | "title"
-    | "description"
+    | "exterior"
+    | "notes"
     | "photos"
     | "confirm";
   vin?: string;
@@ -18,6 +19,13 @@ export type BotDraft = {
   mileage?: string;
   price?: string;
   titleStatus?: string;
+  exterior?: string;
+  fuel?: string;
+  trim?: string;
+  bodyClass?: string;
+  driveType?: string;
+  engine?: string;
+  notes?: string;
   description?: string;
   photos: string[];
 };
