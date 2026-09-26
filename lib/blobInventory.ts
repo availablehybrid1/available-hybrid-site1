@@ -11,7 +11,8 @@ export type BotDraft = {
     | "exterior"
     | "notes"
     | "photos"
-    | "confirm";
+    | "confirm"
+    | "edit";
   vin?: string;
   year?: string;
   make?: string;
@@ -29,6 +30,7 @@ export type BotDraft = {
   notes?: string;
   description?: string;
   photos: string[];
+  editingVehicleId?: string;
 };
 
 export type StoredVehicle = {
@@ -88,17 +90,74 @@ export async function deleteDraft(chatId: number | string): Promise<void> {
   }
 }
 
+function vehiclePath(id: string) {
+  return `inventory/vehicles/${id}.json`;
+}
+
+export async function getStoredVehicle(
+  id: string
+): Promise<StoredVehicle | null> {
+  const result = await list({ prefix: vehiclePath(id), limit: 10 });
+  const blob = result.blobs.find((b) => b.pathname === vehiclePath(id));
+  if (!blob) return null;
+
+  try {
+    const res = await fetch(`${blob.url}?v=${Date.now()}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as StoredVehicle;
+  } catch {
+    return null;
+  }
+}
+
 export async function saveVehicle(vehicle: StoredVehicle): Promise<void> {
-  await put(
-    `inventory/vehicles/${vehicle.id}.json`,
-    JSON.stringify(vehicle),
-    {
-      access: "public",
-      addRandomSuffix: false,
-      contentType: "application/json",
-      cacheControlMaxAge: 60,
+  const path = vehiclePath(vehicle.id);
+  const existing = await list({ prefix: path, limit: 10 });
+  const oldBlob = existing.blobs.find((b) => b.pathname === path);
+  if (oldBlob) await del(oldBlob.url);
+
+  await put(path, JSON.stringify(vehicle), {
+    access: "public",
+    addRandomSuffix: false,
+    contentType: "application/json",
+    cacheControlMaxAge: 60,
+  });
+}
+
+export async function deleteStoredVehicle(
+  id: string,
+  deletePhotos = true
+): Promise<boolean> {
+  const vehicle = await getStoredVehicle(id);
+  const result = await list({ prefix: vehiclePath(id), limit: 10 });
+  const blob = result.blobs.find((b) => b.pathname === vehiclePath(id));
+
+  if (deletePhotos && vehicle) {
+    const photoUrls = Object.entries(vehicle)
+      .filter(
+        ([key, value]) =>
+          key.toLowerCase().startsWith("photo") &&
+          typeof value === "string" &&
+          value.startsWith("http")
+      )
+      .map(([, value]) => String(value));
+
+    if (photoUrls.length) {
+      try {
+        await del(photoUrls);
+      } catch {
+        // Keep deleting the inventory record even if an old photo is missing.
+      }
     }
-  );
+  }
+
+  if (blob) {
+    await del(blob.url);
+    return true;
+  }
+  return false;
 }
 
 export async function listStoredVehicles(): Promise<StoredVehicle[]> {
