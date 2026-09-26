@@ -166,6 +166,13 @@ if (!car) {
 }
 
   const mainPhoto = car.photos[current] ?? "";
+  const cleanDescription = (car.description || "")
+    .replace(
+      /\b(?:\d{4}\s+)?(?:[A-Z0-9-]+\s+){0,5}available at Available Hybrid R&?M Inc\.?\s*/i,
+      ""
+    )
+    .replace(/\s{2,}/g, " ")
+    .trim();
 
   // APR según rango de crédito
   const apr = React.useMemo(() => {
@@ -1109,6 +1116,17 @@ if (!car) {
               </div>
             </div>
 
+            {cleanDescription && (
+              <div className="mt-5 border-t border-neutral-800 pt-4">
+                <p className="mb-2 text-[10px] uppercase tracking-[0.14em] text-neutral-600">
+                  Description
+                </p>
+                <p className="max-w-4xl leading-relaxed text-neutral-300">
+                  {cleanDescription}
+                </p>
+              </div>
+            )}
+
             <details className="mt-4 border-t border-neutral-800 pt-3">
               <summary className="cursor-pointer select-none text-[11px] font-medium text-neutral-400 hover:text-neutral-200">
                 More VIN details
@@ -1151,39 +1169,6 @@ if (!car) {
             </details>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
-            {car.description && (
-              <div className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] sm:p-6">
-                <p className="mb-2 text-sm font-semibold text-neutral-100">
-                  Description
-                </p>
-                <p className="leading-relaxed text-neutral-300">
-                  {car.description}
-                </p>
-              </div>
-            )}
-
-            <div className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] sm:p-6">
-              <p className="mb-2 text-sm font-semibold text-neutral-100">
-                Location
-              </p>
-              <p className="leading-relaxed text-neutral-300">
-                Available Hybrid R&amp;M Inc.
-                <br />
-                6726 Reseda Blvd Suite A7
-                <br />
-                Reseda, CA 91335
-              </p>
-              <Link
-                href="https://maps.app.goo.gl/"
-                target="_blank"
-                className="mt-3 inline-flex text-[11px] text-emerald-400 underline-offset-2 hover:underline"
-              >
-                View directions
-              </Link>
-            </div>
-          </div>
-
           {suggestions.length > 0 && (
             <div className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] sm:p-6">
               <p className="mb-3 text-sm font-semibold text-neutral-100">
@@ -1222,6 +1207,17 @@ if (!car) {
               </div>
             </div>
           )}
+
+          <div className="flex justify-center border-t border-neutral-900 pt-7">
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=6726+Reseda+Blvd+Suite+A7+Reseda+CA+91335"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center rounded-full border border-neutral-700 px-5 py-2.5 text-[11px] font-medium text-neutral-300 transition hover:border-neutral-400 hover:bg-neutral-900 hover:text-white"
+            >
+              View dealership location
+            </a>
+          </div>
         </section>
       </div>
 
