@@ -130,7 +130,10 @@ async function uploadTelegramPhoto(
 
   const body = await response.arrayBuffer();
   const blob = await put(
-    `inventory/photos/${sessionId}/${Date.now()}-${messageId ?? 0}.${ext}`,
+    `inventory/photos/${sessionId}/${String(messageId ?? 0).padStart(
+      12,
+      "0"
+    )}-${Date.now()}.${ext}`,
     body,
     {
       access: "public",
@@ -149,10 +152,7 @@ async function listSessionPhotos(sessionId: string) {
     limit: 100,
   });
   return result.blobs
-    .sort(
-      (a, b) =>
-        new Date(a.uploadedAt).getTime() - new Date(b.uploadedAt).getTime()
-    )
+    .sort((a, b) => a.pathname.localeCompare(b.pathname))
     .map((b) => b.url);
 }
 
@@ -354,6 +354,8 @@ function missingVehicleFields(draft: BotDraft) {
   if (!draft.mileage) missing.push("mileage");
   if (!draft.price) missing.push("price");
   if (!draft.titleStatus) missing.push("title status");
+  if (!draft.transmission) missing.push("transmission");
+  if (!draft.exterior) missing.push("exterior color");
   return missing;
 }
 
