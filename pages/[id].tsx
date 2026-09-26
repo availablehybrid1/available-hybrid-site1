@@ -503,7 +503,7 @@ if (!car) {
             </Link>
 
             <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70">
-              <div className="relative aspect-[16/9] w-full overflow-hidden bg-neutral-900">
+              <div className="relative h-[240px] w-full overflow-hidden bg-neutral-900 sm:h-[300px] lg:h-[360px]">
                 {mainPhoto ? (
                   <>
                     <button
