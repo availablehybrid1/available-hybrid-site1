@@ -4,6 +4,7 @@ import {
   answerCallbackQuery,
   getTelegramFileUrl,
   sendTelegramMessage,
+  sendTelegramPhotoAlbum,
 } from "../../lib/telegram";
 import {
   deleteDraft,
@@ -221,6 +222,16 @@ function parseCompactNumber(raw: string) {
   return String(Math.round(match[2] ? value * 1000 : value));
 }
 
+function normalizeTransmission(text: string) {
+  if (/\b(automatic|automatica|automática|auto|cvt|e-cvt|ecvt)\b/i.test(text)) {
+    return "Automatic";
+  }
+  if (/\b(manual|stick shift|estandar|estándar)\b/i.test(text)) {
+    return "Manual";
+  }
+  return "";
+}
+
 function parseVehicleText(text: string) {
   const vinMatch = text.toUpperCase().match(/\b[A-HJ-NPR-Z0-9]{17}\b/);
 
@@ -265,6 +276,7 @@ function parseVehicleText(text: string) {
     price,
     titleStatus,
     exterior: normalizeColor(text),
+    transmission: normalizeTransmission(text),
   };
 }
 
@@ -322,6 +334,7 @@ async function enrichDraftFromText(draft: BotDraft, text: string) {
   if (parsed.price) draft.price = parsed.price;
   if (parsed.titleStatus) draft.titleStatus = parsed.titleStatus;
   if (parsed.exterior) draft.exterior = parsed.exterior;
+  if (parsed.transmission) draft.transmission = parsed.transmission;
 
   const explicitNotes = text.match(
     /(?:notes?|notas?|description|descripcion|descripción)\s*[:=-]\s*(.+)$/i
@@ -549,6 +562,22 @@ function applyDraftToVehicle(
 }
 
 
+
+function coverPhotoKeyboard(photoCount: number) {
+  const buttons = Array.from({ length: Math.min(photoCount, 20) }, (_, index) => ({
+    text: `${index + 1}`,
+    callback_data: `cover:${index}`,
+  }));
+
+  const rows = [];
+  for (let i = 0; i < buttons.length; i += 5) {
+    rows.push(buttons.slice(i, i + 5));
+  }
+
+  return { inline_keyboard: rows };
+}
+
+
 function publishKeyboard() {
   return {
     inline_keyboard: [
@@ -565,6 +594,58 @@ async function handleCallback(query: TelegramCallbackQuery) {
   if (!chatId) return;
 
   await answerCallbackQuery(query.id);
+
+
+  if (query.data?.startsWith("cover:")) {
+    const selectedIndex = Number(query.data.slice("cover:".length));
+    const draft = await getDraft(chatId);
+
+    if (!draft) {
+      await sendTelegramMessage(chatId, "No active vehicle. Use /addcar.");
+      return;
+    }
+
+    const photos = await listSessionPhotos(draft.sessionId);
+    if (
+      !Number.isInteger(selectedIndex) ||
+      selectedIndex < 0 ||
+      selectedIndex >= photos.length
+    ) {
+      await sendTelegramMessage(chatId, "That cover photo is no longer available.");
+      return;
+    }
+
+    draft.coverPhotoIndex = selectedIndex;
+    draft.step = "confirm";
+    await saveDraft(chatId, draft);
+
+    const summary = [
+      "🚗 <b>Ready to publish</b>",
+      "",
+      `${escapeHtml(draft.year || "")} ${escapeHtml(
+        draft.make || ""
+      )} ${escapeHtml(draft.model || "")}`.trim(),
+      `VIN: ${escapeHtml(draft.vin || "")}`,
+      `Mileage: ${Number(draft.mileage || 0).toLocaleString()}`,
+      `Price: ${Number(draft.price || 0).toLocaleString()}`,
+      `Title: ${escapeHtml(draft.titleStatus || "")}`,
+      draft.fuel ? `Fuel: ${escapeHtml(draft.fuel)}` : "",
+      draft.transmission
+        ? `Transmission: ${escapeHtml(draft.transmission)}`
+        : "",
+      draft.exterior ? `Exterior: ${escapeHtml(draft.exterior)}` : "",
+      `Cover photo: #${selectedIndex + 1}`,
+      `Photos: ${photos.length}`,
+      "",
+      `Description: ${escapeHtml(
+        draft.description || buildAutomaticDescription(draft)
+      )}`,
+    ].join("\n");
+
+    await sendTelegramMessage(chatId, summary, publishKeyboard());
+    return;
+  }
+
 
   if (query.data?.startsWith("sold:")) {
     const id = query.data.slice("sold:".length);
@@ -718,6 +799,16 @@ async function handleCallback(query: TelegramCallbackQuery) {
     const automaticDescription = buildAutomaticDescription(draft);
     draft.description = automaticDescription;
 
+    const orderedPhotos = [...photos];
+    const selectedCoverIndex = draft.coverPhotoIndex ?? 0;
+    if (
+      selectedCoverIndex > 0 &&
+      selectedCoverIndex < orderedPhotos.length
+    ) {
+      const [selectedCover] = orderedPhotos.splice(selectedCoverIndex, 1);
+      orderedPhotos.unshift(selectedCover);
+    }
+
     const vehicle: StoredVehicle = {
       id,
       year: draft.year || "",
@@ -738,7 +829,7 @@ async function handleCallback(query: TelegramCallbackQuery) {
       engine: draft.engine || "",
     };
 
-    photos.forEach((url, index) => {
+    orderedPhotos.forEach((url, index) => {
       vehicle[`photo${index + 1}`] = url;
     });
 
@@ -762,7 +853,7 @@ async function handleCallback(query: TelegramCallbackQuery) {
         vehicle.exterior
           ? `Exterior: ${escapeHtml(vehicle.exterior)}`
           : "",
-        `${photos.length} photos`,
+        `${orderedPhotos.length} photos`,
       ].join("\n")
     );
   }
@@ -1135,38 +1226,78 @@ async function handleMessage(message: TelegramMessage) {
         return;
       }
 
-      draft.step = "confirm";
+      if (photos.length === 1) {
+        draft.coverPhotoIndex = 0;
+        draft.step = "confirm";
+        await saveDraft(chatId, draft);
+
+        const summary = [
+          "🚗 <b>Ready to publish</b>",
+          "",
+          `${escapeHtml(draft.year || "")} ${escapeHtml(
+            draft.make || ""
+          )} ${escapeHtml(draft.model || "")}`.trim(),
+          `VIN: ${escapeHtml(draft.vin || "")}`,
+          `Mileage: ${Number(draft.mileage || 0).toLocaleString()}`,
+          `Price: ${Number(draft.price || 0).toLocaleString()}`,
+          `Title: ${escapeHtml(draft.titleStatus || "")}`,
+          draft.fuel ? `Fuel: ${escapeHtml(draft.fuel)}` : "",
+          draft.transmission
+            ? `Transmission: ${escapeHtml(draft.transmission)}`
+            : "",
+          draft.exterior ? `Exterior: ${escapeHtml(draft.exterior)}` : "",
+          "Cover photo: #1",
+          "Photos: 1",
+          "",
+          `Description: ${escapeHtml(
+            draft.description || buildAutomaticDescription(draft)
+          )}`,
+        ].join("\n");
+
+        await sendTelegramMessage(chatId, summary, publishKeyboard());
+        return;
+      }
+
+      draft.step = "cover";
       await saveDraft(chatId, draft);
 
-      const summary = [
-        "🚗 <b>Ready to publish</b>",
-        "",
-        `${escapeHtml(draft.year || "")} ${escapeHtml(
-          draft.make || ""
-        )} ${escapeHtml(draft.model || "")}`.trim(),
-        `VIN: ${escapeHtml(draft.vin || "")}`,
-        `Mileage: ${Number(draft.mileage || 0).toLocaleString()}`,
-        `Price: $${Number(draft.price || 0).toLocaleString()}`,
-        `Title: ${escapeHtml(draft.titleStatus || "")}`,
-        draft.fuel ? `Fuel: ${escapeHtml(draft.fuel)}` : "",
-        draft.transmission
-          ? `Transmission: ${escapeHtml(draft.transmission)}`
-          : "",
-        draft.exterior ? `Exterior: ${escapeHtml(draft.exterior)}` : "",
-        `Photos: ${photos.length}`,
-        "",
-        `Description: ${escapeHtml(
-          draft.description || buildAutomaticDescription(draft)
-        )}`,
-      ].join("\n");
+      try {
+        await sendTelegramPhotoAlbum(
+          chatId,
+          photos.slice(0, 10).map((url, index) => ({
+            url,
+            caption: `Photo #${index + 1}`,
+          }))
+        );
+      } catch {
+        // If Telegram cannot render the preview album, still show number buttons.
+      }
 
-      await sendTelegramMessage(chatId, summary, publishKeyboard());
+      await sendTelegramMessage(
+        chatId,
+        [
+          "Choose the <b>cover photo</b>.",
+          "",
+          photos.length > 10
+            ? "Preview shows the first 10. All uploaded photos are still saved."
+            : "Tap the number that should appear first on the website.",
+        ].join("\n"),
+        coverPhotoKeyboard(photos.length)
+      );
       return;
     }
 
     await sendTelegramMessage(
       chatId,
       "Send photos, then type /done when you are finished."
+    );
+    return;
+  }
+
+  if (draft.step === "cover") {
+    await sendTelegramMessage(
+      chatId,
+      "Choose the cover photo using one of the numbered buttons above."
     );
     return;
   }
