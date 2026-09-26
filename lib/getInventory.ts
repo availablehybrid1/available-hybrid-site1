@@ -70,7 +70,11 @@ export async function getInventory(): Promise<Car[]> {
 
   for (const car of blobCars) {
     if (!car?.id) continue;
-    if (String(car.status || "").toLowerCase() === "sold") continue;
+    const carId = String(car.id).trim();
+    if (String(car.status || "").toLowerCase() === "sold") {
+      combined.delete(carId);
+      continue;
+    }
 
     const photoUrls = Object.entries(car)
       .filter(
@@ -81,7 +85,7 @@ export async function getInventory(): Promise<Car[]> {
       )
       .map(([, value]) => String(value));
 
-    combined.set(String(car.id).trim(), {
+    combined.set(carId, {
       ...car,
       photos: photoUrls.join(" "),
     } as Car);
