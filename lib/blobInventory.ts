@@ -1,6 +1,7 @@
 import { del, list, put } from "@vercel/blob";
 
 export type BotDraft = {
+  sessionId: string;
   step:
     | "vin"
     | "mileage"
