@@ -70,9 +70,19 @@ export async function getInventory(): Promise<Car[]> {
 
   for (const car of blobCars) {
     if (!car?.id) continue;
+
+    const photoUrls = Object.entries(car)
+      .filter(
+        ([key, value]) =>
+          key.toLowerCase().startsWith("photo") &&
+          typeof value === "string" &&
+          value.startsWith("http")
+      )
+      .map(([, value]) => String(value));
+
     combined.set(String(car.id).trim(), {
-      photos: "",
       ...car,
+      photos: photoUrls.join(" "),
     } as Car);
   }
 
