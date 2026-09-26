@@ -366,6 +366,8 @@ function draftSummary(draft: BotDraft) {
     draft.mileage ? `Mileage: ${Number(draft.mileage).toLocaleString()}` : "",
     draft.price ? `Price: ${Number(draft.price).toLocaleString()}` : "",
     draft.titleStatus ? `Title: ${draft.titleStatus}` : "",
+    draft.fuel ? `Fuel: ${draft.fuel}` : "",
+    draft.transmission ? `Transmission: ${draft.transmission}` : "",
     draft.exterior ? `Exterior: ${draft.exterior}` : "",
   ]
     .filter(Boolean)
@@ -428,11 +430,43 @@ function inventoryKeyboard(vehicle: StoredVehicle) {
             { text: "✅ Sold", callback_data: `sold:${vehicle.id}` },
           ],
           [
+            { text: "📷 Cover", callback_data: `pickcover:${vehicle.id}` },
             { text: "🗑 Delete", callback_data: `delete:${vehicle.id}` },
           ],
         ],
   };
 }
+
+
+function storedVehiclePhotos(vehicle: StoredVehicle) {
+  return Object.entries(vehicle)
+    .filter(
+      ([key, value]) =>
+        /^photo\d+$/i.test(key) &&
+        typeof value === "string" &&
+        value.startsWith("http")
+    )
+    .sort(([a], [b]) => {
+      const aNum = Number(a.replace(/\D/g, "")) || 0;
+      const bNum = Number(b.replace(/\D/g, "")) || 0;
+      return aNum - bNum;
+    })
+    .map(([, value]) => String(value));
+}
+
+function existingCoverKeyboard(vehicleId: string, photoCount: number) {
+  const buttons = Array.from({ length: Math.min(photoCount, 20) }, (_, index) => ({
+    text: `${index + 1}`,
+    callback_data: `setcover:${vehicleId}:${index}`,
+  }));
+
+  const rows = [];
+  for (let i = 0; i < buttons.length; i += 5) {
+    rows.push(buttons.slice(i, i + 5));
+  }
+  return { inline_keyboard: rows };
+}
+
 
 function deleteConfirmKeyboard(id: string) {
   return {
@@ -718,6 +752,84 @@ async function handleCallback(query: TelegramCallbackQuery) {
     return;
   }
 
+
+  if (query.data?.startsWith("pickcover:")) {
+    const id = query.data.slice("pickcover:".length);
+    const vehicle = await getStoredVehicle(id);
+    if (!vehicle) {
+      await sendTelegramMessage(chatId, "Vehicle not found.");
+      return;
+    }
+
+    const photos = storedVehiclePhotos(vehicle);
+    if (!photos.length) {
+      await sendTelegramMessage(chatId, "This vehicle has no stored photos.");
+      return;
+    }
+
+    try {
+      await sendTelegramPhotoAlbum(
+        chatId,
+        photos.slice(0, 10).map((url, index) => ({
+          url,
+          caption: `Photo #${index + 1}`,
+        }))
+      );
+    } catch {
+      // Keep the numbered controls available even if preview fails.
+    }
+
+    await sendTelegramMessage(
+      chatId,
+      "Choose which photo should be the website cover:",
+      existingCoverKeyboard(vehicle.id, photos.length)
+    );
+    return;
+  }
+
+  if (query.data?.startsWith("setcover:")) {
+    const payload = query.data.slice("setcover:".length);
+    const separator = payload.lastIndexOf(":");
+    if (separator <= 0) {
+      await sendTelegramMessage(chatId, "Could not read that cover selection.");
+      return;
+    }
+
+    const id = payload.slice(0, separator);
+    const selectedIndex = Number(payload.slice(separator + 1));
+    const vehicle = await getStoredVehicle(id);
+    if (!vehicle) {
+      await sendTelegramMessage(chatId, "Vehicle not found.");
+      return;
+    }
+
+    const photos = storedVehiclePhotos(vehicle);
+    if (
+      !Number.isInteger(selectedIndex) ||
+      selectedIndex < 0 ||
+      selectedIndex >= photos.length
+    ) {
+      await sendTelegramMessage(chatId, "That cover photo is no longer available.");
+      return;
+    }
+
+    const ordered = [...photos];
+    const [selected] = ordered.splice(selectedIndex, 1);
+    ordered.unshift(selected);
+
+    for (const key of Object.keys(vehicle)) {
+      if (/^photo\d+$/i.test(key)) delete vehicle[key];
+    }
+    ordered.forEach((url, index) => {
+      vehicle[`photo${index + 1}`] = url;
+    });
+
+    await saveVehicle(vehicle);
+    await sendTelegramMessage(chatId, "📷 Cover photo updated.");
+    return;
+  }
+
+
   if (query.data?.startsWith("delete:")) {
     const id = query.data.slice("delete:".length);
     const vehicle = await getStoredVehicle(id);
@@ -898,7 +1010,8 @@ async function handleMessage(message: TelegramMessage) {
         "✅ Sold - mark a vehicle sold and remove it from active website inventory",
         "↩️ Restore - make a sold vehicle available again",
         "🗑 Delete - permanently delete the vehicle and its Blob photos",
-      ].join("\n")
+      ].join("\n"),
+      mainMenuKeyboard()
     );
     return;
   }
@@ -914,7 +1027,15 @@ async function handleMessage(message: TelegramMessage) {
         "/cancel - cancel current add/edit session",
         "/id - show this Telegram chat ID",
         "/help - show commands",
-      ].join("\n")
+        "",
+        "Inside /inventory:",
+        "✏️ Edit - change vehicle details",
+        "✅ Sold - remove from active website inventory",
+        "↩️ Restore - make a sold vehicle available again",
+        "📷 Cover - choose the website cover photo",
+        "🗑 Delete - permanently remove the vehicle",
+      ].join("\n"),
+      mainMenuKeyboard()
     );
     return;
   }
