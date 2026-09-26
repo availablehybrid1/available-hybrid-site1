@@ -611,15 +611,12 @@ if (!car) {
           <section className="flex-1 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-xs sm:p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-500">
-                  Available Hybrid
+                <p className="text-[10px] uppercase tracking-[0.18em] text-neutral-500">
+                  Available Hybrid R&amp;M
                 </p>
-                <h1 className="mt-1 text-base font-semibold text-neutral-50 sm:text-lg">
-                  {car.year} {car.make} {car.model}
+                <h1 className="mt-1 text-lg font-semibold uppercase text-neutral-50 sm:text-xl">
+                  {car.make} {car.model} {car.year}
                 </h1>
-                <p className="mt-1 text-[11px] text-neutral-400">
-                  Hybrid &amp; fuel-efficient vehicles in Reseda, CA.
-                </p>
               </div>
               {car.price != null && (
                 <div className="text-right">
@@ -628,18 +625,9 @@ if (!car) {
                     ${car.price.toLocaleString()}
                   </p>
                   {estimatedFees > 0 && (
-                    <div className="mt-1 text-[10px] text-neutral-400">
-                      <p>
-                        Est. taxes &amp; fees:{" "}
-                        <span className="font-semibold text-neutral-200">
-                          ${estimatedFees.toFixed(0)}
-                        </span>
-                      </p>
-                      <p className="text-[9px] text-neutral-500">
-                        *Approximate for Los Angeles, may vary by city and
-                        credit.
-                      </p>
-                    </div>
+                    <p className="mt-1 text-[9px] text-neutral-500">
+                      Est. taxes &amp; fees ${estimatedFees.toFixed(0)}
+                    </p>
                   )}
                 </div>
               )}
@@ -651,7 +639,7 @@ if (!car) {
               </span>
             )}
 
-            <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-[11px] text-neutral-300">
+            <dl className="mt-4 grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-4">
               <div>
                 <dt className="text-neutral-500">Mileage</dt>
                 <dd>
@@ -672,9 +660,9 @@ if (!car) {
                 <dt className="text-neutral-500">Exterior</dt>
                 <dd>{car.exterior || "N/A"}</dd>
               </div>
-              <div className="col-span-2">
+              <div className="col-span-2 sm:col-span-4">
                 <dt className="text-neutral-500">VIN</dt>
-                <dd className="font-mono text-[10px] uppercase">
+                <dd className="font-mono text-[10px] uppercase text-neutral-400">
                   {car.vin || "N/A"}
                 </dd>
               </div>
@@ -1121,15 +1109,16 @@ if (!car) {
         </div>
 
         <section className="space-y-4">
-          <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
-            <p className="mb-3 text-sm font-semibold text-neutral-100">
-              Basic information
-            </p>
+          <div className="rounded-lg border border-neutral-800 bg-neutral-900/60 p-4 text-[11px] sm:p-5">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold text-neutral-100">
+                Vehicle details
+              </p>
+              <span className="text-[10px] uppercase tracking-[0.14em] text-neutral-600">
+                Used vehicle
+              </span>
+            </div>
             <div className="grid gap-x-6 gap-y-2 sm:grid-cols-3">
-              <div>
-                <p className="text-neutral-500">Condition</p>
-                <p className="text-neutral-200">Used</p>
-              </div>
               <div>
                 <p className="text-neutral-500">Mileage</p>
                 <p className="text-neutral-200">
@@ -1170,75 +1159,79 @@ if (!car) {
               </div>
             </div>
 
-            <div className="mt-4 border-t border-neutral-800 pt-3">
-              <p className="mb-2 text-[11px] font-semibold text-neutral-200">
-                VIN decoded details
-              </p>
-              {vinLoading && (
-                <p className="text-neutral-400">Decoding VIN…</p>
-              )}
-              {vinError && (
-                <p className="text-[11px] text-red-400">{vinError}</p>
-              )}
-              {!vinLoading && !vinError && vinInfo && (
-                <div className="grid gap-x-6 gap-y-1 text-[11px] text-neutral-300 sm:grid-cols-3">
-                  {vinInfo.trim && (
-                    <div>
-                      <p className="text-neutral-500">Trim</p>
-                      <p>{vinInfo.trim}</p>
-                    </div>
-                  )}
-                  {vinInfo.make && (
-                    <div>
-                      <p className="text-neutral-500">Make</p>
-                      <p>{vinInfo.make}</p>
-                    </div>
-                  )}
-                  {vinInfo.model && (
-                    <div>
-                      <p className="text-neutral-500">Model</p>
-                      <p>{vinInfo.model}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-              {!vinLoading && !vinError && !vinInfo && (
-                <p className="text-neutral-500 text-[11px]">
-                  No extra VIN data available.
-                </p>
-              )}
-            </div>
+            <details className="mt-4 border-t border-neutral-800 pt-3">
+              <summary className="cursor-pointer select-none text-[11px] font-medium text-neutral-400 hover:text-neutral-200">
+                More VIN details
+              </summary>
+              <div className="mt-3">
+                {vinLoading && (
+                  <p className="text-neutral-400">Decoding VIN…</p>
+                )}
+                {vinError && (
+                  <p className="text-[11px] text-red-400">{vinError}</p>
+                )}
+                {!vinLoading && !vinError && vinInfo && (
+                  <div className="grid gap-x-6 gap-y-2 text-[11px] text-neutral-300 sm:grid-cols-3">
+                    {vinInfo.trim && (
+                      <div>
+                        <p className="text-neutral-500">Trim</p>
+                        <p>{vinInfo.trim}</p>
+                      </div>
+                    )}
+                    {vinInfo.make && (
+                      <div>
+                        <p className="text-neutral-500">Make</p>
+                        <p>{vinInfo.make}</p>
+                      </div>
+                    )}
+                    {vinInfo.model && (
+                      <div>
+                        <p className="text-neutral-500">Model</p>
+                        <p>{vinInfo.model}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {!vinLoading && !vinError && !vinInfo && (
+                  <p className="text-neutral-500 text-[11px]">
+                    No extra VIN data available.
+                  </p>
+                )}
+              </div>
+            </details>
           </div>
 
-          {car.description && (
-            <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
+            {car.description && (
+              <div className="rounded-lg border border-neutral-800 bg-neutral-900/60 p-4 text-[11px] sm:p-5">
+                <p className="mb-2 text-sm font-semibold text-neutral-100">
+                  Description
+                </p>
+                <p className="leading-relaxed text-neutral-300">
+                  {car.description}
+                </p>
+              </div>
+            )}
+
+            <div className="rounded-lg border border-neutral-800 bg-neutral-900/60 p-4 text-[11px] sm:p-5">
               <p className="mb-2 text-sm font-semibold text-neutral-100">
-                Description
+                Location
               </p>
               <p className="leading-relaxed text-neutral-300">
-                {car.description}
+                Available Hybrid R&amp;M Inc.
+                <br />
+                6726 Reseda Blvd Suite A7
+                <br />
+                Reseda, CA 91335
               </p>
+              <Link
+                href="https://maps.app.goo.gl/"
+                target="_blank"
+                className="mt-3 inline-flex text-[11px] text-emerald-400 underline-offset-2 hover:underline"
+              >
+                View directions
+              </Link>
             </div>
-          )}
-
-          <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
-            <p className="mb-2 text-sm font-semibold text-neutral-100">
-              Vehicle Location
-            </p>
-            <p className="text-neutral-300">
-              Available Hybrid R&amp;M Inc.
-              <br />
-              6726 Reseda Blvd Suite A7
-              <br />
-              Reseda, CA 91335
-            </p>
-            <Link
-              href="https://maps.app.goo.gl/"
-              target="_blank"
-              className="mt-3 inline-flex text-[11px] text-emerald-400 underline-offset-2 hover:underline"
-            >
-              View directions
-            </Link>
           </div>
 
           {suggestions.length > 0 && (
