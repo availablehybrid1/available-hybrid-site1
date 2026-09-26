@@ -374,6 +374,28 @@ function titleKeyboard() {
 }
 
 
+
+function mainMenuKeyboard() {
+  return {
+    keyboard: [
+      [
+        { text: "➕ Add Car" },
+        { text: "🚗 Inventory" },
+      ],
+      [
+        { text: "❌ Cancel" },
+        { text: "❓ Help" },
+      ],
+      [
+        { text: "🆔 My ID" },
+      ],
+    ],
+    resize_keyboard: true,
+    is_persistent: true,
+  };
+}
+
+
 function inventoryKeyboard(vehicle: StoredVehicle) {
   const isSold = String(vehicle.status || "").toLowerCase() === "sold";
 
@@ -607,7 +629,8 @@ async function handleCallback(query: TelegramCallbackQuery) {
         "<i>salvage title, $5999</i>",
         "",
         "You can send more changes after that. Type /done when finished.",
-      ].join("\n")
+      ].join("\n"),
+      mainMenuKeyboard()
     );
     return;
   }
@@ -749,7 +772,19 @@ async function handleMessage(message: TelegramMessage) {
   const chatId = message.chat?.id;
   if (!chatId) return;
 
-  const text = message.text?.trim() ?? "";
+  let text = message.text?.trim() ?? "";
+
+  const menuCommandMap: Record<string, string> = {
+    "➕ Add Car": "/addcar",
+    "🚗 Inventory": "/inventory",
+    "❌ Cancel": "/cancel",
+    "❓ Help": "/help",
+    "🆔 My ID": "/id",
+  };
+
+  if (menuCommandMap[text]) {
+    text = menuCommandMap[text];
+  }
 
 
   if (/^(hola|hello|hi|hey|buenas|buenos dias|buenos días|buenas tardes|buenas noches)$/i.test(text)) {
