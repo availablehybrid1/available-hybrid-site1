@@ -503,7 +503,7 @@ if (!car) {
             </Link>
 
             <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70">
-              <div className="relative flex h-[220px] w-full items-center justify-center bg-neutral-800 sm:h-[280px] lg:h-[320px]">
+              <div className="relative aspect-[16/9] w-full overflow-hidden bg-neutral-900">
                 {mainPhoto ? (
                   <>
                     <button
@@ -515,7 +515,7 @@ if (!car) {
   src={mainPhoto}
   alt={car.title}
   fill
-  className="object-contain transition-opacity duration-300"
+  className="object-cover object-center transition-transform duration-500 hover:scale-[1.01]"
 />
                      <div className="pointer-events-none absolute bottom-2 right-2 flex items-center gap-2">
   <span className="rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
