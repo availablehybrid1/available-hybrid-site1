@@ -76,11 +76,31 @@ async function decodeVin(vin: string) {
     if (!response.ok) return null;
     const data = await response.json();
     const result = data?.Results?.[0] ?? {};
+    const electrification = String(result.ElectrificationLevel || "").trim();
+    const primaryFuel = String(result.FuelTypePrimary || "").trim();
+    const fuel = /hybrid/i.test(electrification)
+      ? "Hybrid"
+      : primaryFuel;
+
+    const cylinders = String(result.EngineCylinders || "").trim();
+    const displacement = String(result.DisplacementL || "").trim();
+    const engine = [
+      cylinders ? `${cylinders} cyl` : "",
+      displacement ? `${displacement}L` : "",
+    ]
+      .filter(Boolean)
+      .join(" · ");
+
     return {
       make: String(result.Make || "").trim(),
       model: String(result.Model || "").trim(),
       year: String(result.ModelYear || "").trim(),
       transmission: String(result.TransmissionStyle || "").trim(),
+      fuel,
+      trim: String(result.Trim || "").trim(),
+      bodyClass: String(result.BodyClass || "").trim(),
+      driveType: String(result.DriveType || "").trim(),
+      engine,
     };
   } catch {
     return null;
@@ -139,6 +159,32 @@ async function deleteSessionPhotos(sessionId: string) {
   }
 }
 
+function buildAutomaticDescription(draft: BotDraft) {
+  const vehicleName = [draft.year, draft.make, draft.model, draft.trim]
+    .filter(Boolean)
+    .join(" ");
+
+  const details = [
+    draft.titleStatus,
+    draft.mileage
+      ? `${Number(draft.mileage).toLocaleString()} miles`
+      : "",
+    draft.fuel,
+    draft.transmission,
+    draft.exterior ? `${draft.exterior} exterior` : "",
+    draft.driveType,
+    draft.engine,
+  ].filter(Boolean);
+
+  const sentences = [
+    vehicleName ? `${vehicleName} available at Available Hybrid R&M Inc.` : "",
+    details.length ? `${details.join(" · ")}.` : "",
+    draft.notes?.trim() || "",
+  ].filter(Boolean);
+
+  return sentences.join(" ");
+}
+
 function titleKeyboard() {
   return {
     inline_keyboard: [
@@ -178,12 +224,12 @@ async function handleCallback(query: TelegramCallbackQuery) {
 
   if (query.data?.startsWith("title:")) {
     draft.titleStatus = query.data.slice("title:".length);
-    draft.step = "description";
+    draft.step = "exterior";
     await saveDraft(chatId, draft);
 
     await sendTelegramMessage(
       chatId,
-      `Title: <b>${escapeHtml(draft.titleStatus)}</b>\n\nSend the vehicle description, or type /skip.`
+      `Title: <b>${escapeHtml(draft.titleStatus)}</b>\n\nSend the <b>exterior color</b>.`
     );
     return;
   }
@@ -215,10 +261,8 @@ async function handleCallback(query: TelegramCallbackQuery) {
       : Date.now().toString().slice(-6);
     const id = `${baseId || "vehicle"}-${suffix}`;
 
-    const descriptionParts = [
-      draft.description?.trim() || "",
-      draft.titleStatus ? `Title: ${draft.titleStatus}` : "",
-    ].filter(Boolean);
+    const automaticDescription = buildAutomaticDescription(draft);
+    draft.description = automaticDescription;
 
     const vehicle: StoredVehicle = {
       id,
@@ -227,12 +271,17 @@ async function handleCallback(query: TelegramCallbackQuery) {
       model: draft.model || "",
       mileage: draft.mileage || "",
       price: draft.price || "",
-      exterior: "",
+      exterior: draft.exterior || "",
       transmission: draft.transmission || "",
-      fuel: "",
+      fuel: draft.fuel || "",
       vin: draft.vin || "",
-      status: "available",
-      description: descriptionParts.join("\n"),
+      status: "Available",
+      description: automaticDescription,
+      titleStatus: draft.titleStatus || "",
+      trim: draft.trim || "",
+      bodyClass: draft.bodyClass || "",
+      driveType: draft.driveType || "",
+      engine: draft.engine || "",
     };
 
     photos.forEach((url, index) => {
@@ -252,6 +301,13 @@ async function handleCallback(query: TelegramCallbackQuery) {
         )}`,
         `$${Number(vehicle.price || 0).toLocaleString()}`,
         `${Number(vehicle.mileage || 0).toLocaleString()} miles`,
+        vehicle.fuel ? `Fuel: ${escapeHtml(vehicle.fuel)}` : "",
+        vehicle.transmission
+          ? `Transmission: ${escapeHtml(vehicle.transmission)}`
+          : "",
+        vehicle.exterior
+          ? `Exterior: ${escapeHtml(vehicle.exterior)}`
+          : "",
         `${photos.length} photos`,
       ].join("\n")
     );
@@ -333,6 +389,11 @@ async function handleMessage(message: TelegramMessage) {
       draft.make = decoded.make;
       draft.model = decoded.model;
       draft.transmission = decoded.transmission;
+      draft.fuel = decoded.fuel;
+      draft.trim = decoded.trim;
+      draft.bodyClass = decoded.bodyClass;
+      draft.driveType = decoded.driveType;
+      draft.engine = decoded.engine;
     }
     draft.step = "mileage";
     await saveDraft(chatId, draft);
@@ -382,14 +443,42 @@ async function handleMessage(message: TelegramMessage) {
     return;
   }
 
-  if (draft.step === "description") {
-    draft.description = text === "/skip" ? "" : text;
+  if (draft.step === "exterior") {
+    if (!text) {
+      await sendTelegramMessage(chatId, "Send the exterior color.");
+      return;
+    }
+
+    draft.exterior = text;
+    draft.step = "notes";
+    await saveDraft(chatId, draft);
+
+    await sendTelegramMessage(
+      chatId,
+      [
+        "Exterior color saved.",
+        "",
+        "Send any extra notes you want included in the description",
+        "(for example: new hybrid battery, new brakes, two owners),",
+        "or type /skip.",
+      ].join("\n")
+    );
+    return;
+  }
+
+  if (draft.step === "notes") {
+    draft.notes = text === "/skip" ? "" : text;
+    draft.description = buildAutomaticDescription(draft);
     draft.step = "photos";
     await saveDraft(chatId, draft);
 
     await sendTelegramMessage(
       chatId,
       [
+        "Automatic description created:",
+        "",
+        `<i>${escapeHtml(draft.description)}</i>`,
+        "",
         "Now send the vehicle photos.",
         "You can send multiple photos.",
         "",
@@ -431,7 +520,16 @@ async function handleMessage(message: TelegramMessage) {
         `Mileage: ${Number(draft.mileage || 0).toLocaleString()}`,
         `Price: $${Number(draft.price || 0).toLocaleString()}`,
         `Title: ${escapeHtml(draft.titleStatus || "")}`,
+        draft.fuel ? `Fuel: ${escapeHtml(draft.fuel)}` : "",
+        draft.transmission
+          ? `Transmission: ${escapeHtml(draft.transmission)}`
+          : "",
+        draft.exterior ? `Exterior: ${escapeHtml(draft.exterior)}` : "",
         `Photos: ${photos.length}`,
+        "",
+        `Description: ${escapeHtml(
+          draft.description || buildAutomaticDescription(draft)
+        )}`,
       ].join("\n");
 
       await sendTelegramMessage(chatId, summary, publishKeyboard());
