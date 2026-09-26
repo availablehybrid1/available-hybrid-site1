@@ -148,7 +148,10 @@ async function listSessionPhotos(sessionId: string) {
     limit: 100,
   });
   return result.blobs
-    .sort((a, b) => a.uploadedAt.getTime() - b.uploadedAt.getTime())
+    .sort(
+      (a, b) =>
+        new Date(a.uploadedAt).getTime() - new Date(b.uploadedAt).getTime()
+    )
     .map((b) => b.url);
 }
 
@@ -265,6 +268,37 @@ function parseVehicleText(text: string) {
   };
 }
 
+
+function extractFreeformNotes(text: string) {
+  let notes = text;
+
+  notes = notes.replace(/\b[A-HJ-NPR-Z0-9]{17}\b/gi, " ");
+  notes = notes.replace(
+    /(?:mileage|miles|mi|millas|millaje)\s*[:=-]?\s*[\d,.]+\s*k?/gi,
+    " "
+  );
+  notes = notes.replace(/[\d,.]+\s*k?\s*(?:miles|mi|millas)\b/gi, " ");
+  notes = notes.replace(/\$\s*[\d,.]+\s*k?/gi, " ");
+  notes = notes.replace(
+    /(?:price|precio)\s*[:=-]?\s*\$?\s*[\d,.]+\s*k?/gi,
+    " "
+  );
+  notes = notes.replace(
+    /\b(clean title|titulo limpio|título limpio|salvage(?: title)?|salvamento|rebuilt(?: title)?|rebuild|reconstruido|reconstruida)\b/gi,
+    " "
+  );
+  notes = notes.replace(
+    /\b(white|blanco|blanca|black|negro|negra|silver|plateado|plateada|gray|grey|gris|red|rojo|roja|blue|azul|green|verde|beige|tan|crema|brown|marron|marrón|cafe|café|gold|dorado|dorada)\b/gi,
+    " "
+  );
+  notes = notes.replace(/\b(vin|color|exterior|title|titulo|título)\b\s*[:=-]?/gi, " ");
+  notes = notes.replace(/[|;,]+/g, " ");
+  notes = notes.replace(/\s+/g, " ").trim();
+
+  return notes.length >= 4 ? notes : "";
+}
+
+
 async function enrichDraftFromText(draft: BotDraft, text: string) {
   const parsed = parseVehicleText(text);
 
@@ -289,16 +323,13 @@ async function enrichDraftFromText(draft: BotDraft, text: string) {
   if (parsed.titleStatus) draft.titleStatus = parsed.titleStatus;
   if (parsed.exterior) draft.exterior = parsed.exterior;
 
-  const recognized = [
-    draft.vin,
-    draft.mileage,
-    draft.price,
-    draft.titleStatus,
-    draft.exterior,
-  ].filter(Boolean);
+  const explicitNotes = text.match(
+    /(?:notes?|notas?|description|descripcion|descripción)\s*[:=-]\s*(.+)$/i
+  );
+  const freeformNotes = explicitNotes?.[1]?.trim() || extractFreeformNotes(text);
 
-  if (text && recognized.length) {
-    draft.notes = text;
+  if (freeformNotes) {
+    draft.notes = freeformNotes;
   }
 
   return draft;
