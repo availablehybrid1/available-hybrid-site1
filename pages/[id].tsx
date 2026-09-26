@@ -492,8 +492,8 @@ if (!car) {
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl px-4 pb-12 pt-4 space-y-6">
-        <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="mx-auto max-w-7xl space-y-8 px-4 pb-14 pt-5">
+        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
           <section className="min-w-0">
             <Link
               href="/inventory"
@@ -555,20 +555,20 @@ if (!car) {
 
 </section>
 
-          <section className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-xs lg:sticky lg:top-4 sm:p-5">
+          <section className="rounded-2xl border border-white/10 bg-neutral-900/70 p-5 text-xs shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur lg:sticky lg:top-5 sm:p-6">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-[10px] uppercase tracking-[0.18em] text-neutral-500">
+                <p className="text-[10px] uppercase tracking-[0.22em] text-neutral-500">
                   Available Hybrid R&amp;M
                 </p>
-                <h1 className="mt-1 text-lg font-semibold uppercase text-neutral-50 sm:text-xl">
+                <h1 className="mt-2 text-2xl font-semibold uppercase leading-tight text-neutral-50">
                   {car.make} {car.model} {car.year}
                 </h1>
               </div>
               {car.price != null && (
                 <div className="text-right">
                   <p className="text-[11px] text-neutral-500">Our Price</p>
-                  <p className="text-xl font-semibold text-emerald-400 sm:text-2xl">
+                  <p className="text-2xl font-semibold tracking-tight text-emerald-400 sm:text-3xl">
                     ${car.price.toLocaleString()}
                   </p>
                   {estimatedFees > 0 && (
@@ -581,41 +581,42 @@ if (!car) {
             </div>
 
             {car.status && (
-              <span className="mt-3 inline-flex items-center rounded-full bg-emerald-600/15 px-2 py-[2px] text-[10px] font-medium text-emerald-400">
+              <span className="mt-4 inline-flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-emerald-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                 {car.status}
               </span>
             )}
 
-            <dl className="mt-4 grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-4">
-              <div>
-                <dt className="text-neutral-500">Mileage</dt>
+            <dl className="mt-5 grid grid-cols-2 border-y border-neutral-800/80 text-[11px]">
+              <div className="border-b border-r border-neutral-800/80 py-3 pr-3">
+                <dt className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Mileage</dt>
                 <dd>
                   {car.mileage != null
                     ? `${car.mileage.toLocaleString()} mi`
                     : "N/A"}
                 </dd>
               </div>
-              <div>
-                <dt className="text-neutral-500">Fuel</dt>
+              <div className="border-b border-neutral-800/80 py-3 pl-3">
+                <dt className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Fuel</dt>
                 <dd>{car.fuel || "N/A"}</dd>
               </div>
-              <div>
-                <dt className="text-neutral-500">Transmission</dt>
+              <div className="border-r border-neutral-800/80 py-3 pr-3">
+                <dt className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Transmission</dt>
                 <dd>{car.transmission || "N/A"}</dd>
               </div>
-              <div>
-                <dt className="text-neutral-500">Exterior</dt>
+              <div className="py-3 pl-3">
+                <dt className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Exterior</dt>
                 <dd>{car.exterior || "N/A"}</dd>
               </div>
-              <div className="col-span-2 sm:col-span-4">
-                <dt className="text-neutral-500">VIN</dt>
-                <dd className="font-mono text-[10px] uppercase text-neutral-400">
+              <div className="col-span-2 border-t border-neutral-800/80 py-3">
+                <dt className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">VIN</dt>
+                <dd className="mt-1 font-mono text-[10px] uppercase tracking-[0.08em] text-neutral-400">
                   {car.vin || "N/A"}
                 </dd>
               </div>
             </dl>
 
-            <div className="mt-5 grid grid-cols-1 gap-2 text-[11px] sm:grid-cols-2 lg:grid-cols-1">
+            <div className="mt-5 grid grid-cols-1 gap-2 text-[11px]">
               {[
                 { id: "availability", label: "Confirm Availability" },
                 { id: "estimate", label: "Estimated Payment" },
@@ -636,10 +637,12 @@ if (!car) {
                             | "testdrive")
                     )
                   }
-                  className={`min-h-[42px] rounded border px-3 py-2 text-center font-semibold transition ${
+                  className={`min-h-[44px] rounded-lg border px-3 py-2.5 text-center font-semibold transition ${
                     activePanel === tab.id
                       ? "border-white bg-white text-black"
-                      : "border-neutral-700 bg-neutral-950 text-neutral-100 hover:border-neutral-400 hover:bg-neutral-900"
+                      : tab.id === "availability"
+                      ? "border-neutral-200 bg-neutral-100 text-black hover:bg-white"
+                      : "border-neutral-700 bg-black/25 text-neutral-100 hover:border-neutral-500 hover:bg-neutral-900"
                   }`}
                 >
                   {tab.label}
@@ -1056,7 +1059,7 @@ if (!car) {
         </div>
 
         <section className="space-y-4">
-          <div className="rounded-lg border border-neutral-800 bg-neutral-900/70 p-4 text-[11px] sm:p-5">
+          <div className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] shadow-[0_14px_40px_rgba(0,0,0,0.18)] sm:p-6">
             <div className="mb-4 flex items-center justify-between gap-3">
               <p className="text-sm font-semibold text-neutral-100">
                 Vehicle details
@@ -1150,7 +1153,7 @@ if (!car) {
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
             {car.description && (
-              <div className="rounded-lg border border-neutral-800 bg-neutral-900/70 p-4 text-[11px] sm:p-5">
+              <div className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] sm:p-6">
                 <p className="mb-2 text-sm font-semibold text-neutral-100">
                   Description
                 </p>
@@ -1160,7 +1163,7 @@ if (!car) {
               </div>
             )}
 
-            <div className="rounded-lg border border-neutral-800 bg-neutral-900/70 p-4 text-[11px] sm:p-5">
+            <div className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] sm:p-6">
               <p className="mb-2 text-sm font-semibold text-neutral-100">
                 Location
               </p>
@@ -1182,7 +1185,7 @@ if (!car) {
           </div>
 
           {suggestions.length > 0 && (
-            <div className="rounded-lg border border-neutral-800 bg-neutral-900/70 p-4 text-[11px] sm:p-5">
+            <div className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] sm:p-6">
               <p className="mb-3 text-sm font-semibold text-neutral-100">
                 You may also like
               </p>
@@ -1193,7 +1196,7 @@ if (!car) {
                     <Link
                       key={s.id}
                       href={`/${encodeURIComponent(s.id)}`}
-                      className="group rounded-md border border-neutral-800 bg-neutral-950/70 p-2 hover:border-neutral-400"
+                      className="group overflow-hidden rounded-xl border border-white/10 bg-black/30 p-2 transition hover:-translate-y-0.5 hover:border-neutral-500"
                     >
                       <div className="h-24 w-full overflow-hidden rounded bg-neutral-900">
                         <img
