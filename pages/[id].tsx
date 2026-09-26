@@ -502,109 +502,95 @@ if (!car) {
               ← Back to inventory
             </Link>
 
-            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_250px]">
-              <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70">
-                <div className="relative h-[280px] w-full bg-black sm:h-[360px] lg:h-[420px]">
-                  {mainPhoto ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => setIsLightboxOpen(true)}
-                        className="group flex h-full w-full items-center justify-center"
-                      >
-                        <Image
-                          src={mainPhoto}
-                          alt={car.title}
-                          fill
-                          sizes="(max-width: 1024px) 100vw, 760px"
-                          className="object-contain object-center transition-transform duration-500 group-hover:scale-[1.01]"
-                        />
-                        <div className="pointer-events-none absolute bottom-2 right-2 flex items-center gap-2">
-                          <span className="rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
-                            {current + 1} / {car.photos.length}
-                          </span>
-                          <span className="rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
-                            Click to enlarge
-                          </span>
-                        </div>
-                      </button>
+            <div className="overflow-hidden rounded-xl border border-neutral-800 bg-black">
+              <div className="relative h-[300px] w-full sm:h-[420px] lg:h-[500px]">
+                {mainPhoto ? (
+                  <>
+                    <Image
+                      src={mainPhoto}
+                      alt=""
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 1100px"
+                      className="scale-110 object-cover object-center opacity-25 blur-2xl"
+                      aria-hidden="true"
+                    />
+                    <div className="absolute inset-0 bg-black/25" />
 
-                      {hasMultiplePhotos && (
+                    <button
+                      type="button"
+                      onClick={() => setIsLightboxOpen(true)}
+                      className="group absolute inset-0 flex items-center justify-center"
+                    >
+                      <Image
+                        src={mainPhoto}
+                        alt={car.title}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 1100px"
+                        className="object-contain object-center p-2 sm:p-4"
+                      />
+                      <div className="pointer-events-none absolute bottom-3 right-3 flex items-center gap-2">
+                        <span className="rounded-full bg-black/70 px-2.5 py-1 text-[10px] text-neutral-100 backdrop-blur">
+                          {current + 1} / {car.photos.length}
+                        </span>
+                        <span className="hidden rounded-full bg-black/70 px-2.5 py-1 text-[10px] text-neutral-100 backdrop-blur sm:inline">
+                          View full size
+                        </span>
+                      </div>
+                    </button>
+
+                    {hasMultiplePhotos && (
+                      <>
                         <button
                           type="button"
                           onClick={goPrev}
-                          className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
+                          className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-lg text-white backdrop-blur transition hover:bg-black/80"
+                          aria-label="Previous photo"
                         >
                           ‹
                         </button>
-                      )}
-                      {hasMultiplePhotos && (
                         <button
                           type="button"
                           onClick={goNext}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
+                          className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-lg text-white backdrop-blur transition hover:bg-black/80"
+                          aria-label="Next photo"
                         >
                           ›
                         </button>
-                      )}
-                    </>
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
-                      Photo coming soon
-                    </div>
-                  )}
-                </div>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
+                    Photo coming soon
+                  </div>
+                )}
               </div>
+            </div>
 
-              <div className="hidden max-h-[420px] grid-cols-2 gap-2 overflow-y-auto lg:grid">
-                {car.photos.slice(0, 8).map((photo, i) => (
+            {car.photos.length > 1 && (
+              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                {car.photos.map((photo, i) => (
                   <button
                     key={i}
                     onClick={() => setCurrent(i)}
-                    className={`relative aspect-[4/3] overflow-hidden rounded-md border ${
+                    className={`relative h-16 w-24 flex-shrink-0 overflow-hidden rounded-md border transition sm:h-20 sm:w-28 ${
                       current === i
-                        ? "border-white"
-                        : "border-neutral-800 opacity-75 hover:opacity-100"
+                        ? "border-white opacity-100"
+                        : "border-neutral-800 opacity-60 hover:opacity-100"
                     }`}
+                    aria-label={`View photo ${i + 1}`}
                   >
                     <Image
                       src={photo}
-                      alt={`thumb-${i}`}
+                      alt={`Vehicle photo ${i + 1}`}
                       fill
-                      sizes="95px"
+                      sizes="112px"
                       className="object-cover"
                     />
-                    {i === 7 && car.photos.length > 8 && (
-                      <span className="absolute inset-0 flex items-center justify-center bg-black/65 text-xs font-semibold text-white">
-                        +{car.photos.length - 8}
-                      </span>
-                    )}
                   </button>
                 ))}
               </div>
-            </div>
-
-            <div className="mt-3 flex gap-2 overflow-x-auto lg:hidden">
-              {car.photos.map((photo, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrent(i)}
-                  className={`relative h-16 w-24 flex-shrink-0 overflow-hidden rounded border ${
-                    current === i
-                      ? "border-white scale-105"
-                      : "border-neutral-700 opacity-70 hover:opacity-100"
-                  }`}
-                >
-                  <Image
-                    src={photo}
-                    alt={`thumb-${i}`}
-                    fill
-                    sizes="96px"
-                    className="object-cover"
-                  />
-                </button>
-              ))}
-            </div>
+            )}
 
 </section>
 
