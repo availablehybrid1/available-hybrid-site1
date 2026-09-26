@@ -185,6 +185,145 @@ function buildAutomaticDescription(draft: BotDraft) {
   return sentences.join(" ");
 }
 
+
+function normalizeColor(text: string) {
+  const colors: Array<[RegExp, string]> = [
+    [/\b(white|blanco|blanca)\b/i, "White"],
+    [/\b(black|negro|negra)\b/i, "Black"],
+    [/\b(silver|plateado|plateada)\b/i, "Silver"],
+    [/\b(gray|grey|gris)\b/i, "Gray"],
+    [/\b(red|rojo|roja)\b/i, "Red"],
+    [/\b(blue|azul)\b/i, "Blue"],
+    [/\b(green|verde)\b/i, "Green"],
+    [/\b(beige|tan|crema)\b/i, "Beige"],
+    [/\b(brown|marron|marrón|cafe|café)\b/i, "Brown"],
+    [/\b(gold|dorado|dorada)\b/i, "Gold"],
+  ];
+
+  for (const [pattern, color] of colors) {
+    if (pattern.test(text)) return color;
+  }
+  return "";
+}
+
+function parseCompactNumber(raw: string) {
+  const cleaned = raw.toLowerCase().replace(/[$,\s]/g, "");
+  const match = cleaned.match(/^(\d+(?:\.\d+)?)(k)?$/);
+  if (!match) return "";
+  const value = Number(match[1]);
+  if (!Number.isFinite(value)) return "";
+  return String(Math.round(match[2] ? value * 1000 : value));
+}
+
+function parseVehicleText(text: string) {
+  const vinMatch = text.toUpperCase().match(/\b[A-HJ-NPR-Z0-9]{17}\b/);
+
+  let mileage = "";
+  const mileagePatterns = [
+    /(?:mileage|miles|mi|millas|millaje)\s*[:=-]?\s*([\d,.]+\s*k?)/i,
+    /([\d,.]+\s*k?)\s*(?:miles|mi|millas)\b/i,
+  ];
+  for (const pattern of mileagePatterns) {
+    const match = text.match(pattern);
+    if (match?.[1]) {
+      mileage = parseCompactNumber(match[1]);
+      if (mileage) break;
+    }
+  }
+
+  let price = "";
+  const pricePatterns = [
+    /\$\s*([\d,.]+\s*k?)/i,
+    /(?:price|precio)\s*[:=-]?\s*\$?\s*([\d,.]+\s*k?)/i,
+  ];
+  for (const pattern of pricePatterns) {
+    const match = text.match(pattern);
+    if (match?.[1]) {
+      price = parseCompactNumber(match[1]);
+      if (price) break;
+    }
+  }
+
+  let titleStatus = "";
+  if (/\b(clean title|titulo limpio|título limpio|clean)\b/i.test(text)) {
+    titleStatus = "Clean Title";
+  } else if (/\b(salvage|salvamento)\b/i.test(text)) {
+    titleStatus = "Salvage Title";
+  } else if (/\b(rebuilt|rebuild|reconstruido|reconstruida)\b/i.test(text)) {
+    titleStatus = "Rebuilt Title";
+  }
+
+  return {
+    vin: vinMatch?.[0] || "",
+    mileage,
+    price,
+    titleStatus,
+    exterior: normalizeColor(text),
+  };
+}
+
+async function enrichDraftFromText(draft: BotDraft, text: string) {
+  const parsed = parseVehicleText(text);
+
+  if (parsed.vin) {
+    draft.vin = parsed.vin;
+    const decoded = await decodeVin(parsed.vin);
+    if (decoded) {
+      draft.year = decoded.year;
+      draft.make = decoded.make;
+      draft.model = decoded.model;
+      draft.transmission = decoded.transmission;
+      draft.fuel = decoded.fuel;
+      draft.trim = decoded.trim;
+      draft.bodyClass = decoded.bodyClass;
+      draft.driveType = decoded.driveType;
+      draft.engine = decoded.engine;
+    }
+  }
+
+  if (parsed.mileage) draft.mileage = parsed.mileage;
+  if (parsed.price) draft.price = parsed.price;
+  if (parsed.titleStatus) draft.titleStatus = parsed.titleStatus;
+  if (parsed.exterior) draft.exterior = parsed.exterior;
+
+  const recognized = [
+    draft.vin,
+    draft.mileage,
+    draft.price,
+    draft.titleStatus,
+    draft.exterior,
+  ].filter(Boolean);
+
+  if (text && recognized.length) {
+    draft.notes = text;
+  }
+
+  return draft;
+}
+
+function missingVehicleFields(draft: BotDraft) {
+  const missing: string[] = [];
+  if (!draft.vin) missing.push("VIN");
+  if (!draft.mileage) missing.push("mileage");
+  if (!draft.price) missing.push("price");
+  if (!draft.titleStatus) missing.push("title status");
+  return missing;
+}
+
+function draftSummary(draft: BotDraft) {
+  return [
+    [draft.year, draft.make, draft.model, draft.trim].filter(Boolean).join(" "),
+    draft.vin ? `VIN: ${draft.vin}` : "",
+    draft.mileage ? `Mileage: ${Number(draft.mileage).toLocaleString()}` : "",
+    draft.price ? `Price: ${Number(draft.price).toLocaleString()}` : "",
+    draft.titleStatus ? `Title: ${draft.titleStatus}` : "",
+    draft.exterior ? `Exterior: ${draft.exterior}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+
 function titleKeyboard() {
   return {
     inline_keyboard: [
@@ -349,12 +488,22 @@ async function handleMessage(message: TelegramMessage) {
 
     const draft: BotDraft = {
       sessionId: `${chatId}-${Date.now()}`,
-      step: "vin",
+      step: "details",
       photos: [],
     };
     await saveDraft(chatId, draft);
 
-    await sendTelegramMessage(chatId, "Send the <b>VIN</b> of the vehicle.");
+    await sendTelegramMessage(
+      chatId,
+      [
+        "Send me <b>all the vehicle information in one message</b>.",
+        "",
+        "Example:",
+        "<i>VIN 1HGCM82633A123456, 185k miles, $5999, clean title, white, new brakes and hybrid battery replaced.</i>",
+        "",
+        "I will organize it automatically and only ask for anything important that is missing.",
+      ].join("\n")
+    );
     return;
   }
 
@@ -371,6 +520,58 @@ async function handleMessage(message: TelegramMessage) {
     await sendTelegramMessage(chatId, "Use /addcar to add a vehicle.");
     return;
   }
+
+
+  if (draft.step === "details") {
+    if (!text) {
+      await sendTelegramMessage(
+        chatId,
+        "Send the vehicle details in one message."
+      );
+      return;
+    }
+
+    await enrichDraftFromText(draft, text);
+    const missing = missingVehicleFields(draft);
+
+    if (missing.length) {
+      await saveDraft(chatId, draft);
+      await sendTelegramMessage(
+        chatId,
+        [
+          "I understood this so far:",
+          "",
+          `<b>${escapeHtml(draftSummary(draft) || "No structured data yet")}</b>`,
+          "",
+          `Still missing: <b>${escapeHtml(missing.join(", "))}</b>`,
+          "",
+          "Send only the missing information, or send everything again in one message.",
+        ].join("\n")
+      );
+      return;
+    }
+
+    draft.description = buildAutomaticDescription(draft);
+    draft.step = "photos";
+    await saveDraft(chatId, draft);
+
+    await sendTelegramMessage(
+      chatId,
+      [
+        "✅ I organized the vehicle information:",
+        "",
+        `<b>${escapeHtml(draftSummary(draft))}</b>`,
+        "",
+        "Automatic description:",
+        `<i>${escapeHtml(draft.description)}</i>`,
+        "",
+        "Now send the vehicle photos.",
+        "When finished, type /done.",
+      ].join("\n")
+    );
+    return;
+  }
+
 
   if (draft.step === "vin") {
     const vin = text.toUpperCase().replace(/[^A-Z0-9]/g, "");
