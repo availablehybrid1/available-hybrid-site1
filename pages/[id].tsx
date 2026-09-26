@@ -41,6 +41,7 @@ type Vehicle = {
   exterior: string;
   vin: string;
   status: string;
+  titleStatus: string;
   description: string;
   photos: string[];
 };
@@ -641,30 +642,22 @@ if (!car) {
             )}
 
             <dl className="mt-5 grid grid-cols-2 border-y border-neutral-800/80 text-[11px]">
-              <div className="border-b border-r border-neutral-800/80 py-3 pr-3">
-                <dt className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Mileage</dt>
-                <dd>
+              <div className="border-r border-neutral-800/80 py-3 pr-3">
+                <dt className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">
+                  Mileage
+                </dt>
+                <dd className="mt-1 text-neutral-100">
                   {car.mileage != null
                     ? `${car.mileage.toLocaleString()} mi`
                     : "N/A"}
                 </dd>
               </div>
-              <div className="border-b border-neutral-800/80 py-3 pl-3">
-                <dt className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Fuel</dt>
-                <dd>{car.fuel || "N/A"}</dd>
-              </div>
-              <div className="border-r border-neutral-800/80 py-3 pr-3">
-                <dt className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Transmission</dt>
-                <dd>{car.transmission || "N/A"}</dd>
-              </div>
               <div className="py-3 pl-3">
-                <dt className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Exterior</dt>
-                <dd>{car.exterior || "N/A"}</dd>
-              </div>
-              <div className="col-span-2 border-t border-neutral-800/80 py-3">
-                <dt className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">VIN</dt>
-                <dd className="mt-1 font-mono text-[10px] uppercase tracking-[0.08em] text-neutral-400">
-                  {car.vin || "N/A"}
+                <dt className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">
+                  Title
+                </dt>
+                <dd className="mt-1 text-neutral-100">
+                  {car.titleStatus || "N/A"}
                 </dd>
               </div>
             </dl>
@@ -1121,13 +1114,19 @@ if (!car) {
                 Used vehicle
               </span>
             </div>
-            <div className="grid gap-x-6 gap-y-2 sm:grid-cols-3">
+            <div className="grid gap-x-6 gap-y-3 sm:grid-cols-3">
               <div>
-                <p className="text-neutral-500">Mileage</p>
+                <p className="text-neutral-500">Fuel</p>
+                <p className="text-neutral-200">{car.fuel || "N/A"}</p>
+              </div>
+              <div>
+                <p className="text-neutral-500">Exterior</p>
+                <p className="text-neutral-200">{car.exterior || "N/A"}</p>
+              </div>
+              <div>
+                <p className="text-neutral-500">Transmission</p>
                 <p className="text-neutral-200">
-                  {car.mileage != null
-                    ? `${car.mileage.toLocaleString()} mi`
-                    : "N/A"}
+                  {vinInfo?.transmission || car.transmission || "N/A"}
                 </p>
               </div>
               <div>
@@ -1149,15 +1148,15 @@ if (!car) {
                 </p>
               </div>
               <div>
-                <p className="text-neutral-500">Transmission</p>
-                <p className="text-neutral-200">
-                  {vinInfo?.transmission || car.transmission || "N/A"}
-                </p>
-              </div>
-              <div>
                 <p className="text-neutral-500">Drivetrain</p>
                 <p className="text-neutral-200">
                   {vinInfo?.driveType || "N/A"}
+                </p>
+              </div>
+              <div className="sm:col-span-3">
+                <p className="text-neutral-500">VIN</p>
+                <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-neutral-300">
+                  {car.vin || "N/A"}
                 </p>
               </div>
             </div>
@@ -1475,6 +1474,10 @@ export const getStaticProps: GetStaticProps<DetailProps> = async (ctx) => {
       exterior: c.exterior ?? "",
       vin: c.vin ?? "",
       status: (c as any).status ?? "",
+      titleStatus:
+        (c as any).titleStatus ??
+        (c as any).title_status ??
+        ((c as any).description?.match(/\b(Clean Title|Salvage Title|Rebuilt Title)\b/i)?.[1] || ""),
       description: (c as any).description ?? "",
       photos,
     };
