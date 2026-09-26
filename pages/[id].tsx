@@ -65,6 +65,9 @@ type DetailProps = {
 export default function VehicleDetail({ car, suggestions }: DetailProps) {
   const [current, setCurrent] = React.useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false);
+  const [photoOrientation, setPhotoOrientation] = React.useState<
+    "portrait" | "landscape" | "square"
+  >("landscape");
 
   // zoom dentro del modal
   const [isZoomed, setIsZoomed] = React.useState(false);
@@ -503,7 +506,15 @@ if (!car) {
             </Link>
 
             <div className="overflow-hidden rounded-lg border border-neutral-800 bg-black">
-              <div className="relative aspect-[4/3] w-full">
+              <div
+                className={
+                  photoOrientation === "portrait"
+                    ? "relative mx-auto aspect-[3/4] w-full max-w-[520px]"
+                    : photoOrientation === "square"
+                    ? "relative mx-auto aspect-square w-full max-w-[700px]"
+                    : "relative aspect-[4/3] w-full"
+                }
+              >
                 {mainPhoto ? (
                   <>
                     <button
@@ -517,6 +528,16 @@ if (!car) {
                         fill
                         sizes="(max-width: 1024px) 100vw, 800px"
                         className="object-contain object-center"
+                        onLoadingComplete={(img) => {
+                          const ratio = img.naturalWidth / img.naturalHeight;
+                          setPhotoOrientation(
+                            ratio > 1.08
+                              ? "landscape"
+                              : ratio < 0.92
+                              ? "portrait"
+                              : "square"
+                          );
+                        }}
                       />
                       <div className="pointer-events-none absolute bottom-3 right-3 flex items-center gap-2">
                         <span className="rounded-full bg-black/70 px-2.5 py-1 text-[10px] text-neutral-100 backdrop-blur">
