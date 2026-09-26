@@ -652,7 +652,7 @@ export default function Inventory({ inventory }: InventoryProps) {
 
                     {/* Info principal */}
                     <div className="flex flex-1 flex-col px-4 pb-3 pt-3 text-xs">
-                      <h3 className="text-sm font-semibold text-neutral-50">
+                      <h3 className="text-sm font-semibold uppercase text-neutral-50">
                         {[car.make, car.model].filter(Boolean).join(" ") || car.title}
                       </h3>
 
