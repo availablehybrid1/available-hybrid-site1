@@ -70,6 +70,7 @@ export async function getInventory(): Promise<Car[]> {
 
   for (const car of blobCars) {
     if (!car?.id) continue;
+    if (String(car.status || "").toLowerCase() === "sold") continue;
 
     const photoUrls = Object.entries(car)
       .filter(
