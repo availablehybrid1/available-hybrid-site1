@@ -60,3 +60,20 @@ export async function getTelegramFileUrl(fileId: string): Promise<string> {
 
   return `https://api.telegram.org/file/bot${BOT_TOKEN}/${file.file_path}`;
 }
+
+
+export async function sendTelegramPhotoAlbum(
+  chatId: number | string,
+  photos: Array<{ url: string; caption?: string }>
+) {
+  if (!photos.length) return [];
+
+  return telegramApi("sendMediaGroup", {
+    chat_id: chatId,
+    media: photos.slice(0, 10).map((photo) => ({
+      type: "photo",
+      media: photo.url,
+      ...(photo.caption ? { caption: photo.caption } : {}),
+    })),
+  });
+}
