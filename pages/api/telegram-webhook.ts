@@ -543,12 +543,6 @@ async function handleCallback(query: TelegramCallbackQuery) {
   if (!chatId) return;
 
   await answerCallbackQuery(query.id);
-  const draft = await getDraft(chatId);
-  if (!draft) {
-    await sendTelegramMessage(chatId, "No active vehicle. Use /addcar.");
-    return;
-  }
-
 
   if (query.data?.startsWith("sold:")) {
     const id = query.data.slice("sold:".length);
@@ -652,6 +646,12 @@ async function handleCallback(query: TelegramCallbackQuery) {
     return;
   }
 
+
+  const draft = await getDraft(chatId);
+  if (!draft) {
+    await sendTelegramMessage(chatId, "No active vehicle. Use /addcar.");
+    return;
+  }
 
   if (query.data?.startsWith("title:")) {
     draft.titleStatus = query.data.slice("title:".length);
