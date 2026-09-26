@@ -614,6 +614,23 @@ function coverPhotoKeyboard(photoCount: number) {
 }
 
 
+
+function hoverPhotoKeyboard(photoCount: number) {
+  const buttons = Array.from({ length: Math.min(photoCount, 20) }, (_, index) => ({
+    text: `${index + 1}`,
+    callback_data: `hover:${index}`,
+  }));
+
+  const rows = [];
+  for (let i = 0; i < buttons.length; i += 5) {
+    rows.push(buttons.slice(i, i + 5));
+  }
+  rows.push([{ text: "No hover photo", callback_data: "hover:none" }]);
+
+  return { inline_keyboard: rows };
+}
+
+
 function publishKeyboard() {
   return {
     inline_keyboard: [
@@ -652,6 +669,63 @@ async function handleCallback(query: TelegramCallbackQuery) {
     }
 
     draft.coverPhotoIndex = selectedIndex;
+    draft.step = "hover";
+    await saveDraft(chatId, draft);
+
+    try {
+      await sendTelegramPhotoAlbum(
+        chatId,
+        photos.slice(0, 10).map((url, index) => ({
+          url,
+          caption: `Photo #${index + 1}`,
+        }))
+      );
+    } catch {
+      // Keep the numbered controls available even if preview fails.
+    }
+
+    await sendTelegramMessage(
+      chatId,
+      [
+        "Choose the <b>second photo</b> shown when the mouse passes over the card.",
+        "",
+        "Pick a clean photo, or choose No hover photo.",
+      ].join("\n"),
+      hoverPhotoKeyboard(photos.length)
+    );
+    return;
+
+  }
+
+
+
+  if (query.data?.startsWith("hover:")) {
+    const draft = await getDraft(chatId);
+    if (!draft) {
+      await sendTelegramMessage(chatId, "No active vehicle. Use /addcar.");
+      return;
+    }
+
+    const photos = await listSessionPhotos(draft.sessionId);
+    const selection = query.data.slice("hover:".length);
+
+    if (selection === "none") {
+      draft.disableHoverPhoto = true;
+      draft.hoverPhotoIndex = undefined;
+    } else {
+      const selectedIndex = Number(selection);
+      if (
+        !Number.isInteger(selectedIndex) ||
+        selectedIndex < 0 ||
+        selectedIndex >= photos.length
+      ) {
+        await sendTelegramMessage(chatId, "That hover photo is no longer available.");
+        return;
+      }
+      draft.disableHoverPhoto = false;
+      draft.hoverPhotoIndex = selectedIndex;
+    }
+
     draft.step = "confirm";
     await saveDraft(chatId, draft);
 
@@ -670,7 +744,10 @@ async function handleCallback(query: TelegramCallbackQuery) {
         ? `Transmission: ${escapeHtml(draft.transmission)}`
         : "",
       draft.exterior ? `Exterior: ${escapeHtml(draft.exterior)}` : "",
-      `Cover photo: #${selectedIndex + 1}`,
+      `Cover photo: #${(draft.coverPhotoIndex ?? 0) + 1}`,
+      draft.disableHoverPhoto
+        ? "Hover photo: disabled"
+        : `Hover photo: #${(draft.hoverPhotoIndex ?? 0) + 1}`,
       `Photos: ${photos.length}`,
       "",
       `Description: ${escapeHtml(
@@ -941,6 +1018,10 @@ async function handleCallback(query: TelegramCallbackQuery) {
       bodyClass: draft.bodyClass || "",
       driveType: draft.driveType || "",
       engine: draft.engine || "",
+      cardHoverPhoto:
+        draft.disableHoverPhoto
+          ? "none"
+          : photos[draft.hoverPhotoIndex ?? 1] || "none",
     };
 
     orderedPhotos.forEach((url, index) => {
@@ -1421,6 +1502,14 @@ async function handleMessage(message: TelegramMessage) {
     await sendTelegramMessage(
       chatId,
       "Choose the cover photo using one of the numbered buttons above."
+    );
+    return;
+  }
+
+  if (draft.step === "hover") {
+    await sendTelegramMessage(
+      chatId,
+      "Choose the hover photo, or select No hover photo."
     );
     return;
   }
