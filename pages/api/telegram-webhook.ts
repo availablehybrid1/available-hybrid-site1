@@ -99,7 +99,9 @@ async function decodeVin(vin: string) {
       make: String(result.Make || "").trim(),
       model: String(result.Model || "").trim(),
       year: String(result.ModelYear || "").trim(),
-      transmission: String(result.TransmissionStyle || "").trim(),
+      transmission:
+        String(result.TransmissionStyle || "").trim() ||
+        (/hybrid/i.test(fuel) ? "Automatic" : ""),
       fuel,
       trim: String(result.Trim || "").trim(),
       bodyClass: String(result.BodyClass || "").trim(),
@@ -166,6 +168,20 @@ async function deleteSessionPhotos(sessionId: string) {
   }
 }
 
+
+function normalizeDraftCardDetails(draft: BotDraft) {
+  if (!draft.transmission && /hybrid/i.test(draft.fuel || "")) {
+    draft.transmission = "Automatic";
+  }
+
+  if (draft.exterior) {
+    const normalized = normalizeColor(draft.exterior);
+    if (normalized) draft.exterior = normalized;
+  }
+
+  return draft;
+}
+
 function buildAutomaticDescription(draft: BotDraft) {
   const vehicleName = [draft.year, draft.make, draft.model, draft.trim]
     .filter(Boolean)
@@ -223,7 +239,7 @@ function parseCompactNumber(raw: string) {
 }
 
 function normalizeTransmission(text: string) {
-  if (/\b(automatic|automatica|automática|auto|cvt|e-cvt|ecvt)\b/i.test(text)) {
+  if (/\b(automatic|automatica|automático|automática|auto|cvt|e-cvt|ecvt)\b/i.test(text)) {
     return "Automatic";
   }
   if (/\b(manual|stick shift|estandar|estándar)\b/i.test(text)) {
@@ -1084,6 +1100,7 @@ async function handleCallback(query: TelegramCallbackQuery) {
       : Date.now().toString().slice(-6);
     const id = `${baseId || "vehicle"}-${suffix}`;
 
+    normalizeDraftCardDetails(draft);
     const automaticDescription = buildAutomaticDescription(draft);
     draft.description = automaticDescription;
 
@@ -1285,6 +1302,7 @@ async function handleMessage(message: TelegramMessage) {
         return;
       }
 
+      normalizeDraftCardDetails(draft);
       const updated = applyDraftToVehicle(draft, vehicle);
       await saveVehicle(updated);
       await deleteDraft(chatId);
@@ -1371,6 +1389,7 @@ async function handleMessage(message: TelegramMessage) {
       return;
     }
 
+    normalizeDraftCardDetails(draft);
     draft.description = buildAutomaticDescription(draft);
     draft.step = "photos";
     await saveDraft(chatId, draft);
