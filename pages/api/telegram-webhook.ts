@@ -1429,6 +1429,25 @@ async function handleMessage(message: TelegramMessage) {
     }
 
     await enrichDraftFromText(draft, text);
+
+    // If mileage is still missing, accept a plain number such as "137,480"
+    // when the message itself looks like a mileage value.
+    if (!draft.mileage) {
+      const bareNumber = text.trim();
+      if (/^\d{1,3}(?:,\d{3})+$/.test(bareNumber) || /^\d{4,6}$/.test(bareNumber)) {
+        draft.mileage = bareNumber.replace(/,/g, "");
+      }
+    }
+
+    // Also handle messages like "137,480, price 4499, clean title":
+    // the first standalone number is treated as mileage when price is explicitly labeled.
+    if (!draft.mileage && /(?:price|precio)\s*[:=-]?\s*\$?\s*[\d,.]+/i.test(text)) {
+      const firstNumber = text.match(/^\s*([\d]{1,3}(?:,\d{3})+|\d{4,6})\b/);
+      if (firstNumber?.[1]) {
+        draft.mileage = firstNumber[1].replace(/,/g, "");
+      }
+    }
+
     const missing = missingVehicleFields(draft);
 
     if (missing.length) {
