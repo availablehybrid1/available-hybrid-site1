@@ -642,34 +642,110 @@ if (!car) {
               </span>
             )}
 
-            <dl className="mt-5 grid grid-cols-2 border-y border-neutral-800/80 text-[11px]">
-              <div className="border-r border-neutral-800/80 py-3 pr-3">
-                <dt className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">
-                  Mileage
-                </dt>
-                <dd className="mt-1 text-neutral-100">
-                  {car.mileage != null
-                    ? `${car.mileage.toLocaleString()} mi`
-                    : "N/A"}
-                </dd>
+            <div className="mt-5 border-y border-neutral-800/80 py-4">
+              <div className="grid grid-cols-2 gap-x-5 gap-y-4 text-[11px]">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Mileage</p>
+                  <p className="mt-1 text-neutral-100">
+                    {car.mileage != null ? `${car.mileage.toLocaleString()} mi` : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Title</p>
+                  <p className="mt-1 text-neutral-100">{car.titleStatus || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Fuel</p>
+                  <p className="mt-1 text-neutral-100">{car.fuel || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Transmission</p>
+                  <p className="mt-1 text-neutral-100">
+                    {vinInfo?.transmission || car.transmission || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Exterior</p>
+                  <p className="mt-1 text-neutral-100">{car.exterior || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Engine</p>
+                  <p className="mt-1 text-neutral-100">
+                    {vinInfo?.engineCylinders
+                      ? `${vinInfo.engineCylinders} cyl${vinInfo.engineDisplacementL ? ` · ${vinInfo.engineDisplacementL}L` : ""}`
+                      : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Body Type</p>
+                  <p className="mt-1 text-neutral-100">{vinInfo?.bodyClass || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Drivetrain</p>
+                  <p className="mt-1 text-neutral-100">{vinInfo?.driveType || "N/A"}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">VIN</p>
+                  <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.08em] text-neutral-300">
+                    {car.vin || "N/A"}
+                  </p>
+                </div>
               </div>
-              <div className="py-3 pl-3">
-                <dt className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">
-                  Title
-                </dt>
-                <dd className="mt-1 text-neutral-100">
-                  {car.titleStatus || "N/A"}
-                </dd>
+            </div>
+
+            {friendlyOverview && (
+              <div className="mt-4">
+                <p className="mb-2 text-[10px] uppercase tracking-[0.14em] text-neutral-600">
+                  Overview
+                </p>
+                <p className="leading-relaxed text-neutral-300">
+                  {friendlyOverview}
+                </p>
               </div>
-            </dl>
+            )}
+
+            <details className="mt-4 border-t border-neutral-800 pt-3">
+              <summary className="cursor-pointer select-none text-[11px] font-medium text-neutral-400 hover:text-neutral-200">
+                More VIN details
+              </summary>
+              <div className="mt-3">
+                {vinLoading && <p className="text-neutral-400">Decoding VIN…</p>}
+                {vinError && <p className="text-[11px] text-red-400">{vinError}</p>}
+                {!vinLoading && !vinError && vinInfo && (
+                  <div className="grid gap-x-6 gap-y-2 text-[11px] text-neutral-300 sm:grid-cols-3 lg:grid-cols-1">
+                    {vinInfo.trim && (
+                      <div>
+                        <p className="text-neutral-500">Trim</p>
+                        <p>{vinInfo.trim}</p>
+                      </div>
+                    )}
+                    {vinInfo.make && (
+                      <div>
+                        <p className="text-neutral-500">Make</p>
+                        <p>{vinInfo.make}</p>
+                      </div>
+                    )}
+                    {vinInfo.model && (
+                      <div>
+                        <p className="text-neutral-500">Model</p>
+                        <p>{vinInfo.model}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </details>
 
             </section>
 
-            <section className="rounded-2xl border border-white/10 bg-neutral-900/55 p-4 text-xs shadow-[0_12px_36px_rgba(0,0,0,0.20)] sm:p-5">
+          </div>
+        </div>
+
+            <section className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-xs shadow-[0_12px_36px_rgba(0,0,0,0.18)] sm:p-6">
               <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 Vehicle actions
               </p>
-            <div className="grid grid-cols-1 gap-2 text-[11px]">
+            <div className="grid grid-cols-2 gap-2 text-[11px] md:grid-cols-4">
               {[
                 { id: "availability", label: "Confirm Availability" },
                 { id: "estimate", label: "Estimated Payment" },
@@ -1109,119 +1185,8 @@ if (!car) {
               </form>
             )}
             </section>
-          </div>
-        </div>
 
         <section className="space-y-4">
-          <div className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] shadow-[0_14px_40px_rgba(0,0,0,0.18)] sm:p-6">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <p className="text-sm font-semibold text-neutral-100">
-                Vehicle details
-              </p>
-              <span className="text-[10px] uppercase tracking-[0.14em] text-neutral-600">
-                Used vehicle
-              </span>
-            </div>
-            <div className="grid gap-x-6 gap-y-3 sm:grid-cols-3">
-              <div>
-                <p className="text-neutral-500">Fuel</p>
-                <p className="text-neutral-200">{car.fuel || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-neutral-500">Exterior</p>
-                <p className="text-neutral-200">{car.exterior || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-neutral-500">Transmission</p>
-                <p className="text-neutral-200">
-                  {vinInfo?.transmission || car.transmission || "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-neutral-500">Engine</p>
-                <p className="text-neutral-200">
-                  {vinInfo?.engineCylinders
-                    ? `${vinInfo.engineCylinders} cyl${
-                        vinInfo.engineDisplacementL
-                          ? ` · ${vinInfo.engineDisplacementL}L`
-                          : ""
-                      }`
-                    : "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-neutral-500">Body Type</p>
-                <p className="text-neutral-200">
-                  {vinInfo?.bodyClass || "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-neutral-500">Drivetrain</p>
-                <p className="text-neutral-200">
-                  {vinInfo?.driveType || "N/A"}
-                </p>
-              </div>
-              <div className="sm:col-span-3">
-                <p className="text-neutral-500">VIN</p>
-                <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-neutral-300">
-                  {car.vin || "N/A"}
-                </p>
-              </div>
-            </div>
-
-            {friendlyOverview && (
-              <div className="mt-5 border-t border-neutral-800 pt-4">
-                <p className="mb-2 text-[10px] uppercase tracking-[0.14em] text-neutral-600">
-                  Overview
-                </p>
-                <p className="max-w-4xl leading-relaxed text-neutral-300">
-                  {friendlyOverview}
-                </p>
-              </div>
-            )}
-
-            <details className="mt-4 border-t border-neutral-800 pt-3">
-              <summary className="cursor-pointer select-none text-[11px] font-medium text-neutral-400 hover:text-neutral-200">
-                More VIN details
-              </summary>
-              <div className="mt-3">
-                {vinLoading && (
-                  <p className="text-neutral-400">Decoding VIN…</p>
-                )}
-                {vinError && (
-                  <p className="text-[11px] text-red-400">{vinError}</p>
-                )}
-                {!vinLoading && !vinError && vinInfo && (
-                  <div className="grid gap-x-6 gap-y-2 text-[11px] text-neutral-300 sm:grid-cols-3">
-                    {vinInfo.trim && (
-                      <div>
-                        <p className="text-neutral-500">Trim</p>
-                        <p>{vinInfo.trim}</p>
-                      </div>
-                    )}
-                    {vinInfo.make && (
-                      <div>
-                        <p className="text-neutral-500">Make</p>
-                        <p>{vinInfo.make}</p>
-                      </div>
-                    )}
-                    {vinInfo.model && (
-                      <div>
-                        <p className="text-neutral-500">Model</p>
-                        <p>{vinInfo.model}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-                {!vinLoading && !vinError && !vinInfo && (
-                  <p className="text-neutral-500 text-[11px]">
-                    No extra VIN data available.
-                  </p>
-                )}
-              </div>
-            </details>
-          </div>
-
           {suggestions.length > 0 && (
             <div className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] sm:p-6">
               <p className="mb-3 text-sm font-semibold text-neutral-100">
