@@ -12,6 +12,7 @@ export type BotDraft = {
     | "notes"
     | "photos"
     | "cover"
+    | "hover"
     | "confirm"
     | "edit";
   vin?: string;
@@ -33,6 +34,8 @@ export type BotDraft = {
   photos: string[];
   editingVehicleId?: string;
   coverPhotoIndex?: number;
+  hoverPhotoIndex?: number;
+  disableHoverPhoto?: boolean;
 };
 
 export type StoredVehicle = {
