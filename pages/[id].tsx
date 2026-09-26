@@ -693,17 +693,6 @@ if (!car) {
               </div>
             </div>
 
-            {friendlyOverview && (
-              <div className="mt-4">
-                <p className="mb-2 text-[10px] uppercase tracking-[0.14em] text-neutral-600">
-                  Overview
-                </p>
-                <p className="leading-relaxed text-neutral-300">
-                  {friendlyOverview}
-                </p>
-              </div>
-            )}
-
             <details className="mt-4 border-t border-neutral-800 pt-3">
               <summary className="cursor-pointer select-none text-[11px] font-medium text-neutral-400 hover:text-neutral-200">
                 More VIN details
@@ -1187,6 +1176,17 @@ if (!car) {
             </section>
 
         <section className="space-y-4">
+          {friendlyOverview && (
+            <div className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] shadow-[0_12px_36px_rgba(0,0,0,0.16)] sm:p-6">
+              <p className="mb-2 text-sm font-semibold text-neutral-100">
+                Overview
+              </p>
+              <p className="max-w-5xl leading-relaxed text-neutral-300">
+                {friendlyOverview}
+              </p>
+            </div>
+          )}
+
           {suggestions.length > 0 && (
             <div className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] sm:p-6">
               <p className="mb-3 text-sm font-semibold text-neutral-100">
