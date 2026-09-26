@@ -84,8 +84,8 @@ const [touchEndX, setTouchEndX] = React.useState<number | null>(null);
 
   // Panel derecho (tabs)
   const [activePanel, setActivePanel] = React.useState<
-    "availability" | "estimate" | "offer" | "testdrive"
-  >("availability");
+    "availability" | "estimate" | "offer" | "testdrive" | null
+  >(null);
 
   // BHPH estimator UI
   const [creditTier, setCreditTier] = React.useState<
@@ -680,7 +680,7 @@ if (!car) {
               </div>
             </dl>
 
-            <div className="mt-5 grid grid-cols-4 gap-1 text-[11px]">
+            <div className="mt-5 grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-4">
               {[
                 { id: "availability", label: "Confirm Availability" },
                 { id: "estimate", label: "Estimated Payment" },
@@ -691,18 +691,20 @@ if (!car) {
                   key={tab.id}
                   type="button"
                   onClick={() =>
-                    setActivePanel(
-                      tab.id as
-                        | "availability"
-                        | "estimate"
-                        | "offer"
-                        | "testdrive"
+                    setActivePanel((current) =>
+                      current === tab.id
+                        ? null
+                        : (tab.id as
+                            | "availability"
+                            | "estimate"
+                            | "offer"
+                            | "testdrive")
                     )
                   }
-                  className={`rounded-sm px-2 py-1.5 text-center font-semibold ${
+                  className={`min-h-[44px] rounded-md border px-3 py-2 text-center font-semibold transition ${
                     activePanel === tab.id
-                      ? "bg-neutral-100 text-black"
-                      : "bg-neutral-900 text-neutral-200 hover:bg-neutral-800"
+                      ? "border-neutral-100 bg-neutral-100 text-black"
+                      : "border-neutral-700 bg-neutral-950 text-neutral-100 hover:border-neutral-400 hover:bg-neutral-900"
                   }`}
                 >
                   {tab.label}
