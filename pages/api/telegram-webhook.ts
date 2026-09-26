@@ -431,6 +431,9 @@ function inventoryKeyboard(vehicle: StoredVehicle) {
           ],
           [
             { text: "📷 Cover", callback_data: `pickcover:${vehicle.id}` },
+            { text: "🖼 Hover", callback_data: `pickhover:${vehicle.id}` },
+          ],
+          [
             { text: "🗑 Delete", callback_data: `delete:${vehicle.id}` },
           ],
         ],
@@ -464,6 +467,24 @@ function existingCoverKeyboard(vehicleId: string, photoCount: number) {
   for (let i = 0; i < buttons.length; i += 5) {
     rows.push(buttons.slice(i, i + 5));
   }
+  return { inline_keyboard: rows };
+}
+
+
+
+function existingHoverKeyboard(vehicleId: string, photoCount: number) {
+  const buttons = Array.from({ length: Math.min(photoCount, 20) }, (_, index) => ({
+    text: `${index + 1}`,
+    callback_data: `sethover:${vehicleId}:${index}`,
+  }));
+
+  const rows = [];
+  for (let i = 0; i < buttons.length; i += 5) {
+    rows.push(buttons.slice(i, i + 5));
+  }
+  rows.push([
+    { text: "No hover photo", callback_data: `sethover:${vehicleId}:none` },
+  ]);
   return { inline_keyboard: rows };
 }
 
@@ -907,6 +928,82 @@ async function handleCallback(query: TelegramCallbackQuery) {
   }
 
 
+
+  if (query.data?.startsWith("pickhover:")) {
+    const id = query.data.slice("pickhover:".length);
+    const vehicle = await getStoredVehicle(id);
+    if (!vehicle) {
+      await sendTelegramMessage(chatId, "Vehicle not found.");
+      return;
+    }
+
+    const photos = storedVehiclePhotos(vehicle);
+    if (!photos.length) {
+      await sendTelegramMessage(chatId, "This vehicle has no stored photos.");
+      return;
+    }
+
+    try {
+      await sendTelegramPhotoAlbum(
+        chatId,
+        photos.slice(0, 10).map((url, index) => ({
+          url,
+          caption: `Photo #${index + 1}`,
+        }))
+      );
+    } catch {
+      // Keep the numbered controls available even if preview fails.
+    }
+
+    await sendTelegramMessage(
+      chatId,
+      "Choose the photo shown when the mouse passes over the vehicle card:",
+      existingHoverKeyboard(vehicle.id, photos.length)
+    );
+    return;
+  }
+
+  if (query.data?.startsWith("sethover:")) {
+    const payload = query.data.slice("sethover:".length);
+    const separator = payload.lastIndexOf(":");
+    if (separator <= 0) {
+      await sendTelegramMessage(chatId, "Could not read that hover selection.");
+      return;
+    }
+
+    const id = payload.slice(0, separator);
+    const selection = payload.slice(separator + 1);
+    const vehicle = await getStoredVehicle(id);
+    if (!vehicle) {
+      await sendTelegramMessage(chatId, "Vehicle not found.");
+      return;
+    }
+
+    const photos = storedVehiclePhotos(vehicle);
+    if (selection === "none") {
+      vehicle.cardHoverPhoto = "none";
+      await saveVehicle(vehicle);
+      await sendTelegramMessage(chatId, "🖼 Hover photo disabled.");
+      return;
+    }
+
+    const selectedIndex = Number(selection);
+    if (
+      !Number.isInteger(selectedIndex) ||
+      selectedIndex < 0 ||
+      selectedIndex >= photos.length
+    ) {
+      await sendTelegramMessage(chatId, "That hover photo is no longer available.");
+      return;
+    }
+
+    vehicle.cardHoverPhoto = photos[selectedIndex];
+    await saveVehicle(vehicle);
+    await sendTelegramMessage(chatId, "🖼 Hover photo updated.");
+    return;
+  }
+
+
   if (query.data?.startsWith("delete:")) {
     const id = query.data.slice("delete:".length);
     const vehicle = await getStoredVehicle(id);
@@ -1114,6 +1211,7 @@ async function handleMessage(message: TelegramMessage) {
         "✅ Sold - remove from active website inventory",
         "↩️ Restore - make a sold vehicle available again",
         "📷 Cover - choose the website cover photo",
+        "🖼 Hover - choose the mouse-over photo or disable it",
         "🗑 Delete - permanently remove the vehicle",
       ].join("\n"),
       mainMenuKeyboard()
