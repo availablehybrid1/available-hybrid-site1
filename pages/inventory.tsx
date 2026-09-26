@@ -652,11 +652,8 @@ export default function Inventory({ inventory }: InventoryProps) {
 
                     {/* Info principal */}
                     <div className="flex flex-1 flex-col px-4 pb-3 pt-3 text-xs">
-                      <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">
-  {car.make || ""}
-</p>
-                      <h3 className="mt-1 text-sm font-semibold text-neutral-50">
-                        {car.model || car.title}
+                      <h3 className="text-sm font-semibold text-neutral-50">
+                        {[car.make, car.model].filter(Boolean).join(" ") || car.title}
                       </h3>
 
                       <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-neutral-400">
