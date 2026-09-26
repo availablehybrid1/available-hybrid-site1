@@ -391,6 +391,18 @@ function draftSummary(draft: BotDraft) {
 }
 
 
+
+function transmissionKeyboard() {
+  return {
+    inline_keyboard: [
+      [
+        { text: "Automatic", callback_data: "settransmission:Automatic" },
+        { text: "Manual", callback_data: "settransmission:Manual" },
+      ],
+    ],
+  };
+}
+
 function titleKeyboard() {
   return {
     inline_keyboard: [
@@ -685,6 +697,53 @@ async function handleCallback(query: TelegramCallbackQuery) {
 
   await answerCallbackQuery(query.id);
 
+
+
+  if (query.data?.startsWith("settransmission:")) {
+    const draft = await getDraft(chatId);
+    if (!draft) {
+      await sendTelegramMessage(chatId, "No active vehicle. Use /addcar.");
+      return;
+    }
+
+    draft.transmission = query.data.slice("settransmission:".length);
+    await saveDraft(chatId, draft);
+
+    if (!draft.exterior) {
+      await sendTelegramMessage(
+        chatId,
+        "Transmission saved. What is the <b>exterior color</b>? Example: Black, White, Silver."
+      );
+      return;
+    }
+
+    const missing = missingVehicleFields(draft);
+    if (missing.length) {
+      await sendTelegramMessage(
+        chatId,
+        `Still missing: <b>${escapeHtml(missing.join(", "))}</b>`
+      );
+      return;
+    }
+
+    normalizeDraftCardDetails(draft);
+    draft.description = buildAutomaticDescription(draft);
+    draft.step = "photos";
+    await saveDraft(chatId, draft);
+
+    await sendTelegramMessage(
+      chatId,
+      [
+        "✅ Vehicle information complete.",
+        "",
+        `<b>${escapeHtml(draftSummary(draft))}</b>`,
+        "",
+        "Now send the vehicle photos.",
+        "When finished, type /done.",
+      ].join("\n")
+    );
+    return;
+  }
 
   if (query.data?.startsWith("cover:")) {
     const selectedIndex = Number(query.data.slice("cover:".length));
@@ -1374,6 +1433,36 @@ async function handleMessage(message: TelegramMessage) {
 
     if (missing.length) {
       await saveDraft(chatId, draft);
+
+      if (!draft.transmission) {
+        await sendTelegramMessage(
+          chatId,
+          [
+            "I understood this so far:",
+            "",
+            `<b>${escapeHtml(draftSummary(draft) || "No structured data yet")}</b>`,
+            "",
+            "I could not confirm the <b>transmission</b>. Which one is it?",
+          ].join("\n"),
+          transmissionKeyboard()
+        );
+        return;
+      }
+
+      if (!draft.exterior) {
+        await sendTelegramMessage(
+          chatId,
+          [
+            "I understood this so far:",
+            "",
+            `<b>${escapeHtml(draftSummary(draft) || "No structured data yet")}</b>`,
+            "",
+            "What is the <b>exterior color</b>? Example: Black, White, Silver.",
+          ].join("\n")
+        );
+        return;
+      }
+
       await sendTelegramMessage(
         chatId,
         [
@@ -1383,7 +1472,7 @@ async function handleMessage(message: TelegramMessage) {
           "",
           `Still missing: <b>${escapeHtml(missing.join(", "))}</b>`,
           "",
-          "Send only the missing information, or send everything again in one message.",
+          "Send only the missing information.",
         ].join("\n")
       );
       return;
