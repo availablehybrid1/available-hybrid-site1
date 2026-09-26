@@ -764,6 +764,12 @@ async function handleMessage(message: TelegramMessage) {
         "/cancel - cancel current add/edit session",
         "/id - show this Telegram chat ID",
         "/help - show commands",
+        "",
+        "Inside /inventory:",
+        "✏️ Edit - change price, mileage, color, title and other details",
+        "✅ Sold - mark a vehicle sold and remove it from active website inventory",
+        "↩️ Restore - make a sold vehicle available again",
+        "🗑 Delete - permanently delete the vehicle and its Blob photos",
       ].join("\n")
     );
     return;
