@@ -609,7 +609,8 @@ if (!car) {
 
 </section>
 
-          <section className="rounded-2xl border border-white/10 bg-neutral-900/70 p-5 text-xs shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur lg:sticky lg:top-5 sm:p-6">
+          <div className="space-y-3 lg:sticky lg:top-5">
+            <section className="rounded-2xl border border-white/10 bg-neutral-900/70 p-5 text-xs shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur sm:p-6">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-[10px] uppercase tracking-[0.22em] text-neutral-500">
@@ -662,7 +663,13 @@ if (!car) {
               </div>
             </dl>
 
-            <div className="mt-5 grid grid-cols-1 gap-2 text-[11px]">
+            </section>
+
+            <section className="rounded-2xl border border-white/10 bg-neutral-900/55 p-4 text-xs shadow-[0_12px_36px_rgba(0,0,0,0.20)] sm:p-5">
+              <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+                Vehicle actions
+              </p>
+            <div className="grid grid-cols-1 gap-2 text-[11px]">
               {[
                 { id: "availability", label: "Confirm Availability" },
                 { id: "estimate", label: "Estimated Payment" },
@@ -1101,7 +1108,8 @@ if (!car) {
                 </button>
               </form>
             )}
-          </section>
+            </section>
+          </div>
         </div>
 
         <section className="space-y-4">
