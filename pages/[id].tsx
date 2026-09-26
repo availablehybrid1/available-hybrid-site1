@@ -493,8 +493,8 @@ if (!car) {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 pb-12 pt-4 space-y-6">
-        <div className="flex flex-col gap-6 lg:flex-row">
-          <section className="flex-1">
+        <div className="space-y-5">
+          <section>
             <Link
               href="/inventory"
               className="mb-3 inline-flex text-xs text-neutral-400 underline-offset-2 hover:underline"
@@ -502,9 +502,9 @@ if (!car) {
               ← Back to inventory
             </Link>
 
-            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_190px]">
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_250px]">
               <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70">
-                <div className="relative h-[260px] w-full bg-black sm:h-[320px] lg:h-[380px]">
+                <div className="relative h-[280px] w-full bg-black sm:h-[360px] lg:h-[420px]">
                   {mainPhoto ? (
                     <>
                       <button
@@ -556,7 +556,7 @@ if (!car) {
                 </div>
               </div>
 
-              <div className="hidden max-h-[380px] grid-cols-2 gap-2 overflow-y-auto lg:grid">
+              <div className="hidden max-h-[420px] grid-cols-2 gap-2 overflow-y-auto lg:grid">
                 {car.photos.slice(0, 8).map((photo, i) => (
                   <button
                     key={i}
@@ -608,7 +608,7 @@ if (!car) {
 
 </section>
 
-          <section className="flex-1 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-xs sm:p-5">
+          <section className="border-y border-neutral-800 py-5 text-xs sm:py-6">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-[10px] uppercase tracking-[0.18em] text-neutral-500">
@@ -668,7 +668,7 @@ if (!car) {
               </div>
             </dl>
 
-            <div className="mt-5 grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-4">
+            <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] sm:grid-cols-4">
               {[
                 { id: "availability", label: "Confirm Availability" },
                 { id: "estimate", label: "Estimated Payment" },
@@ -689,10 +689,10 @@ if (!car) {
                             | "testdrive")
                     )
                   }
-                  className={`min-h-[44px] rounded-md border px-3 py-2 text-center font-semibold transition ${
+                  className={`min-h-[42px] border-b px-3 py-2 text-center font-medium transition ${
                     activePanel === tab.id
-                      ? "border-neutral-100 bg-neutral-100 text-black"
-                      : "border-neutral-700 bg-neutral-950 text-neutral-100 hover:border-neutral-400 hover:bg-neutral-900"
+                      ? "border-white text-white"
+                      : "border-neutral-800 text-neutral-400 hover:border-neutral-500 hover:text-neutral-100"
                   }`}
                 >
                   {tab.label}
@@ -703,7 +703,7 @@ if (!car) {
             {activePanel === "availability" && (
               <form
                 onSubmit={handleAvailabilitySubmit}
-                className="mt-4 space-y-3 rounded-lg border border-neutral-800 bg-neutral-950/80 p-3"
+                className="mt-5 space-y-3 border-t border-neutral-800 pt-5"
               >
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-1">
@@ -767,7 +767,7 @@ if (!car) {
             )}
 
             {activePanel === "estimate" && (
-              <div className="mt-4 rounded-lg border border-neutral-800 bg-neutral-950/80 p-3 space-y-4">
+              <div className="mt-5 space-y-4 border-t border-neutral-800 pt-5">
                 <p className="text-[11px] font-semibold text-neutral-200">
                   Estimate your payment (example only)
                 </p>
@@ -876,7 +876,7 @@ if (!car) {
                       </div>
                     </div>
 
-                    <div className="space-y-2 rounded border border-neutral-800 bg-neutral-900 p-3">
+                    <div className="space-y-2 border-l border-neutral-800 pl-4">
                       <p className="text-[11px] font-semibold text-neutral-200">
                         Estimated terms
                       </p>
@@ -941,7 +941,7 @@ if (!car) {
             {activePanel === "offer" && (
               <form
                 onSubmit={handleMakeOfferSubmit}
-                className="mt-4 space-y-3 rounded-lg border border-neutral-800 bg-neutral-950/80 p-3"
+                className="mt-5 space-y-3 border-t border-neutral-800 pt-5"
               >
                 <p className="text-[11px] font-semibold text-neutral-200">
                   Make an Offer
@@ -1011,7 +1011,7 @@ if (!car) {
             {activePanel === "testdrive" && (
               <form
                 onSubmit={handleTestDriveSubmit}
-                className="mt-4 space-y-3 rounded-lg border border-neutral-800 bg-neutral-950/80 p-3"
+                className="mt-5 space-y-3 border-t border-neutral-800 pt-5"
               >
                 <p className="text-[11px] font-semibold text-neutral-200">
                   Schedule Test Drive
@@ -1109,7 +1109,7 @@ if (!car) {
         </div>
 
         <section className="space-y-4">
-          <div className="rounded-lg border border-neutral-800 bg-neutral-900/60 p-4 text-[11px] sm:p-5">
+          <div className="border-t border-neutral-800 pt-6 text-[11px]">
             <div className="mb-4 flex items-center justify-between gap-3">
               <p className="text-sm font-semibold text-neutral-100">
                 Vehicle details
@@ -1203,7 +1203,7 @@ if (!car) {
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
             {car.description && (
-              <div className="rounded-lg border border-neutral-800 bg-neutral-900/60 p-4 text-[11px] sm:p-5">
+              <div className="border-t border-neutral-800 pt-6 text-[11px]">
                 <p className="mb-2 text-sm font-semibold text-neutral-100">
                   Description
                 </p>
@@ -1213,7 +1213,7 @@ if (!car) {
               </div>
             )}
 
-            <div className="rounded-lg border border-neutral-800 bg-neutral-900/60 p-4 text-[11px] sm:p-5">
+            <div className="border-t border-neutral-800 pt-6 text-[11px]">
               <p className="mb-2 text-sm font-semibold text-neutral-100">
                 Location
               </p>
@@ -1235,7 +1235,7 @@ if (!car) {
           </div>
 
           {suggestions.length > 0 && (
-            <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
+            <div className="border-t border-neutral-800 pt-6 text-[11px]">
               <p className="mb-3 text-sm font-semibold text-neutral-100">
                 You may also like
               </p>
