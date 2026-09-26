@@ -34,6 +34,7 @@ type Vehicle = {
   exterior: string;
   photos: string[];
   description: string;
+  cardHoverPhoto: string;
 };
 
 type InventoryProps = { inventory: Vehicle[] };
@@ -612,7 +613,10 @@ export default function Inventory({ inventory }: InventoryProps) {
             ) : (
               visible.map((car) => {
                 const mainPhoto = car.photos[0] ?? "/placeholder-car.jpg";
-                const hoverPhoto = car.photos[1] ?? null;
+                const hoverPhoto =
+                  car.cardHoverPhoto === "none"
+                    ? null
+                    : car.cardHoverPhoto || car.photos[1] || null;
                 const priceLabel =
                   car.price != null
                     ? `$${car.price.toLocaleString()}`
@@ -1003,6 +1007,7 @@ export const getStaticProps: GetStaticProps<InventoryProps> = async () => {
       exterior: c.exterior ?? "",
       photos: parsePhotos(photoStrings.join(" ")),
       description: (c as any).description ?? "",
+      cardHoverPhoto: (c as any).cardHoverPhoto ?? "",
     };
   });
 
