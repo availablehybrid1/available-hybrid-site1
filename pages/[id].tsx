@@ -65,9 +65,6 @@ type DetailProps = {
 export default function VehicleDetail({ car, suggestions }: DetailProps) {
   const [current, setCurrent] = React.useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false);
-  const [photoOrientation, setPhotoOrientation] = React.useState<
-    "portrait" | "landscape" | "square"
-  >("landscape");
 
   // zoom dentro del modal
   const [isZoomed, setIsZoomed] = React.useState(false);
@@ -505,80 +502,56 @@ if (!car) {
               ← Back to inventory
             </Link>
 
-            <div className="overflow-hidden rounded-lg border border-neutral-800 bg-black">
-              <div
-                className={
-                  photoOrientation === "portrait"
-                    ? "relative mx-auto aspect-[3/4] w-full max-w-[520px]"
-                    : photoOrientation === "square"
-                    ? "relative mx-auto aspect-square w-full max-w-[700px]"
-                    : "relative aspect-[4/3] w-full"
-                }
-              >
-                {mainPhoto ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => setIsLightboxOpen(true)}
-                      className="group absolute inset-0 flex items-center justify-center"
-                    >
-                      <Image
-                        src={mainPhoto}
-                        alt={car.title}
-                        fill
-                        sizes="(max-width: 1024px) 100vw, 800px"
-                        className="object-contain object-center"
-                        onLoadingComplete={(img) => {
-                          const ratio = img.naturalWidth / img.naturalHeight;
-                          setPhotoOrientation(
-                            ratio > 1.08
-                              ? "landscape"
-                              : ratio < 0.92
-                              ? "portrait"
-                              : "square"
-                          );
-                        }}
-                      />
-                      <div className="pointer-events-none absolute bottom-3 right-3 flex items-center gap-2">
-                        <span className="rounded-full bg-black/70 px-2.5 py-1 text-[10px] text-neutral-100 backdrop-blur">
-                          {current + 1} / {car.photos.length}
-                        </span>
-                        <span className="hidden rounded-full bg-black/70 px-2.5 py-1 text-[10px] text-neutral-100 backdrop-blur sm:inline">
-                          View full size
-                        </span>
-                      </div>
-                    </button>
+            <div className="flex min-h-[320px] w-full items-center justify-center sm:min-h-[420px] lg:min-h-[500px]">
+              {mainPhoto ? (
+                <div className="relative inline-flex max-w-full items-center justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setIsLightboxOpen(true)}
+                    className="group relative inline-flex max-w-full items-center justify-center"
+                  >
+                    <img
+                      src={mainPhoto}
+                      alt={car.title}
+                      className="block h-auto max-h-[500px] max-w-full rounded-lg object-contain sm:max-h-[560px]"
+                    />
+                    <div className="pointer-events-none absolute bottom-3 right-3 flex items-center gap-2">
+                      <span className="rounded-full bg-black/70 px-2.5 py-1 text-[10px] text-neutral-100 backdrop-blur">
+                        {current + 1} / {car.photos.length}
+                      </span>
+                      <span className="hidden rounded-full bg-black/70 px-2.5 py-1 text-[10px] text-neutral-100 backdrop-blur sm:inline">
+                        View full size
+                      </span>
+                    </div>
+                  </button>
 
-                    {hasMultiplePhotos && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={goPrev}
-                          className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-lg text-white backdrop-blur transition hover:bg-black/80"
-                          aria-label="Previous photo"
-                        >
-                          ‹
-                        </button>
-                        <button
-                          type="button"
-                          onClick={goNext}
-                          className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-lg text-white backdrop-blur transition hover:bg-black/80"
-                          aria-label="Next photo"
-                        >
-                          ›
-                        </button>
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
-                    Photo coming soon
-                  </div>
-                )}
-              </div>
+                  {hasMultiplePhotos && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={goPrev}
+                        className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-lg text-white backdrop-blur transition hover:bg-black/80"
+                        aria-label="Previous photo"
+                      >
+                        ‹
+                      </button>
+                      <button
+                        type="button"
+                        onClick={goNext}
+                        className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-lg text-white backdrop-blur transition hover:bg-black/80"
+                        aria-label="Next photo"
+                      >
+                        ›
+                      </button>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="flex h-[320px] w-full items-center justify-center text-xs text-neutral-500 sm:h-[420px]">
+                  Photo coming soon
+                </div>
+              )}
             </div>
-
-
 
 </section>
 
