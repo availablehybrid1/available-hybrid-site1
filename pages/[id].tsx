@@ -816,11 +816,8 @@ if (!car) {
               </section>
             )}
 
-            <section className="flex h-full min-h-[170px] flex-col rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-xs shadow-[0_12px_36px_rgba(0,0,0,0.18)] sm:p-6">
-              <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-                Vehicle actions
-              </p>
-            <div className="mt-auto grid grid-cols-2 gap-2 text-[11px]">
+            <section className="flex h-full items-center rounded-2xl border border-white/10 bg-neutral-900/35 px-4 py-4 text-xs sm:px-5">
+            <div className="flex w-full flex-wrap items-center gap-2 text-[11px]">
               {[
                 { id: "availability", label: "Confirm Availability" },
                 { id: "estimate", label: "Estimated Payment" },
@@ -841,12 +838,12 @@ if (!car) {
                             | "testdrive")
                     )
                   }
-                  className={`min-h-[44px] rounded-lg border px-3 py-2.5 text-center font-semibold transition ${
+                  className={`rounded-full border px-3.5 py-2 text-center text-[10px] font-semibold transition sm:text-[11px] ${
                     activePanel === tab.id
                       ? "border-white bg-white text-black"
                       : tab.id === "availability"
-                      ? "border-neutral-200 bg-neutral-100 text-black hover:bg-white"
-                      : "border-neutral-700 bg-black/25 text-neutral-100 hover:border-neutral-500 hover:bg-neutral-900"
+                      ? "border-neutral-300 bg-neutral-100 text-black hover:bg-white"
+                      : "border-neutral-700 bg-transparent text-neutral-200 hover:border-neutral-500 hover:bg-neutral-900"
                   }`}
                 >
                   {tab.label}
