@@ -591,8 +591,8 @@ if (!car) {
         </div>
       </header>
 
-      <div className="mx-auto max-w-7xl space-y-8 px-4 pb-14 pt-5">
-        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="mx-auto max-w-7xl space-y-4 px-4 pb-10 pt-4">
+        <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
           <section className="min-w-0">
             <Link
               href="/inventory"
@@ -1294,6 +1294,7 @@ if (!car) {
                 )}
               </section>
             )}
+          </div>
 
         <section className="space-y-3">
           {suggestions.length > 0 && (
