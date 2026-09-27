@@ -78,7 +78,7 @@ type DetailProps = {
   inventoryOptions: Vehicle[];
 };
 
-export default function VehicleDetail({ car, suggestions }: DetailProps) {
+export default function VehicleDetail({ car, suggestions, inventoryOptions }: DetailProps) {
   const [current, setCurrent] = React.useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false);
   const [isDescriptionOpen, setIsDescriptionOpen] = React.useState(false);
