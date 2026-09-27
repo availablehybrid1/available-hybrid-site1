@@ -678,23 +678,23 @@ if (!car) {
             <div className="mt-5 border-y border-neutral-800/80 py-4">
               <div className="grid grid-cols-2 gap-x-5 gap-y-4 text-[11px]">
                 <div>
-                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><Gauge className="h-3 w-3" />Mileage</p>
-                  <p className="mt-1 text-neutral-100">
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Gauge className="h-3.5 w-3.5" />Mileage</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">
                     {car.mileage != null ? `${car.mileage.toLocaleString()} mi` : "N/A"}
                   </p>
                 </div>
                 <div>
-                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><FileText className="h-3 w-3" />Title</p>
-                  <p className="mt-1 text-neutral-100">{car.titleStatus || "N/A"}</p>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><FileText className="h-3.5 w-3.5" />Title</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{car.titleStatus || "N/A"}</p>
                 </div>
                 <div>
-                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><Fuel className="h-3 w-3" />Fuel</p>
-                  <p className="mt-1 text-neutral-100">{car.fuel || "N/A"}</p>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Fuel className="h-3.5 w-3.5" />Fuel</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{car.fuel || "N/A"}</p>
                 </div>
                 {(vinInfo?.mpgCity || vinInfo?.mpgHighway || vinInfo?.mpgCombined) && (
                   <div>
-                    <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><Gauge className="h-3 w-3" />MPG</p>
-                    <p className="mt-1 text-neutral-100">
+                    <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Gauge className="h-3.5 w-3.5" />MPG</p>
+                    <p className="mt-1 text-[12px] font-medium text-neutral-100">
                       {vinInfo?.mpgCity ? `${vinInfo.mpgCity} city` : ""}
                       {vinInfo?.mpgCity && vinInfo?.mpgHighway ? " · " : ""}
                       {vinInfo?.mpgHighway ? `${vinInfo.mpgHighway} hwy` : ""}
@@ -707,30 +707,30 @@ if (!car) {
                   </div>
                 )}
                 <div>
-                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><Settings className="h-3 w-3" />Transmission</p>
-                  <p className="mt-1 text-neutral-100">
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Settings className="h-3.5 w-3.5" />Transmission</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">
                     {vinInfo?.transmission || car.transmission || "N/A"}
                   </p>
                 </div>
                 <div>
-                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><Palette className="h-3 w-3" />Exterior</p>
-                  <p className="mt-1 text-neutral-100">{car.exterior || "N/A"}</p>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Palette className="h-3.5 w-3.5" />Exterior</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{car.exterior || "N/A"}</p>
                 </div>
                 <div>
-                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><Cog className="h-3 w-3" />Engine</p>
-                  <p className="mt-1 text-neutral-100">
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Cog className="h-3.5 w-3.5" />Engine</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">
                     {vinInfo?.engineCylinders
                       ? `${vinInfo.engineCylinders} cyl${vinInfo.engineDisplacementL ? ` · ${vinInfo.engineDisplacementL}L` : ""}`
                       : "N/A"}
                   </p>
                 </div>
                 <div>
-                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><CarIcon className="h-3 w-3" />Body Type</p>
-                  <p className="mt-1 text-neutral-100">{simplifiedBodyType}</p>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><CarIcon className="h-3.5 w-3.5" />Body Type</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{simplifiedBodyType}</p>
                 </div>
                 <div>
-                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><GitBranch className="h-3 w-3" />Drivetrain</p>
-                  <p className="mt-1 text-neutral-100">{vinInfo?.driveType || "N/A"}</p>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><GitBranch className="h-3.5 w-3.5" />Drivetrain</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{vinInfo?.driveType || "N/A"}</p>
                 </div>
               </div>
             </div>
@@ -939,7 +939,7 @@ if (!car) {
                             <input
                               type="radio"
                               name="creditTier"
-                              className="h-3 w-3"
+                              className="h-3.5 w-3.5"
                               checked={creditTier === "low"}
                               onChange={() => setCreditTier("low")}
                             />
@@ -949,7 +949,7 @@ if (!car) {
                             <input
                               type="radio"
                               name="creditTier"
-                              className="h-3 w-3"
+                              className="h-3.5 w-3.5"
                               checked={creditTier === "midLow"}
                               onChange={() => setCreditTier("midLow")}
                             />
@@ -959,7 +959,7 @@ if (!car) {
                             <input
                               type="radio"
                               name="creditTier"
-                              className="h-3 w-3"
+                              className="h-3.5 w-3.5"
                               checked={creditTier === "midHigh"}
                               onChange={() => setCreditTier("midHigh")}
                             />
@@ -969,7 +969,7 @@ if (!car) {
                             <input
                               type="radio"
                               name="creditTier"
-                              className="h-3 w-3"
+                              className="h-3.5 w-3.5"
                               checked={creditTier === "high"}
                               onChange={() => setCreditTier("high")}
                             />
