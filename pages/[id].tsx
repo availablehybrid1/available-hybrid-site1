@@ -652,172 +652,8 @@ if (!car) {
               )}
             </div>
 
-</section>
-
-          <div className="space-y-3 lg:sticky lg:top-5">
-            <section className="rounded-2xl border border-white/10 bg-neutral-900/70 p-5 text-xs shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur sm:p-6">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.22em] text-neutral-500">
-                  Available Hybrid R&amp;M
-                </p>
-                <h1 className="mt-2 text-2xl font-semibold uppercase leading-tight text-neutral-50">
-                  {car.make} {car.model} {car.year}
-                </h1>
-              </div>
-              {car.price != null && (
-                <div className="text-right">
-                  <p className="text-[11px] text-neutral-500">Our Price</p>
-                  <p className="text-2xl font-semibold tracking-tight text-emerald-400 sm:text-3xl">
-                    ${car.price.toLocaleString()}
-                  </p>
-                  {estimatedFees > 0 && (
-                    <p className="mt-1 text-[9px] text-neutral-500">
-                      Est. taxes &amp; fees ${estimatedFees.toFixed(0)}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {car.status && (
-              <span className="mt-4 inline-flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-emerald-400">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                {car.status}
-              </span>
-            )}
-
-            <div className="mt-5 border-y border-neutral-800/80 py-4">
-              <div className="grid grid-cols-2 gap-x-5 gap-y-4 text-[11px]">
-                <div>
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Gauge className="h-3.5 w-3.5" />Mileage</p>
-                  <p className="mt-1 text-[12px] font-medium text-neutral-100">
-                    {car.mileage != null ? `${car.mileage.toLocaleString()} mi` : "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><FileText className="h-3.5 w-3.5" />Title</p>
-                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{car.titleStatus || "N/A"}</p>
-                </div>
-                <div>
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Fuel className="h-3.5 w-3.5" />Fuel</p>
-                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{car.fuel || "N/A"}</p>
-                </div>
-                {(vinInfo?.mpgCity || vinInfo?.mpgHighway || vinInfo?.mpgCombined) && (
-                  <div>
-                    <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Gauge className="h-3.5 w-3.5" />MPG</p>
-                    <p className="mt-1 text-[12px] font-medium text-neutral-100">
-                      {vinInfo?.mpgCity ? `${vinInfo.mpgCity} city` : ""}
-                      {vinInfo?.mpgCity && vinInfo?.mpgHighway ? " · " : ""}
-                      {vinInfo?.mpgHighway ? `${vinInfo.mpgHighway} hwy` : ""}
-                    </p>
-                    {vinInfo?.mpgCombined && (
-                      <p className="mt-0.5 text-[10px] text-neutral-500">
-                        {vinInfo.mpgCombined} combined
-                      </p>
-                    )}
-                  </div>
-                )}
-                <div>
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Settings className="h-3.5 w-3.5" />Transmission</p>
-                  <p className="mt-1 text-[12px] font-medium text-neutral-100">
-                    {vinInfo?.transmission || car.transmission || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Palette className="h-3.5 w-3.5" />Exterior</p>
-                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{car.exterior || "N/A"}</p>
-                </div>
-                <div>
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Cog className="h-3.5 w-3.5" />Engine</p>
-                  <p className="mt-1 text-[12px] font-medium text-neutral-100">
-                    {vinInfo?.engineCylinders
-                      ? `${vinInfo.engineCylinders} cyl${vinInfo.engineDisplacementL ? ` · ${vinInfo.engineDisplacementL}L` : ""}`
-                      : "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><CarIcon className="h-3.5 w-3.5" />Body Type</p>
-                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{simplifiedBodyType}</p>
-                </div>
-                <div>
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><GitBranch className="h-3.5 w-3.5" />Drivetrain</p>
-                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{vinInfo?.driveType || "N/A"}</p>
-                </div>
-              </div>
-            </div>
-
-            <details className="mt-4 border-t border-neutral-800 pt-3">
-              <summary className="cursor-pointer select-none text-[11px] font-medium text-neutral-400 hover:text-neutral-200">
-                More VIN details
-              </summary>
-              <div className="mt-3 space-y-3">
-                <div>
-                  <p className="text-neutral-500">VIN</p>
-                  <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-neutral-300">
-                    {car.vin || "N/A"}
-                  </p>
-                </div>
-                {vinLoading && <p className="text-neutral-400">Decoding VIN…</p>}
-                {vinError && <p className="text-[11px] text-red-400">{vinError}</p>}
-                {!vinLoading && !vinError && vinInfo && (
-                  <div className="grid gap-x-6 gap-y-2 text-[11px] text-neutral-300 sm:grid-cols-3 lg:grid-cols-1">
-                    {vinInfo.trim && (
-                      <div>
-                        <p className="text-neutral-500">Trim</p>
-                        <p>{vinInfo.trim}</p>
-                      </div>
-                    )}
-                    {vinInfo.make && (
-                      <div>
-                        <p className="text-neutral-500">Make</p>
-                        <p>{vinInfo.make}</p>
-                      </div>
-                    )}
-                    {vinInfo.model && (
-                      <div>
-                        <p className="text-neutral-500">Model</p>
-                        <p>{vinInfo.model}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </details>
-
-            </section>
-
-          </div>
-        </div>
-
-            <div className="grid items-stretch gap-4 lg:grid-cols-2">
-            {friendlyOverview && (
-              <section className="flex h-full min-h-[170px] flex-col rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] shadow-[0_12px_36px_rgba(0,0,0,0.16)] sm:p-6">
-                <p className="mb-2 text-sm font-semibold text-neutral-100">
-                  Overview
-                </p>
-                <p
-                  className="max-w-5xl overflow-hidden leading-relaxed text-neutral-300"
-                  style={{
-                    display: "-webkit-box",
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: "vertical",
-                  }}
-                >
-                  {friendlyOverview}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setIsDescriptionOpen(true)}
-                  className="mt-auto inline-flex w-full items-center justify-center rounded-lg border border-neutral-700 px-4 py-2 text-[11px] font-medium text-neutral-200 transition hover:border-neutral-400 hover:bg-neutral-900"
-                >
-                  Read in full
-                </button>
-              </section>
-            )}
-
-            <section className="flex h-full items-center rounded-2xl border border-white/10 bg-neutral-900/35 px-4 py-4 text-xs sm:px-5">
-            <div className="flex w-full flex-wrap items-center gap-2 text-[11px]">
+            <section className="mt-3 rounded-xl border border-white/10 bg-neutral-900/35 px-3 py-3 text-xs">
+            <div className="flex w-full flex-wrap items-center gap-1.5 text-[11px]">
               {[
                 { id: "availability", label: "Confirm Availability" },
                 { id: "estimate", label: "Estimated Payment" },
@@ -838,7 +674,7 @@ if (!car) {
                             | "testdrive")
                     )
                   }
-                  className={`rounded-full border px-3.5 py-2 text-center text-[10px] font-semibold transition sm:text-[11px] ${
+                  className={`rounded-full border px-3 py-1.5 text-center text-[10px] font-semibold transition ${
                     activePanel === tab.id
                       ? "border-white bg-white text-black"
                       : tab.id === "availability"
@@ -1085,7 +921,170 @@ if (!car) {
               </form>
             )}
             </section>
+</section>
+
+          <div className="space-y-3 lg:sticky lg:top-5">
+            <section className="rounded-2xl border border-white/10 bg-neutral-900/70 p-5 text-xs shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur sm:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.22em] text-neutral-500">
+                  Available Hybrid R&amp;M
+                </p>
+                <h1 className="mt-2 text-2xl font-semibold uppercase leading-tight text-neutral-50">
+                  {car.make} {car.model} {car.year}
+                </h1>
+              </div>
+              {car.price != null && (
+                <div className="text-right">
+                  <p className="text-[11px] text-neutral-500">Our Price</p>
+                  <p className="text-2xl font-semibold tracking-tight text-emerald-400 sm:text-3xl">
+                    ${car.price.toLocaleString()}
+                  </p>
+                  {estimatedFees > 0 && (
+                    <p className="mt-1 text-[9px] text-neutral-500">
+                      Est. taxes &amp; fees ${estimatedFees.toFixed(0)}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
+
+            {car.status && (
+              <span className="mt-4 inline-flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-emerald-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                {car.status}
+              </span>
+            )}
+
+            <div className="mt-5 border-y border-neutral-800/80 py-4">
+              <div className="grid grid-cols-2 gap-x-5 gap-y-4 text-[11px]">
+                <div>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Gauge className="h-3.5 w-3.5" />Mileage</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">
+                    {car.mileage != null ? `${car.mileage.toLocaleString()} mi` : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><FileText className="h-3.5 w-3.5" />Title</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{car.titleStatus || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Fuel className="h-3.5 w-3.5" />Fuel</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{car.fuel || "N/A"}</p>
+                </div>
+                {(vinInfo?.mpgCity || vinInfo?.mpgHighway || vinInfo?.mpgCombined) && (
+                  <div>
+                    <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Gauge className="h-3.5 w-3.5" />MPG</p>
+                    <p className="mt-1 text-[12px] font-medium text-neutral-100">
+                      {vinInfo?.mpgCity ? `${vinInfo.mpgCity} city` : ""}
+                      {vinInfo?.mpgCity && vinInfo?.mpgHighway ? " · " : ""}
+                      {vinInfo?.mpgHighway ? `${vinInfo.mpgHighway} hwy` : ""}
+                    </p>
+                    {vinInfo?.mpgCombined && (
+                      <p className="mt-0.5 text-[10px] text-neutral-500">
+                        {vinInfo.mpgCombined} combined
+                      </p>
+                    )}
+                  </div>
+                )}
+                <div>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Settings className="h-3.5 w-3.5" />Transmission</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">
+                    {vinInfo?.transmission || car.transmission || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Palette className="h-3.5 w-3.5" />Exterior</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{car.exterior || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Cog className="h-3.5 w-3.5" />Engine</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">
+                    {vinInfo?.engineCylinders
+                      ? `${vinInfo.engineCylinders} cyl${vinInfo.engineDisplacementL ? ` · ${vinInfo.engineDisplacementL}L` : ""}`
+                      : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><CarIcon className="h-3.5 w-3.5" />Body Type</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{simplifiedBodyType}</p>
+                </div>
+                <div>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><GitBranch className="h-3.5 w-3.5" />Drivetrain</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{vinInfo?.driveType || "N/A"}</p>
+                </div>
+              </div>
+            </div>
+
+            <details className="mt-4 border-t border-neutral-800 pt-3">
+              <summary className="cursor-pointer select-none text-[11px] font-medium text-neutral-400 hover:text-neutral-200">
+                More VIN details
+              </summary>
+              <div className="mt-3 space-y-3">
+                <div>
+                  <p className="text-neutral-500">VIN</p>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-neutral-300">
+                    {car.vin || "N/A"}
+                  </p>
+                </div>
+                {vinLoading && <p className="text-neutral-400">Decoding VIN…</p>}
+                {vinError && <p className="text-[11px] text-red-400">{vinError}</p>}
+                {!vinLoading && !vinError && vinInfo && (
+                  <div className="grid gap-x-6 gap-y-2 text-[11px] text-neutral-300 sm:grid-cols-3 lg:grid-cols-1">
+                    {vinInfo.trim && (
+                      <div>
+                        <p className="text-neutral-500">Trim</p>
+                        <p>{vinInfo.trim}</p>
+                      </div>
+                    )}
+                    {vinInfo.make && (
+                      <div>
+                        <p className="text-neutral-500">Make</p>
+                        <p>{vinInfo.make}</p>
+                      </div>
+                    )}
+                    {vinInfo.model && (
+                      <div>
+                        <p className="text-neutral-500">Model</p>
+                        <p>{vinInfo.model}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </details>
+
+            </section>
+
+          </div>
+        </div>
+
+            <div className="mt-3">
+            {friendlyOverview && (
+              <section className="flex flex-col rounded-2xl border border-white/10 bg-neutral-900/55 p-4 text-[11px] shadow-[0_10px_28px_rgba(0,0,0,0.14)] sm:p-5">
+                <p className="mb-2 text-sm font-semibold text-neutral-100">
+                  Overview
+                </p>
+                <p
+                  className="max-w-5xl overflow-hidden leading-relaxed text-neutral-300"
+                  style={{
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                  }}
+                >
+                  {friendlyOverview}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsDescriptionOpen(true)}
+                  className="mt-3 inline-flex w-full items-center justify-center rounded-lg border border-neutral-700 px-4 py-2 text-[11px] font-medium text-neutral-200 transition hover:border-neutral-400 hover:bg-neutral-900"
+                >
+                  Read in full
+                </button>
+              </section>
+            )}
+
 
             {activePanel === "estimate" && (
               <section className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-xs shadow-[0_12px_36px_rgba(0,0,0,0.18)] sm:p-6">
@@ -1296,7 +1295,7 @@ if (!car) {
               </section>
             )}
 
-        <section className="space-y-4">
+        <section className="space-y-3">
           {suggestions.length > 0 && (
             <div className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] sm:p-6">
               <p className="mb-3 text-sm font-semibold text-neutral-100">
