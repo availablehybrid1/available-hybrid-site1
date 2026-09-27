@@ -600,7 +600,7 @@ if (!car) {
       </header>
 
       <div className="max-w-6xl space-y-4 px-4 pb-10 pt-4">
-        <div className="grid items-start gap-2 lg:grid-cols-[max-content_360px]">
+        <div className="grid items-start gap-1 lg:grid-cols-[max-content_400px]">
           <section className="min-w-0 lg:w-fit lg:max-w-[640px]">
             <Link
               href="/inventory"
@@ -1020,7 +1020,7 @@ if (!car) {
             </section>
 </section>
 
-          <div className="space-y-3 lg:sticky lg:top-5">
+          <div className="w-full max-w-[400px] space-y-3 lg:sticky lg:top-5">
             <section className="rounded-2xl border border-white/10 bg-neutral-900/70 p-5 text-xs shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur sm:p-6">
             <div className="flex items-start justify-between gap-3">
               <div>
