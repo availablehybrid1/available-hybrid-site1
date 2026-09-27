@@ -600,8 +600,8 @@ if (!car) {
       </header>
 
       <div className="max-w-6xl space-y-4 px-4 pb-10 pt-4">
-        <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,640px)_360px]">
-          <section className="min-w-0">
+        <div className="grid items-start gap-2 lg:grid-cols-[max-content_360px]">
+          <section className="min-w-0 lg:w-fit lg:max-w-[640px]">
             <Link
               href="/inventory"
               className="mb-3 inline-flex text-xs text-neutral-400 underline-offset-2 hover:underline"
