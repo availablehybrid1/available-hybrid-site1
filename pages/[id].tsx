@@ -600,7 +600,7 @@ if (!car) {
       </header>
 
       <div className="max-w-6xl space-y-4 px-4 pb-10 pt-4">
-        <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,640px)_360px]">
           <section className="min-w-0">
             <Link
               href="/inventory"
@@ -609,7 +609,7 @@ if (!car) {
               ← Back to inventory
             </Link>
 
-            <div className="flex min-h-[320px] w-full items-center justify-center sm:min-h-[420px] lg:min-h-[500px] lg:justify-end">
+            <div className="flex min-h-[320px] w-full items-center justify-center sm:min-h-[420px] lg:min-h-[500px] lg:justify-start">
               {mainPhoto ? (
                 <div className="relative inline-flex max-w-full items-center justify-center">
                   <button
