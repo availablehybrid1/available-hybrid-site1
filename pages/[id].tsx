@@ -731,9 +731,9 @@ if (!car) {
           </div>
         </div>
 
-            <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_430px]">
+            <div className="grid items-stretch gap-4 lg:grid-cols-2">
             {friendlyOverview && (
-              <section className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] shadow-[0_12px_36px_rgba(0,0,0,0.16)] sm:p-6">
+              <section className="h-full rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] shadow-[0_12px_36px_rgba(0,0,0,0.16)] sm:p-6">
                 <p className="mb-2 text-sm font-semibold text-neutral-100">
                   Overview
                 </p>
@@ -757,7 +757,7 @@ if (!car) {
               </section>
             )}
 
-            <section className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-xs shadow-[0_12px_36px_rgba(0,0,0,0.18)] sm:p-6">
+            <section className="h-full rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-xs shadow-[0_12px_36px_rgba(0,0,0,0.18)] sm:p-6">
               <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 Vehicle actions
               </p>
