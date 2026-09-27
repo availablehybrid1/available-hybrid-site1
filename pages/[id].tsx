@@ -685,12 +685,6 @@ if (!car) {
                   <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Drivetrain</p>
                   <p className="mt-1 text-neutral-100">{vinInfo?.driveType || "N/A"}</p>
                 </div>
-                <div className="col-span-2">
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">VIN</p>
-                  <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.08em] text-neutral-300">
-                    {car.vin || "N/A"}
-                  </p>
-                </div>
               </div>
             </div>
 
@@ -698,7 +692,13 @@ if (!car) {
               <summary className="cursor-pointer select-none text-[11px] font-medium text-neutral-400 hover:text-neutral-200">
                 More VIN details
               </summary>
-              <div className="mt-3">
+              <div className="mt-3 space-y-3">
+                <div>
+                  <p className="text-neutral-500">VIN</p>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-neutral-300">
+                    {car.vin || "N/A"}
+                  </p>
+                </div>
                 {vinLoading && <p className="text-neutral-400">Decoding VIN…</p>}
                 {vinError && <p className="text-[11px] text-red-400">{vinError}</p>}
                 {!vinLoading && !vinError && vinInfo && (
