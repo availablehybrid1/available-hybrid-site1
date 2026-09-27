@@ -655,7 +655,7 @@ if (!car) {
               )}
             </div>
 
-            <section className="mt-3 rounded-xl border border-white/10 bg-neutral-900/35 px-3 py-3 text-xs">
+            <section className="mt-2 rounded-xl border border-white/10 bg-neutral-900/30 px-3 py-2.5 text-xs">
             <div className="flex w-full flex-wrap items-center gap-1.5 text-[11px]">
               <button
                 type="button"
@@ -689,6 +689,36 @@ if (!car) {
               </button>
             </div>
 
+            {activePanel === "contact" && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-sm"
+                onClick={() => setActivePanel(null)}
+              >
+                <div
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="contact-dealer-title"
+                  className="max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-neutral-700 bg-neutral-950 p-5 shadow-2xl sm:p-6"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="mb-4 flex items-center justify-between gap-4 border-b border-neutral-800 pb-3">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">
+                        {car.make} {car.model} {car.year}
+                      </p>
+                      <h2 id="contact-dealer-title" className="mt-1 text-lg font-semibold text-neutral-100">
+                        Contact Dealer
+                      </h2>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActivePanel(null)}
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-800 hover:text-white"
+                      aria-label="Close contact dealer"
+                    >
+                      ✕
+                    </button>
+                  </div>
             {activePanel === "contact" && (
               <div className="mt-3 border-t border-neutral-800 pt-3">
                 <div className="flex flex-wrap gap-1.5">
@@ -951,6 +981,9 @@ if (!car) {
                 </button>
               </form>
             )}
+                </div>
+              </div>
+            )}
             </section>
 </section>
 
@@ -1118,7 +1151,35 @@ if (!car) {
 
 
             {activePanel === "estimate" && (
-              <section className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-xs shadow-[0_12px_36px_rgba(0,0,0,0.18)] sm:p-6">
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-sm"
+                onClick={() => setActivePanel(null)}
+              >
+                <section
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="payment-estimator-title"
+                  className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-2xl border border-neutral-700 bg-neutral-950 p-5 text-xs shadow-2xl sm:p-6"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="mb-4 flex items-center justify-between gap-4 border-b border-neutral-800 pb-3">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">
+                        {car.make} {car.model} {car.year}
+                      </p>
+                      <h2 id="payment-estimator-title" className="mt-1 text-lg font-semibold text-neutral-100">
+                        Estimated Payment
+                      </h2>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActivePanel(null)}
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-800 hover:text-white"
+                      aria-label="Close payment estimator"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 {!vehiclePrice ? (
                   <p className="text-[11px] text-neutral-400">
                     Price is not set for this vehicle. Please contact the dealer
@@ -1323,7 +1384,8 @@ if (!car) {
                     </div>
                   </div>
                 )}
-              </section>
+                </section>
+              </div>
             )}
           </div>
 
