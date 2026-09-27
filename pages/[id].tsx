@@ -1225,22 +1225,56 @@ if (!car) {
                             </p>
                           </div>
 
-                          <div className="min-w-[150px] rounded-lg border border-neutral-800 bg-neutral-950/70 px-4 py-3 text-[10px] text-neutral-400">
-                            <div className="flex justify-between gap-5">
-                              <span>Financed</span>
-                              <span className="text-neutral-200">
-                                {`${amountFinanced.toLocaleString(undefined, {
-                                  maximumFractionDigits: 0,
-                                })}`}
-                              </span>
+                          <div className="min-w-[230px] rounded-lg border border-neutral-800 bg-neutral-950/70 px-4 py-4 text-[11px] text-neutral-400">
+                            <div className="space-y-2">
+                              <div className="flex justify-between gap-5">
+                                <span>Vehicle price</span>
+                                <span className="font-medium text-neutral-200">
+                                  ${vehiclePrice.toLocaleString()}
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-5">
+                                <span>Down payment</span>
+                                <span className="font-medium text-neutral-200">
+                                  -${downPayment.toLocaleString()}
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-5">
+                                <span>Amount financed</span>
+                                <span className="font-medium text-neutral-100">
+                                  ${amountFinanced.toLocaleString(undefined, {
+                                    maximumFractionDigits: 0,
+                                  })}
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-5">
+                                <span>APR (estimated)</span>
+                                <span className="font-medium text-neutral-200">
+                                  {apr.toFixed(2)}%
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-5">
+                                <span>Term</span>
+                                <span className="font-medium text-neutral-200">
+                                  {termMonths} months
+                                </span>
+                              </div>
                             </div>
-                            <div className="mt-1 flex justify-between gap-5">
-                              <span>APR</span>
-                              <span className="text-neutral-200">{apr.toFixed(2)}%</span>
-                            </div>
-                            <div className="mt-1 flex justify-between gap-5">
-                              <span>Term</span>
-                              <span className="text-neutral-200">{termMonths} mo</span>
+
+                            <div className="mt-4 rounded-lg bg-black/40 p-3">
+                              <p className="text-[10px] text-neutral-500">
+                                Estimated payment
+                              </p>
+                              <p className="mt-1 text-2xl font-semibold text-emerald-400">
+                                {monthlyPayment
+                                  ? `${monthlyPayment.toFixed(2)} / mo`
+                                  : "--"}
+                              </p>
+                              <p className="mt-2 text-[9px] leading-relaxed text-neutral-500">
+                                Example only. Does not include taxes, DMV fees or dealer charges.
+                                Not all customers will qualify for these terms. Subject to credit
+                                approval and signed contract.
+                              </p>
                             </div>
                           </div>
                         </div>
