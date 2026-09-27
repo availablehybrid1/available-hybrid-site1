@@ -599,7 +599,7 @@ if (!car) {
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl space-y-4 px-4 pb-10 pt-4">
+      <div className="max-w-6xl space-y-4 px-4 pb-10 pt-4">
         <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_360px]">
           <section className="min-w-0">
             <Link
