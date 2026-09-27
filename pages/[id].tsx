@@ -75,6 +75,7 @@ type VinDecoded = {
 type DetailProps = {
   car: Vehicle | null;
   suggestions: Vehicle[];
+  inventoryOptions: Vehicle[];
 };
 
 export default function VehicleDetail({ car, suggestions }: DetailProps) {
@@ -1138,10 +1139,37 @@ if (!car) {
                                 {car.titleStatus || "N/A"}
                               </span>
                             </div>
+                            <div className="mt-4 border-t border-neutral-800 pt-4">
+                              <label className="block text-[10px] font-medium uppercase tracking-[0.08em] text-neutral-400">
+                                Estimate another vehicle
+                              </label>
+                              <select
+                                value={car.id}
+                                onChange={(e) => {
+                                  const nextId = e.target.value;
+                                  if (nextId && nextId !== car.id) {
+                                    window.location.href = `/${encodeURIComponent(nextId)}`;
+                                  }
+                                }}
+                                className="mt-2 h-10 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 text-[11px] text-neutral-100 outline-none focus:border-neutral-400"
+                              >
+                                {inventoryOptions.map((vehicle) => (
+                                  <option key={vehicle.id} value={vehicle.id}>
+                                    {vehicle.year} {vehicle.make} {vehicle.model}
+                                    {vehicle.price != null
+                                      ? ` - ${vehicle.price.toLocaleString()}`
+                                      : ""}
+                                  </option>
+                                ))}
+                              </select>
+                              <p className="mt-2 text-[10px] leading-relaxed text-neutral-500">
+                                Selecting another vehicle opens its page and loads its payment estimate.
+                              </p>
+                            </div>
                           </div>
                         </div>
 
-                        <p className="mt-5 text-[9px] leading-relaxed text-neutral-600">
+                        <p className="mt-5 text-[10px] leading-relaxed text-neutral-400">
                           Estimate only. Final terms depend on credit approval,
                           taxes, DMV fees and signed contract.
                         </p>
@@ -1210,21 +1238,7 @@ if (!car) {
                           </label>
                         </div>
 
-                        <div className="mt-5 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
-                          <div>
-                            <p className="text-[10px] uppercase tracking-[0.1em] text-neutral-500">
-                              Estimated monthly payment
-                            </p>
-                            <p className="mt-1 text-3xl font-semibold tracking-tight text-emerald-400">
-                              {monthlyPayment
-                                ? `${monthlyPayment.toFixed(2)}`
-                                : "--"}
-                              <span className="ml-1 text-sm font-medium text-neutral-500">
-                                / mo
-                              </span>
-                            </p>
-                          </div>
-
+                        <div className="mt-5">
                           <div className="min-w-[230px] rounded-lg border border-neutral-800 bg-neutral-950/70 px-4 py-4 text-[11px] text-neutral-400">
                             <div className="space-y-2">
                               <div className="flex justify-between gap-5">
@@ -1270,13 +1284,15 @@ if (!car) {
                                   ? `${monthlyPayment.toFixed(2)} / mo`
                                   : "--"}
                               </p>
-                              <p className="mt-2 text-[9px] leading-relaxed text-neutral-500">
+                              <p className="mt-2 text-[10px] leading-relaxed text-neutral-400">
                                 Example only. Does not include taxes, DMV fees or dealer charges.
                                 Not all customers will qualify for these terms. Subject to credit
                                 approval and signed contract.
                               </p>
                             </div>
                           </div>
+                        </div>
+
                         </div>
                       </div>
                     </div>
@@ -1541,6 +1557,7 @@ export const getStaticProps: GetStaticProps<DetailProps> = async (ctx) => {
       props: {
         car: null,
         suggestions: [],
+        inventoryOptions: [],
       },
       revalidate: 60,
     };
@@ -1602,11 +1619,20 @@ export const getStaticProps: GetStaticProps<DetailProps> = async (ctx) => {
 
   const pool = (sameMake.length ? sameMake : others).slice(0, 3);
   const suggestions = pool.map(mapCarToVehicle);
+  const inventoryOptions = cars
+    .filter((c) => String((c as any).status ?? "available").toLowerCase() !== "sold")
+    .map(mapCarToVehicle)
+    .sort((a, b) => {
+      const yearDiff = (b.year ?? 0) - (a.year ?? 0);
+      if (yearDiff !== 0) return yearDiff;
+      return `${a.make} ${a.model}`.localeCompare(`${b.make} ${b.model}`);
+    });
 
   return {
     props: {
       car,
       suggestions,
+      inventoryOptions,
     },
     revalidate: 60,
   };
