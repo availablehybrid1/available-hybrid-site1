@@ -600,8 +600,8 @@ if (!car) {
       </header>
 
       <div className="max-w-6xl space-y-4 px-4 pb-10 pt-4">
-        <div className="grid items-start gap-1 lg:grid-cols-[max-content_400px]">
-          <section className="min-w-0 lg:w-fit lg:max-w-[640px]">
+        <div className="grid items-start gap-1 lg:grid-cols-[fit-content(520px)_400px]">
+          <section className="min-w-0 lg:w-fit lg:max-w-[520px]">
             <Link
               href="/inventory"
               className="mb-3 inline-flex text-xs text-neutral-400 underline-offset-2 hover:underline"
@@ -660,7 +660,7 @@ if (!car) {
               )}
             </div>
 
-            <section className="mt-2 grid gap-2 sm:grid-cols-2">
+            <section className="mt-2 grid max-w-[420px] gap-2 sm:grid-cols-2">
               <button
                 type="button"
                 onClick={() =>
