@@ -3,6 +3,16 @@ import * as React from "react";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import {
+  Car,
+  Cog,
+  FileText,
+  Fuel,
+  Gauge,
+  GitBranch,
+  Palette,
+  Settings,
+} from "lucide-react";
 import { getInventory, type Car } from "../lib/getInventory";
 
 // misma función que en index.tsx para convertir links de Drive a imágenes
@@ -664,31 +674,31 @@ if (!car) {
             <div className="mt-5 border-y border-neutral-800/80 py-4">
               <div className="grid grid-cols-2 gap-x-5 gap-y-4 text-[11px]">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Mileage</p>
+                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><Gauge className="h-3 w-3" />Mileage</p>
                   <p className="mt-1 text-neutral-100">
                     {car.mileage != null ? `${car.mileage.toLocaleString()} mi` : "N/A"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Title</p>
+                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><FileText className="h-3 w-3" />Title</p>
                   <p className="mt-1 text-neutral-100">{car.titleStatus || "N/A"}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Fuel</p>
+                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><Fuel className="h-3 w-3" />Fuel</p>
                   <p className="mt-1 text-neutral-100">{car.fuel || "N/A"}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Transmission</p>
+                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><Settings className="h-3 w-3" />Transmission</p>
                   <p className="mt-1 text-neutral-100">
                     {vinInfo?.transmission || car.transmission || "N/A"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Exterior</p>
+                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><Palette className="h-3 w-3" />Exterior</p>
                   <p className="mt-1 text-neutral-100">{car.exterior || "N/A"}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Engine</p>
+                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><Cog className="h-3 w-3" />Engine</p>
                   <p className="mt-1 text-neutral-100">
                     {vinInfo?.engineCylinders
                       ? `${vinInfo.engineCylinders} cyl${vinInfo.engineDisplacementL ? ` · ${vinInfo.engineDisplacementL}L` : ""}`
@@ -696,11 +706,11 @@ if (!car) {
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Body Type</p>
+                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><Car className="h-3 w-3" />Body Type</p>
                   <p className="mt-1 text-neutral-100">{simplifiedBodyType}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Drivetrain</p>
+                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><GitBranch className="h-3 w-3" />Drivetrain</p>
                   <p className="mt-1 text-neutral-100">{vinInfo?.driveType || "N/A"}</p>
                 </div>
               </div>
