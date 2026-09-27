@@ -731,10 +731,11 @@ if (!car) {
           </div>
         </div>
 
+            <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_430px]">
             {friendlyOverview && (
               <section className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] shadow-[0_12px_36px_rgba(0,0,0,0.16)] sm:p-6">
                 <p className="mb-2 text-sm font-semibold text-neutral-100">
-                  Description
+                  Overview
                 </p>
                 <p
                   className="max-w-5xl overflow-hidden leading-relaxed text-neutral-300"
@@ -1200,6 +1201,7 @@ if (!car) {
               </form>
             )}
             </section>
+            </div>
 
         <section className="space-y-4">
           {suggestions.length > 0 && (
@@ -1271,7 +1273,7 @@ if (!car) {
                 id="vehicle-description-title"
                 className="text-lg font-semibold text-neutral-100"
               >
-                Description
+                Overview
               </h2>
               <button
                 type="button"
