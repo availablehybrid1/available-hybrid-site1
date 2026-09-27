@@ -919,167 +919,6 @@ if (!car) {
               </form>
             )}
 
-            {activePanel === "estimate" && (
-              <div className="mt-5 border-t border-neutral-800 pt-5">
-                {!vehiclePrice ? (
-                  <p className="text-[11px] text-neutral-400">
-                    Price is not set for this vehicle. Please contact the dealer
-                    for financing options.
-                  </p>
-                ) : (
-                  <div className="overflow-hidden rounded-xl border border-neutral-800 bg-black/20">
-                    <div className="grid lg:grid-cols-[0.9fr_1.35fr]">
-                      <div className="flex flex-col justify-between border-b border-neutral-800 p-5 lg:border-b-0 lg:border-r sm:p-6">
-                        <div>
-                          <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-700 bg-neutral-900 text-lg text-neutral-100">
-                            $
-                          </div>
-                          <p className="text-lg font-semibold text-neutral-100">
-                            Estimate your payment
-                          </p>
-                          <p className="mt-1 max-w-sm text-[11px] leading-relaxed text-neutral-400">
-                            Get a quick payment estimate based on basic loan terms.
-                          </p>
-
-                          <div className="mt-5 space-y-2 border-t border-neutral-800 pt-4 text-[11px]">
-                            <div className="flex items-center justify-between gap-4">
-                              <span className="text-neutral-500">Vehicle</span>
-                              <span className="text-right font-medium text-neutral-200">
-                                {car.make} {car.model} {car.year}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between gap-4">
-                              <span className="text-neutral-500">Price</span>
-                              <span className="font-semibold text-emerald-400">
-                                {`$${vehiclePrice.toLocaleString()}`}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between gap-4">
-                              <span className="text-neutral-500">Mileage</span>
-                              <span className="text-neutral-200">
-                                {car.mileage != null
-                                  ? `${car.mileage.toLocaleString()} mi`
-                                  : "N/A"}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between gap-4">
-                              <span className="text-neutral-500">Title</span>
-                              <span className="text-neutral-200">
-                                {car.titleStatus || "N/A"}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <p className="mt-5 text-[9px] leading-relaxed text-neutral-600">
-                          Estimate only. Final terms depend on credit approval,
-                          taxes, DMV fees and signed contract.
-                        </p>
-                      </div>
-
-                      <div className="p-5 sm:p-6">
-                        <div className="grid gap-3 sm:grid-cols-3">
-                          <label className="space-y-1">
-                            <span className="block text-[10px] uppercase tracking-[0.1em] text-neutral-500">
-                              Down Payment
-                            </span>
-                            <input
-                              type="number"
-                              min={0}
-                              value={downPayment}
-                              onChange={(e) =>
-                                setDownPayment(
-                                  Number(e.target.value) >= 0
-                                    ? Number(e.target.value)
-                                    : 0
-                                )
-                              }
-                              className="h-10 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 text-[12px] text-neutral-100 outline-none focus:border-neutral-400"
-                            />
-                          </label>
-
-                          <label className="space-y-1">
-                            <span className="block text-[10px] uppercase tracking-[0.1em] text-neutral-500">
-                              Loan Term
-                            </span>
-                            <select
-                              value={termMonths}
-                              onChange={(e) => setTermMonths(Number(e.target.value))}
-                              className="h-10 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 text-[12px] text-neutral-100 outline-none focus:border-neutral-400"
-                            >
-                              {[24, 36, 48, 60].map((months) => (
-                                <option key={months} value={months}>
-                                  {months} months
-                                </option>
-                              ))}
-                            </select>
-                          </label>
-
-                          <label className="space-y-1">
-                            <span className="block text-[10px] uppercase tracking-[0.1em] text-neutral-500">
-                              APR
-                            </span>
-                            <select
-                              value={creditTier}
-                              onChange={(e) =>
-                                setCreditTier(
-                                  e.target.value as
-                                    | "low"
-                                    | "midLow"
-                                    | "midHigh"
-                                    | "high"
-                                )
-                              }
-                              className="h-10 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 text-[12px] text-neutral-100 outline-none focus:border-neutral-400"
-                            >
-                              <option value="low">22.00%</option>
-                              <option value="midLow">17.99%</option>
-                              <option value="midHigh">12.99%</option>
-                              <option value="high">6.99%</option>
-                            </select>
-                          </label>
-                        </div>
-
-                        <div className="mt-5 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
-                          <div>
-                            <p className="text-[10px] uppercase tracking-[0.1em] text-neutral-500">
-                              Estimated monthly payment
-                            </p>
-                            <p className="mt-1 text-3xl font-semibold tracking-tight text-emerald-400">
-                              {monthlyPayment
-                                ? `$${monthlyPayment.toFixed(2)}`
-                                : "--"}
-                              <span className="ml-1 text-sm font-medium text-neutral-500">
-                                / mo
-                              </span>
-                            </p>
-                          </div>
-
-                          <div className="min-w-[150px] rounded-lg border border-neutral-800 bg-neutral-950/70 px-4 py-3 text-[10px] text-neutral-400">
-                            <div className="flex justify-between gap-5">
-                              <span>Financed</span>
-                              <span className="text-neutral-200">
-                                {`$${amountFinanced.toLocaleString(undefined, {
-                                  maximumFractionDigits: 0,
-                                })}`}
-                              </span>
-                            </div>
-                            <div className="mt-1 flex justify-between gap-5">
-                              <span>APR</span>
-                              <span className="text-neutral-200">{apr.toFixed(2)}%</span>
-                            </div>
-                            <div className="mt-1 flex justify-between gap-5">
-                              <span>Term</span>
-                              <span className="text-neutral-200">{termMonths} mo</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
             {activePanel === "offer" && (
               <form
                 onSubmit={handleMakeOfferSubmit}
@@ -1249,6 +1088,168 @@ if (!car) {
             )}
             </section>
             </div>
+
+            {activePanel === "estimate" && (
+              <section className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-xs shadow-[0_12px_36px_rgba(0,0,0,0.18)] sm:p-6">
+                {!vehiclePrice ? (
+                  <p className="text-[11px] text-neutral-400">
+                    Price is not set for this vehicle. Please contact the dealer
+                    for financing options.
+                  </p>
+                ) : (
+                  <div className="overflow-hidden rounded-xl border border-neutral-800 bg-black/20">
+                    <div className="grid lg:grid-cols-[0.9fr_1.35fr]">
+                      <div className="flex flex-col justify-between border-b border-neutral-800 p-5 lg:border-b-0 lg:border-r sm:p-6">
+                        <div>
+                          <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-700 bg-neutral-900 text-lg text-neutral-100">
+                            $
+                          </div>
+                          <p className="text-lg font-semibold text-neutral-100">
+                            Estimate your payment
+                          </p>
+                          <p className="mt-1 max-w-sm text-[11px] leading-relaxed text-neutral-400">
+                            Get a quick payment estimate based on basic loan terms.
+                          </p>
+
+                          <div className="mt-5 space-y-2 border-t border-neutral-800 pt-4 text-[11px]">
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-neutral-500">Vehicle</span>
+                              <span className="text-right font-medium text-neutral-200">
+                                {car.make} {car.model} {car.year}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-neutral-500">Price</span>
+                              <span className="font-semibold text-emerald-400">
+                                {`${vehiclePrice.toLocaleString()}`}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-neutral-500">Mileage</span>
+                              <span className="text-neutral-200">
+                                {car.mileage != null
+                                  ? `${car.mileage.toLocaleString()} mi`
+                                  : "N/A"}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-neutral-500">Title</span>
+                              <span className="text-neutral-200">
+                                {car.titleStatus || "N/A"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <p className="mt-5 text-[9px] leading-relaxed text-neutral-600">
+                          Estimate only. Final terms depend on credit approval,
+                          taxes, DMV fees and signed contract.
+                        </p>
+                      </div>
+
+                      <div className="p-5 sm:p-6">
+                        <div className="grid gap-3 sm:grid-cols-3">
+                          <label className="space-y-1">
+                            <span className="block text-[10px] uppercase tracking-[0.1em] text-neutral-500">
+                              Down Payment
+                            </span>
+                            <input
+                              type="number"
+                              min={0}
+                              value={downPayment}
+                              onChange={(e) =>
+                                setDownPayment(
+                                  Number(e.target.value) >= 0
+                                    ? Number(e.target.value)
+                                    : 0
+                                )
+                              }
+                              className="h-10 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 text-[12px] text-neutral-100 outline-none focus:border-neutral-400"
+                            />
+                          </label>
+
+                          <label className="space-y-1">
+                            <span className="block text-[10px] uppercase tracking-[0.1em] text-neutral-500">
+                              Loan Term
+                            </span>
+                            <select
+                              value={termMonths}
+                              onChange={(e) => setTermMonths(Number(e.target.value))}
+                              className="h-10 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 text-[12px] text-neutral-100 outline-none focus:border-neutral-400"
+                            >
+                              {[24, 36, 48, 60].map((months) => (
+                                <option key={months} value={months}>
+                                  {months} months
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+
+                          <label className="space-y-1">
+                            <span className="block text-[10px] uppercase tracking-[0.1em] text-neutral-500">
+                              APR
+                            </span>
+                            <select
+                              value={creditTier}
+                              onChange={(e) =>
+                                setCreditTier(
+                                  e.target.value as
+                                    | "low"
+                                    | "midLow"
+                                    | "midHigh"
+                                    | "high"
+                                )
+                              }
+                              className="h-10 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 text-[12px] text-neutral-100 outline-none focus:border-neutral-400"
+                            >
+                              <option value="low">22.00%</option>
+                              <option value="midLow">17.99%</option>
+                              <option value="midHigh">12.99%</option>
+                              <option value="high">6.99%</option>
+                            </select>
+                          </label>
+                        </div>
+
+                        <div className="mt-5 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.1em] text-neutral-500">
+                              Estimated monthly payment
+                            </p>
+                            <p className="mt-1 text-3xl font-semibold tracking-tight text-emerald-400">
+                              {monthlyPayment
+                                ? `${monthlyPayment.toFixed(2)}`
+                                : "--"}
+                              <span className="ml-1 text-sm font-medium text-neutral-500">
+                                / mo
+                              </span>
+                            </p>
+                          </div>
+
+                          <div className="min-w-[150px] rounded-lg border border-neutral-800 bg-neutral-950/70 px-4 py-3 text-[10px] text-neutral-400">
+                            <div className="flex justify-between gap-5">
+                              <span>Financed</span>
+                              <span className="text-neutral-200">
+                                {`${amountFinanced.toLocaleString(undefined, {
+                                  maximumFractionDigits: 0,
+                                })}`}
+                              </span>
+                            </div>
+                            <div className="mt-1 flex justify-between gap-5">
+                              <span>APR</span>
+                              <span className="text-neutral-200">{apr.toFixed(2)}%</span>
+                            </div>
+                            <div className="mt-1 flex justify-between gap-5">
+                              <span>Term</span>
+                              <span className="text-neutral-200">{termMonths} mo</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
 
         <section className="space-y-4">
           {suggestions.length > 0 && (
