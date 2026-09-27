@@ -1292,8 +1292,6 @@ if (!car) {
                             </div>
                           </div>
                         </div>
-
-                        </div>
                       </div>
                     </div>
                   </div>
