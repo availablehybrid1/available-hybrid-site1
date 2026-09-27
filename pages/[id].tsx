@@ -1148,6 +1148,17 @@ if (!car) {
                     )}
                   </div>
                 )}
+
+                {friendlyOverview && (
+                  <div className="border-t border-neutral-800 pt-3">
+                    <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-neutral-500">
+                      Overview
+                    </p>
+                    <p className="mt-2 text-[11px] leading-relaxed text-neutral-300">
+                      {friendlyOverview}
+                    </p>
+                  </div>
+                )}
               </div>
             </details>
 
@@ -1157,32 +1168,6 @@ if (!car) {
         </div>
 
             <div className="mt-3">
-            {friendlyOverview && (
-              <section className="flex flex-col rounded-2xl border border-white/10 bg-neutral-900/55 p-4 text-[11px] shadow-[0_10px_28px_rgba(0,0,0,0.14)] sm:p-5">
-                <p className="mb-2 text-sm font-semibold text-neutral-100">
-                  Overview
-                </p>
-                <p
-                  className="max-w-5xl overflow-hidden leading-relaxed text-neutral-300"
-                  style={{
-                    display: "-webkit-box",
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: "vertical",
-                  }}
-                >
-                  {friendlyOverview}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setIsDescriptionOpen(true)}
-                  className="mt-3 inline-flex w-full items-center justify-center rounded-lg border border-neutral-700 px-4 py-2 text-[11px] font-medium text-neutral-200 transition hover:border-neutral-400 hover:bg-neutral-900"
-                >
-                  Read in full
-                </button>
-              </section>
-            )}
-
-
             {activePanel === "estimate" && (
               <div
                 className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-sm"
