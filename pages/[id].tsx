@@ -66,6 +66,10 @@ type VinDecoded = {
   engineDisplacementL?: string | null;
   transmission?: string | null;
   driveType?: string | null;
+  mpgCity?: number | null;
+  mpgHighway?: number | null;
+  mpgCombined?: number | null;
+  mpgSource?: string | null;
 };
 
 type DetailProps = {
@@ -687,6 +691,21 @@ if (!car) {
                   <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><Fuel className="h-3 w-3" />Fuel</p>
                   <p className="mt-1 text-neutral-100">{car.fuel || "N/A"}</p>
                 </div>
+                {(vinInfo?.mpgCity || vinInfo?.mpgHighway || vinInfo?.mpgCombined) && (
+                  <div>
+                    <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><Gauge className="h-3 w-3" />MPG</p>
+                    <p className="mt-1 text-neutral-100">
+                      {vinInfo?.mpgCity ? `${vinInfo.mpgCity} city` : ""}
+                      {vinInfo?.mpgCity && vinInfo?.mpgHighway ? " · " : ""}
+                      {vinInfo?.mpgHighway ? `${vinInfo.mpgHighway} hwy` : ""}
+                    </p>
+                    {vinInfo?.mpgCombined && (
+                      <p className="mt-0.5 text-[10px] text-neutral-500">
+                        {vinInfo.mpgCombined} combined
+                      </p>
+                    )}
+                  </div>
+                )}
                 <div>
                   <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><Settings className="h-3 w-3" />Transmission</p>
                   <p className="mt-1 text-neutral-100">
