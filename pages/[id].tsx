@@ -920,177 +920,166 @@ if (!car) {
             )}
 
             {activePanel === "estimate" && (
-              <div className="mt-5 space-y-4 border-t border-neutral-800 pt-5">
-                <p className="text-[11px] font-semibold text-neutral-200">
-                  Estimate your payment (example only)
-                </p>
-
+              <div className="mt-5 border-t border-neutral-800 pt-5">
                 {!vehiclePrice ? (
                   <p className="text-[11px] text-neutral-400">
                     Price is not set for this vehicle. Please contact the dealer
                     for financing options.
                   </p>
                 ) : (
-                  <div className="grid gap-3 sm:grid-cols-2 text-[11px]">
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-neutral-500">Vehicle price*</p>
-                        <p className="text-sm font-semibold text-neutral-100">
-                          ${vehiclePrice.toLocaleString()}
-                        </p>
-                        <p className="mt-1 text-[10px] text-neutral-500">
-                          *Price excludes taxes, DMV fees and dealer charges.
-                        </p>
-                      </div>
-
-                      <div className="space-y-1">
-                        <p className="text-neutral-500">Approx. credit score</p>
-                        <div className="space-y-1">
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name="creditTier"
-                              className="h-3.5 w-3.5"
-                              checked={creditTier === "low"}
-                              onChange={() => setCreditTier("low")}
-                            />
-                            <span>{"<"} 600 or no credit · 22% APR</span>
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name="creditTier"
-                              className="h-3.5 w-3.5"
-                              checked={creditTier === "midLow"}
-                              onChange={() => setCreditTier("midLow")}
-                            />
-                            <span>600–649 · 17.99% APR</span>
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name="creditTier"
-                              className="h-3.5 w-3.5"
-                              checked={creditTier === "midHigh"}
-                              onChange={() => setCreditTier("midHigh")}
-                            />
-                            <span>650–699 · 12.99% APR</span>
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name="creditTier"
-                              className="h-3.5 w-3.5"
-                              checked={creditTier === "high"}
-                              onChange={() => setCreditTier("high")}
-                            />
-                            <span>700+ · 6.99% APR</span>
-                          </label>
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="block text-neutral-500">
-                          Down payment (USD)
-                        </label>
-                        <input
-                          type="number"
-                          min={0}
-                          value={downPayment}
-                          onChange={(e) =>
-                            setDownPayment(
-                              Number(e.target.value) >= 0
-                                ? Number(e.target.value)
-                                : 0
-                            )
-                          }
-                          className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="block text-neutral-500">
-                          Term (months)
-                        </label>
-                        <input
-                          type="number"
-                          min={6}
-                          max={60}
-                          value={termMonths}
-                          onChange={(e) =>
-                            setTermMonths(
-                              Number(e.target.value) > 0
-                                ? Number(e.target.value)
-                                : 1
-                            )
-                          }
-                          className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2 border-l border-neutral-800 pl-4">
-                      <p className="text-[11px] font-semibold text-neutral-200">
-                        Estimated terms
-                      </p>
-                      <div className="space-y-1 text-[11px] text-neutral-300">
-                        <div className="flex justify-between">
-                          <span>Vehicle price</span>
-                          <span>
+                  <div className="overflow-hidden rounded-xl border border-neutral-800 bg-black/20">
+                    <div className="grid lg:grid-cols-[0.9fr_1.35fr]">
+                      <div className="flex flex-col justify-between border-b border-neutral-800 p-5 lg:border-b-0 lg:border-r sm:p-6">
+                        <div>
+                          <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-700 bg-neutral-900 text-lg text-neutral-100">
                             $
-                            {vehiclePrice.toLocaleString(undefined, {
-                              maximumFractionDigits: 2,
-                            })}
-                          </span>
+                          </div>
+                          <p className="text-lg font-semibold text-neutral-100">
+                            Estimate your payment
+                          </p>
+                          <p className="mt-1 max-w-sm text-[11px] leading-relaxed text-neutral-400">
+                            Get a quick payment estimate based on basic loan terms.
+                          </p>
+
+                          <div className="mt-5 space-y-2 border-t border-neutral-800 pt-4 text-[11px]">
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-neutral-500">Vehicle</span>
+                              <span className="text-right font-medium text-neutral-200">
+                                {car.make} {car.model} {car.year}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-neutral-500">Price</span>
+                              <span className="font-semibold text-emerald-400">
+                                {`$${vehiclePrice.toLocaleString()}`}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-neutral-500">Mileage</span>
+                              <span className="text-neutral-200">
+                                {car.mileage != null
+                                  ? `${car.mileage.toLocaleString()} mi`
+                                  : "N/A"}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-neutral-500">Title</span>
+                              <span className="text-neutral-200">
+                                {car.titleStatus || "N/A"}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex justify-between">
-                          <span>Down payment</span>
-                          <span>
-                            -$
-                            {downPayment.toLocaleString(undefined, {
-                              maximumFractionDigits: 2,
-                            })}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Amount financed</span>
-                          <span>
-                            $
-                            {amountFinanced.toLocaleString(undefined, {
-                              maximumFractionDigits: 2,
-                            })}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>APR (estimated)</span>
-                          <span>{apr.toFixed(2)}%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Term</span>
-                          <span>{termMonths} months</span>
-                        </div>
+
+                        <p className="mt-5 text-[9px] leading-relaxed text-neutral-600">
+                          Estimate only. Final terms depend on credit approval,
+                          taxes, DMV fees and signed contract.
+                        </p>
                       </div>
 
-                      <div className="mt-3 rounded bg-neutral-950 p-3 text-[11px]">
-                        <p className="text-neutral-500">Estimated payment</p>
-                        <p className="text-lg font-semibold text-emerald-400">
-                          {monthlyPayment
-                            ? `$${monthlyPayment.toFixed(2)} / mo`
-                            : "--"}
-                        </p>
-                        <p className="mt-1 text-[10px] text-neutral-500">
-                          Example only. Does not include taxes, DMV fees or
-                          dealer charges. Not all customers will qualify for
-                          these terms. Subject to credit approval and signed
-                          contract.
-                        </p>
+                      <div className="p-5 sm:p-6">
+                        <div className="grid gap-3 sm:grid-cols-3">
+                          <label className="space-y-1">
+                            <span className="block text-[10px] uppercase tracking-[0.1em] text-neutral-500">
+                              Down Payment
+                            </span>
+                            <input
+                              type="number"
+                              min={0}
+                              value={downPayment}
+                              onChange={(e) =>
+                                setDownPayment(
+                                  Number(e.target.value) >= 0
+                                    ? Number(e.target.value)
+                                    : 0
+                                )
+                              }
+                              className="h-10 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 text-[12px] text-neutral-100 outline-none focus:border-neutral-400"
+                            />
+                          </label>
+
+                          <label className="space-y-1">
+                            <span className="block text-[10px] uppercase tracking-[0.1em] text-neutral-500">
+                              Loan Term
+                            </span>
+                            <select
+                              value={termMonths}
+                              onChange={(e) => setTermMonths(Number(e.target.value))}
+                              className="h-10 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 text-[12px] text-neutral-100 outline-none focus:border-neutral-400"
+                            >
+                              {[24, 36, 48, 60].map((months) => (
+                                <option key={months} value={months}>
+                                  {months} months
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+
+                          <label className="space-y-1">
+                            <span className="block text-[10px] uppercase tracking-[0.1em] text-neutral-500">
+                              APR
+                            </span>
+                            <select
+                              value={creditTier}
+                              onChange={(e) =>
+                                setCreditTier(
+                                  e.target.value as
+                                    | "low"
+                                    | "midLow"
+                                    | "midHigh"
+                                    | "high"
+                                )
+                              }
+                              className="h-10 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 text-[12px] text-neutral-100 outline-none focus:border-neutral-400"
+                            >
+                              <option value="low">22.00%</option>
+                              <option value="midLow">17.99%</option>
+                              <option value="midHigh">12.99%</option>
+                              <option value="high">6.99%</option>
+                            </select>
+                          </label>
+                        </div>
+
+                        <div className="mt-5 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.1em] text-neutral-500">
+                              Estimated monthly payment
+                            </p>
+                            <p className="mt-1 text-3xl font-semibold tracking-tight text-emerald-400">
+                              {monthlyPayment
+                                ? `$${monthlyPayment.toFixed(2)}`
+                                : "--"}
+                              <span className="ml-1 text-sm font-medium text-neutral-500">
+                                / mo
+                              </span>
+                            </p>
+                          </div>
+
+                          <div className="min-w-[150px] rounded-lg border border-neutral-800 bg-neutral-950/70 px-4 py-3 text-[10px] text-neutral-400">
+                            <div className="flex justify-between gap-5">
+                              <span>Financed</span>
+                              <span className="text-neutral-200">
+                                {`$${amountFinanced.toLocaleString(undefined, {
+                                  maximumFractionDigits: 0,
+                                })}`}
+                              </span>
+                            </div>
+                            <div className="mt-1 flex justify-between gap-5">
+                              <span>APR</span>
+                              <span className="text-neutral-200">{apr.toFixed(2)}%</span>
+                            </div>
+                            <div className="mt-1 flex justify-between gap-5">
+                              <span>Term</span>
+                              <span className="text-neutral-200">{termMonths} mo</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 )}
               </div>
             )}
-
             {activePanel === "offer" && (
               <form
                 onSubmit={handleMakeOfferSubmit}
