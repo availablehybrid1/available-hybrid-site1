@@ -4,7 +4,7 @@ import type { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  Car,
+  Car as CarIcon,
   Cog,
   FileText,
   Fuel,
@@ -725,7 +725,7 @@ if (!car) {
                   </p>
                 </div>
                 <div>
-                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><Car className="h-3 w-3" />Body Type</p>
+                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-neutral-600"><CarIcon className="h-3 w-3" />Body Type</p>
                   <p className="mt-1 text-neutral-100">{simplifiedBodyType}</p>
                 </div>
                 <div>
