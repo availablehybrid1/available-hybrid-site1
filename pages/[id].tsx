@@ -12,6 +12,11 @@ import {
   GitBranch,
   Palette,
   Settings,
+  MessageCircle,
+  Calculator,
+  BadgeCheck,
+  BadgeDollarSign,
+  CalendarDays,
 } from "lucide-react";
 import { getInventory, type Car } from "../lib/getInventory";
 
@@ -655,8 +660,7 @@ if (!car) {
               )}
             </div>
 
-            <section className="mt-2 rounded-xl border border-white/10 bg-neutral-900/30 px-3 py-2.5 text-xs">
-            <div className="flex w-full flex-wrap items-center gap-1.5 text-[11px]">
+            <section className="mt-2 grid gap-2 sm:grid-cols-2">
               <button
                 type="button"
                 onClick={() =>
@@ -664,14 +668,29 @@ if (!car) {
                     current === "contact" ? null : "contact"
                   )
                 }
-                className={`rounded-full border px-3 py-1.5 text-center text-[10px] font-semibold transition ${
+                className={`group flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
                   activePanel === "contact"
-                    ? "border-white bg-white text-black"
-                    : "border-neutral-300 bg-neutral-100 text-black hover:bg-white"
+                    ? "border-neutral-200 bg-neutral-100 text-black"
+                    : "border-white/10 bg-neutral-900/45 text-neutral-100 hover:border-neutral-600 hover:bg-neutral-900/80"
                 }`}
               >
-                Contact Dealer
+                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${
+                  activePanel === "contact"
+                    ? "border-black/10 bg-black/5"
+                    : "border-white/10 bg-black/30"
+                }`}>
+                  <MessageCircle className="h-4 w-4" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[11px] font-semibold">Contact Dealer</span>
+                  <span className={`mt-0.5 block text-[9px] ${
+                    activePanel === "contact" ? "text-neutral-600" : "text-neutral-500"
+                  }`}>
+                    Availability, offer or test drive
+                  </span>
+                </span>
               </button>
+
               <button
                 type="button"
                 onClick={() =>
@@ -679,15 +698,28 @@ if (!car) {
                     current === "estimate" ? null : "estimate"
                   )
                 }
-                className={`rounded-full border px-3 py-1.5 text-center text-[10px] font-semibold transition ${
+                className={`group flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
                   activePanel === "estimate"
-                    ? "border-white bg-white text-black"
-                    : "border-neutral-700 bg-transparent text-neutral-200 hover:border-neutral-500 hover:bg-neutral-900"
+                    ? "border-neutral-200 bg-neutral-100 text-black"
+                    : "border-white/10 bg-neutral-900/45 text-neutral-100 hover:border-neutral-600 hover:bg-neutral-900/80"
                 }`}
               >
-                Estimated Payment
+                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${
+                  activePanel === "estimate"
+                    ? "border-black/10 bg-black/5"
+                    : "border-white/10 bg-black/30"
+                }`}>
+                  <Calculator className="h-4 w-4" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[11px] font-semibold">Estimated Payment</span>
+                  <span className={`mt-0.5 block text-[9px] ${
+                    activePanel === "estimate" ? "text-neutral-600" : "text-neutral-500"
+                  }`}>
+                    Calculate an estimated monthly payment
+                  </span>
+                </span>
               </button>
-            </div>
 
             {activePanel === "contact" && (
               <div
@@ -723,10 +755,10 @@ if (!car) {
               <div className="mt-3 border-t border-neutral-800 pt-3">
                 <div className="flex flex-wrap gap-1.5">
                   {[
-                    { id: "availability", label: "Confirm Availability" },
-                    { id: "offer", label: "Make an Offer" },
-                    { id: "testdrive", label: "Schedule Test Drive" },
-                  ].map((option) => (
+                    { id: "availability", label: "Confirm Availability", icon: BadgeCheck },
+                    { id: "offer", label: "Make an Offer", icon: BadgeDollarSign },
+                    { id: "testdrive", label: "Schedule Test Drive", icon: CalendarDays },
+                  ].map((option) => { const OptionIcon = option.icon; return (
                     <button
                       key={option.id}
                       type="button"
@@ -741,9 +773,10 @@ if (!car) {
                           : "border-neutral-700 text-neutral-300 hover:border-neutral-500"
                       }`}
                     >
+                      <OptionIcon className="mr-1.5 inline h-3.5 w-3.5" />
                       {option.label}
                     </button>
-                  ))}
+                  ); })}
                 </div>
               </div>
             )}
