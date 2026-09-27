@@ -168,6 +168,24 @@ if (!car) {
 }
 
   const mainPhoto = car.photos[current] ?? "";
+  const simplifiedBodyType = (() => {
+    const body = (vinInfo?.bodyClass || "").toLowerCase();
+
+    if (!body) return "N/A";
+    if (body.includes("sport utility") || body.includes("[suv]") || body.includes("multipurpose vehicle")) return "SUV";
+    if (body.includes("pickup")) return "Pickup";
+    if (body.includes("hatchback")) return "Hatchback";
+    if (body.includes("sedan")) return "Sedan";
+    if (body.includes("coupe")) return "Coupe";
+    if (body.includes("convertible") || body.includes("cabriolet")) return "Convertible";
+    if (body.includes("wagon")) return "Wagon";
+    if (body.includes("minivan")) return "Minivan";
+    if (body.includes("van")) return "Van";
+    if (body.includes("roadster")) return "Roadster";
+
+    return vinInfo?.bodyClass || "N/A";
+  })();
+
   const cleanDescription = (car.description || "")
     .replace(
       /\b(?:\d{4}\s+)?(?:[A-Z0-9-]+\s+){0,5}available at Available Hybrid R&?M Inc\.?\s*/i,
@@ -178,7 +196,7 @@ if (!car) {
 
   const friendlyOverview = (() => {
     const name = [car.year, car.make, car.model].filter(Boolean).join(" ");
-    const body = vinInfo?.bodyClass || "";
+    const body = simplifiedBodyType === "N/A" ? "" : simplifiedBodyType;
     const drive = vinInfo?.driveType || "";
     const pieces: string[] = [];
 
@@ -679,7 +697,7 @@ if (!car) {
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Body Type</p>
-                  <p className="mt-1 text-neutral-100">{vinInfo?.bodyClass || "N/A"}</p>
+                  <p className="mt-1 text-neutral-100">{simplifiedBodyType}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-600">Drivetrain</p>
