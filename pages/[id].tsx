@@ -733,7 +733,7 @@ if (!car) {
 
             <div className="grid items-stretch gap-4 lg:grid-cols-2">
             {friendlyOverview && (
-              <section className="h-full rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] shadow-[0_12px_36px_rgba(0,0,0,0.16)] sm:p-6">
+              <section className="flex h-full min-h-[170px] flex-col rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] shadow-[0_12px_36px_rgba(0,0,0,0.16)] sm:p-6">
                 <p className="mb-2 text-sm font-semibold text-neutral-100">
                   Overview
                 </p>
@@ -750,18 +750,18 @@ if (!car) {
                 <button
                   type="button"
                   onClick={() => setIsDescriptionOpen(true)}
-                  className="mt-4 inline-flex w-full items-center justify-center rounded-lg border border-neutral-700 px-4 py-2 text-[11px] font-medium text-neutral-200 transition hover:border-neutral-400 hover:bg-neutral-900"
+                  className="mt-auto inline-flex w-full items-center justify-center rounded-lg border border-neutral-700 px-4 py-2 text-[11px] font-medium text-neutral-200 transition hover:border-neutral-400 hover:bg-neutral-900"
                 >
                   Read in full
                 </button>
               </section>
             )}
 
-            <section className="h-full rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-xs shadow-[0_12px_36px_rgba(0,0,0,0.18)] sm:p-6">
+            <section className="flex h-full min-h-[170px] flex-col rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-xs shadow-[0_12px_36px_rgba(0,0,0,0.18)] sm:p-6">
               <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 Vehicle actions
               </p>
-            <div className="grid grid-cols-2 gap-2 text-[11px] md:grid-cols-4">
+            <div className="mt-auto grid grid-cols-2 gap-2 text-[11px]">
               {[
                 { id: "availability", label: "Confirm Availability" },
                 { id: "estimate", label: "Estimated Payment" },
