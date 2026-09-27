@@ -233,6 +233,17 @@ if (!car) {
     if (/all.?wheel|awd|4x4/i.test(drive)) {
       pieces.push("All-wheel drive adds extra traction when road conditions are less ideal.");
     }
+    if (vinInfo?.mpgCity || vinInfo?.mpgHighway || vinInfo?.mpgCombined) {
+      const mpgParts = [
+        vinInfo?.mpgCity ? `${vinInfo.mpgCity} city` : "",
+        vinInfo?.mpgHighway ? `${vinInfo.mpgHighway} highway` : "",
+        vinInfo?.mpgCombined ? `${vinInfo.mpgCombined} combined` : "",
+      ].filter(Boolean);
+
+      if (mpgParts.length) {
+        pieces.push(`EPA fuel economy is approximately ${mpgParts.join(", ")} MPG.`);
+      }
+    }
 
     const notesOnly = cleanDescription
       .replace(/\bClean Title\b[\s·.-]*/gi, "")
