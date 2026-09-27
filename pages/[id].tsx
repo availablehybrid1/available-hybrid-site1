@@ -66,6 +66,7 @@ type DetailProps = {
 export default function VehicleDetail({ car, suggestions }: DetailProps) {
   const [current, setCurrent] = React.useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false);
+  const [isDescriptionOpen, setIsDescriptionOpen] = React.useState(false);
 
   // zoom dentro del modal
   const [isZoomed, setIsZoomed] = React.useState(false);
@@ -733,11 +734,25 @@ if (!car) {
             {friendlyOverview && (
               <section className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] shadow-[0_12px_36px_rgba(0,0,0,0.16)] sm:p-6">
                 <p className="mb-2 text-sm font-semibold text-neutral-100">
-                  Overview
+                  Description
                 </p>
-                <p className="max-w-5xl leading-relaxed text-neutral-300">
+                <p
+                  className="max-w-5xl overflow-hidden leading-relaxed text-neutral-300"
+                  style={{
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                  }}
+                >
                   {friendlyOverview}
                 </p>
+                <button
+                  type="button"
+                  onClick={() => setIsDescriptionOpen(true)}
+                  className="mt-4 inline-flex w-full items-center justify-center rounded-lg border border-neutral-700 px-4 py-2 text-[11px] font-medium text-neutral-200 transition hover:border-neutral-400 hover:bg-neutral-900"
+                >
+                  Read in full
+                </button>
               </section>
             )}
 
@@ -1238,6 +1253,41 @@ if (!car) {
           </div>
         </section>
       </div>
+
+      {isDescriptionOpen && friendlyOverview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm"
+          onClick={() => setIsDescriptionOpen(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="vehicle-description-title"
+            className="relative w-full max-w-xl rounded-xl border border-neutral-700 bg-neutral-950 p-5 shadow-2xl sm:p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-4 border-b border-neutral-800 pb-3">
+              <h2
+                id="vehicle-description-title"
+                className="text-lg font-semibold text-neutral-100"
+              >
+                Description
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsDescriptionOpen(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-800 hover:text-white"
+                aria-label="Close description"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="mt-4 text-sm leading-6 text-neutral-200">
+              {friendlyOverview}
+            </p>
+          </div>
+        </div>
+      )}
 
       {isLightboxOpen && mainPhoto && (
         <div
