@@ -99,10 +99,13 @@ const [touchEndX, setTouchEndX] = React.useState<number | null>(null);
   const [vinLoading, setVinLoading] = React.useState(false);
   const [vinError, setVinError] = React.useState<string | null>(null);
 
-  // Panel derecho (tabs)
+  // Compact vehicle actions
   const [activePanel, setActivePanel] = React.useState<
-    "availability" | "estimate" | "offer" | "testdrive" | null
+    "contact" | "estimate" | null
   >(null);
+  const [contactAction, setContactAction] = React.useState<
+    "availability" | "offer" | "testdrive"
+  >("availability");
 
   // BHPH estimator UI
   const [creditTier, setCreditTier] = React.useState<
@@ -654,40 +657,68 @@ if (!car) {
 
             <section className="mt-3 rounded-xl border border-white/10 bg-neutral-900/35 px-3 py-3 text-xs">
             <div className="flex w-full flex-wrap items-center gap-1.5 text-[11px]">
-              {[
-                { id: "availability", label: "Confirm Availability" },
-                { id: "estimate", label: "Estimated Payment" },
-                { id: "offer", label: "Make an Offer" },
-                { id: "testdrive", label: "Schedule Test Drive" },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() =>
-                    setActivePanel((current) =>
-                      current === tab.id
-                        ? null
-                        : (tab.id as
-                            | "availability"
-                            | "estimate"
-                            | "offer"
-                            | "testdrive")
-                    )
-                  }
-                  className={`rounded-full border px-3 py-1.5 text-center text-[10px] font-semibold transition ${
-                    activePanel === tab.id
-                      ? "border-white bg-white text-black"
-                      : tab.id === "availability"
-                      ? "border-neutral-300 bg-neutral-100 text-black hover:bg-white"
-                      : "border-neutral-700 bg-transparent text-neutral-200 hover:border-neutral-500 hover:bg-neutral-900"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+              <button
+                type="button"
+                onClick={() =>
+                  setActivePanel((current) =>
+                    current === "contact" ? null : "contact"
+                  )
+                }
+                className={`rounded-full border px-3 py-1.5 text-center text-[10px] font-semibold transition ${
+                  activePanel === "contact"
+                    ? "border-white bg-white text-black"
+                    : "border-neutral-300 bg-neutral-100 text-black hover:bg-white"
+                }`}
+              >
+                Contact Dealer
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setActivePanel((current) =>
+                    current === "estimate" ? null : "estimate"
+                  )
+                }
+                className={`rounded-full border px-3 py-1.5 text-center text-[10px] font-semibold transition ${
+                  activePanel === "estimate"
+                    ? "border-white bg-white text-black"
+                    : "border-neutral-700 bg-transparent text-neutral-200 hover:border-neutral-500 hover:bg-neutral-900"
+                }`}
+              >
+                Estimated Payment
+              </button>
             </div>
 
-            {activePanel === "availability" && (
+            {activePanel === "contact" && (
+              <div className="mt-3 border-t border-neutral-800 pt-3">
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { id: "availability", label: "Confirm Availability" },
+                    { id: "offer", label: "Make an Offer" },
+                    { id: "testdrive", label: "Schedule Test Drive" },
+                  ].map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() =>
+                        setContactAction(
+                          option.id as "availability" | "offer" | "testdrive"
+                        )
+                      }
+                      className={`rounded-md border px-2.5 py-1.5 text-[10px] font-medium transition ${
+                        contactAction === option.id
+                          ? "border-neutral-300 bg-neutral-100 text-black"
+                          : "border-neutral-700 text-neutral-300 hover:border-neutral-500"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activePanel === "contact" && contactAction === "availability" && (
               <form
                 onSubmit={handleAvailabilitySubmit}
                 className="mt-5 space-y-3 border-t border-neutral-800 pt-5"
@@ -753,7 +784,7 @@ if (!car) {
               </form>
             )}
 
-            {activePanel === "offer" && (
+            {activePanel === "contact" && contactAction === "offer" && (
               <form
                 onSubmit={handleMakeOfferSubmit}
                 className="mt-5 space-y-3 border-t border-neutral-800 pt-5"
@@ -823,7 +854,7 @@ if (!car) {
               </form>
             )}
 
-            {activePanel === "testdrive" && (
+            {activePanel === "contact" && contactAction === "testdrive" && (
               <form
                 onSubmit={handleTestDriveSubmit}
                 className="mt-5 space-y-3 border-t border-neutral-800 pt-5"
