@@ -3,6 +3,21 @@ import * as React from "react";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import {
+  Car as CarIcon,
+  Cog,
+  FileText,
+  Fuel,
+  Gauge,
+  GitBranch,
+  Palette,
+  Settings,
+  MessageCircle,
+  Calculator,
+  BadgeCheck,
+  BadgeDollarSign,
+  CalendarDays,
+} from "lucide-react";
 import { getInventory, type Car } from "../lib/getInventory";
 
 // misma función que en index.tsx para convertir links de Drive a imágenes
@@ -41,6 +56,7 @@ type Vehicle = {
   exterior: string;
   vin: string;
   status: string;
+  titleStatus: string;
   description: string;
   photos: string[];
 };
@@ -55,16 +71,22 @@ type VinDecoded = {
   engineDisplacementL?: string | null;
   transmission?: string | null;
   driveType?: string | null;
+  mpgCity?: number | null;
+  mpgHighway?: number | null;
+  mpgCombined?: number | null;
+  mpgSource?: string | null;
 };
 
 type DetailProps = {
   car: Vehicle | null;
   suggestions: Vehicle[];
+  inventoryOptions: Vehicle[];
 };
 
-export default function VehicleDetail({ car, suggestions }: DetailProps) {
+export default function VehicleDetail({ car, suggestions, inventoryOptions }: DetailProps) {
   const [current, setCurrent] = React.useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false);
+  const [isDescriptionOpen, setIsDescriptionOpen] = React.useState(false);
 
   // zoom dentro del modal
   const [isZoomed, setIsZoomed] = React.useState(false);
@@ -82,9 +104,12 @@ const [touchEndX, setTouchEndX] = React.useState<number | null>(null);
   const [vinLoading, setVinLoading] = React.useState(false);
   const [vinError, setVinError] = React.useState<string | null>(null);
 
-  // Panel derecho (tabs)
+  // Compact vehicle actions
   const [activePanel, setActivePanel] = React.useState<
-    "availability" | "estimate" | "offer" | "testdrive"
+    "contact" | "estimate" | null
+  >(null);
+  const [contactAction, setContactAction] = React.useState<
+    "availability" | "offer" | "testdrive"
   >("availability");
 
   // BHPH estimator UI
@@ -166,6 +191,88 @@ if (!car) {
 }
 
   const mainPhoto = car.photos[current] ?? "";
+  const simplifiedBodyType = (() => {
+    const body = (vinInfo?.bodyClass || "").toLowerCase();
+
+    if (!body) return "N/A";
+    if (body.includes("sport utility") || body.includes("[suv]") || body.includes("multipurpose vehicle")) return "SUV";
+    if (body.includes("pickup")) return "Pickup";
+    if (body.includes("hatchback")) return "Hatchback";
+    if (body.includes("sedan")) return "Sedan";
+    if (body.includes("coupe")) return "Coupe";
+    if (body.includes("convertible") || body.includes("cabriolet")) return "Convertible";
+    if (body.includes("wagon")) return "Wagon";
+    if (body.includes("minivan")) return "Minivan";
+    if (body.includes("van")) return "Van";
+    if (body.includes("roadster")) return "Roadster";
+
+    return vinInfo?.bodyClass || "N/A";
+  })();
+
+  const cleanDescription = (car.description || "")
+    .replace(
+      /\b(?:\d{4}\s+)?(?:[A-Z0-9-]+\s+){0,5}available at Available Hybrid R&?M Inc\.?\s*/i,
+      ""
+    )
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  const friendlyOverview = (() => {
+    const name = [car.year, car.make, car.model].filter(Boolean).join(" ");
+    const body = simplifiedBodyType === "N/A" ? "" : simplifiedBodyType;
+    const drive = vinInfo?.driveType || "";
+    const pieces: string[] = [];
+
+    if (body) {
+      pieces.push(
+        `This ${name} is a ${body.toLowerCase()} with a straightforward, practical setup for everyday driving.`
+      );
+    } else {
+      pieces.push(
+        `This ${name} is a practical option for everyday driving.`
+      );
+    }
+
+    if (/hybrid/i.test(car.fuel || "")) {
+      pieces.push("Its hybrid powertrain is designed to help reduce fuel use in daily driving.");
+    } else if (car.fuel) {
+      pieces.push(`It uses ${car.fuel.toLowerCase()} fuel.`);
+    }
+
+    if (/all.?wheel|awd|4x4/i.test(drive)) {
+      pieces.push("All-wheel drive adds extra traction when road conditions are less ideal.");
+    }
+    if (vinInfo?.mpgCity || vinInfo?.mpgHighway || vinInfo?.mpgCombined) {
+      const mpgParts = [
+        vinInfo?.mpgCity ? `${vinInfo.mpgCity} city` : "",
+        vinInfo?.mpgHighway ? `${vinInfo.mpgHighway} highway` : "",
+        vinInfo?.mpgCombined ? `${vinInfo.mpgCombined} combined` : "",
+      ].filter(Boolean);
+
+      if (mpgParts.length) {
+        pieces.push(`EPA fuel economy is approximately ${mpgParts.join(", ")} MPG.`);
+      }
+    }
+
+    const notesOnly = cleanDescription
+      .replace(/\bClean Title\b[\s·.-]*/gi, "")
+      .replace(/\bSalvage Title\b[\s·.-]*/gi, "")
+      .replace(/\bRebuilt Title\b[\s·.-]*/gi, "")
+      .replace(/\b[\d,]+ miles\b[\s·.-]*/gi, "")
+      .replace(/\b(?:Gasoline|Hybrid|Electric|Diesel)\b[\s·.-]*/gi, "")
+      .replace(/\b(?:Automatic|Manual)\b[\s·.-]*/gi, "")
+      .replace(/\b(?:Black|White|Silver|Gray|Grey|Red|Blue|Green|Beige|Brown|Gold) exterior\b[\s·.-]*/gi, "")
+      .replace(/\b(?:FWD|RWD|AWD|4WD|4x4|Front-Wheel Drive|Rear-Wheel Drive|All-Wheel Drive)\b[\s·.-]*/gi, "")
+      .replace(/\b\d+ cyl\b[\s·.-]*/gi, "")
+      .replace(/\b\d(?:\.\d+)?L\b[\s·.-]*/gi, "")
+      .replace(/\s{2,}/g, " ")
+      .replace(/^[\s·.-]+|[\s·.-]+$/g, "")
+      .trim();
+
+    if (notesOnly.length > 12) pieces.push(notesOnly);
+
+    return pieces.join(" ");
+  })();
 
   // APR según rango de crédito
   const apr = React.useMemo(() => {
@@ -492,9 +599,9 @@ if (!car) {
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl px-4 pb-12 pt-4 space-y-6">
-        <div className="flex flex-col gap-6 lg:flex-row">
-          <section className="flex-1">
+      <div className="max-w-6xl space-y-4 px-4 pb-10 pt-4">
+        <div className="grid items-start gap-1 lg:grid-cols-[fit-content(520px)_400px]">
+          <section className="min-w-0 lg:w-fit lg:max-w-[520px]">
             <Link
               href="/inventory"
               className="mb-3 inline-flex text-xs text-neutral-400 underline-offset-2 hover:underline"
@@ -502,188 +609,182 @@ if (!car) {
               ← Back to inventory
             </Link>
 
-            <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/70">
-              <div className="relative flex h-[220px] w-full items-center justify-center bg-neutral-800 sm:h-[280px] lg:h-[320px]">
-                {mainPhoto ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => setIsLightboxOpen(true)}
-                      className="group flex h-full w-full items-center justify-center"
-                    >
-                      <Image
-  src={mainPhoto}
-  alt={car.title}
-  fill
-  className="object-contain transition-opacity duration-300"
-/>
-                     <div className="pointer-events-none absolute bottom-2 right-2 flex items-center gap-2">
-  <span className="rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
-    {current + 1} / {car.photos.length}
-  </span>
-  <span className="rounded bg-black/60 px-2 py-1 text-[10px] text-neutral-100">
-    Click to enlarge
-  </span>
-</div>
-                    </button>
+            <div className="flex min-h-[320px] w-full items-center justify-center sm:min-h-[420px] lg:min-h-[500px] lg:justify-start">
+              {mainPhoto ? (
+                <div className="relative inline-flex max-w-full items-center justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setIsLightboxOpen(true)}
+                    className="group relative inline-flex max-w-full items-center justify-center"
+                  >
+                    <img
+                      src={mainPhoto}
+                      alt={car.title}
+                      className="block h-auto max-h-[500px] max-w-full rounded-lg object-contain sm:max-h-[560px]"
+                    />
+                    <div className="pointer-events-none absolute bottom-3 right-3 flex items-center gap-2">
+                      <span className="rounded-full bg-black/70 px-2.5 py-1 text-[10px] text-neutral-100 backdrop-blur">
+                        {current + 1} / {car.photos.length}
+                      </span>
+                      <span className="hidden rounded-full bg-black/70 px-2.5 py-1 text-[10px] text-neutral-100 backdrop-blur sm:inline">
+                        View full size
+                      </span>
+                    </div>
+                  </button>
 
-                    {hasMultiplePhotos && (
+                  {hasMultiplePhotos && (
+                    <>
                       <button
                         type="button"
                         onClick={goPrev}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
+                        className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-lg text-white backdrop-blur transition hover:bg-black/80"
+                        aria-label="Previous photo"
                       >
                         ‹
                       </button>
-                    )}
-                    {hasMultiplePhotos && (
                       <button
                         type="button"
                         onClick={goNext}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-2 py-1 text-xs text-neutral-100 hover:bg-black"
+                        className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-lg text-white backdrop-blur transition hover:bg-black/80"
+                        aria-label="Next photo"
                       >
                         ›
                       </button>
-                    )}
-                  </>
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
-                    Photo coming soon
-                  </div>
-                )}
-              </div>
-</div>
-
-{/* THUMBNAILS */}
-<div className="mt-3 flex gap-2 overflow-x-auto">
-  {car.photos.map((photo, i) => (
-    <button
-      key={i}
-      onClick={() => setCurrent(i)}
-      className={`relative h-16 w-24 flex-shrink-0 overflow-hidden rounded border ${
-        current === i
-  ? "border-white scale-105"
-  : "border-neutral-700 opacity-70 hover:opacity-100"
-      }`}
-    >
-      <Image
-        src={photo}
-        alt={`thumb-${i}`}
-        fill
-        className="object-cover"
-      />
-    </button>
-  ))}
-</div>
-
-</section>
-
-          <section className="flex-1 rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-xs sm:p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-500">
-                  Available Hybrid
-                </p>
-                <h1 className="mt-1 text-base font-semibold text-neutral-50 sm:text-lg">
-                  {car.year} {car.make} {car.model}
-                </h1>
-                <p className="mt-1 text-[11px] text-neutral-400">
-                  Hybrid &amp; fuel-efficient vehicles in Reseda, CA.
-                </p>
-              </div>
-              {car.price != null && (
-                <div className="text-right">
-                  <p className="text-[11px] text-neutral-500">Our Price</p>
-                  <p className="text-xl font-semibold text-emerald-400 sm:text-2xl">
-                    ${car.price.toLocaleString()}
-                  </p>
-                  {estimatedFees > 0 && (
-                    <div className="mt-1 text-[10px] text-neutral-400">
-                      <p>
-                        Est. taxes &amp; fees:{" "}
-                        <span className="font-semibold text-neutral-200">
-                          ${estimatedFees.toFixed(0)}
-                        </span>
-                      </p>
-                      <p className="text-[9px] text-neutral-500">
-                        *Approximate for Los Angeles, may vary by city and
-                        credit.
-                      </p>
-                    </div>
+                    </>
                   )}
+                </div>
+              ) : (
+                <div className="flex h-[320px] w-full items-center justify-center text-xs text-neutral-500 sm:h-[420px]">
+                  Photo coming soon
                 </div>
               )}
             </div>
 
-            {car.status && (
-              <span className="mt-3 inline-flex items-center rounded-full bg-emerald-600/15 px-2 py-[2px] text-[10px] font-medium text-emerald-400">
-                {car.status}
-              </span>
+            <section className="mt-2 grid max-w-[420px] gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() =>
+                  setActivePanel((current) =>
+                    current === "contact" ? null : "contact"
+                  )
+                }
+                className={`group flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
+                  activePanel === "contact"
+                    ? "border-neutral-200 bg-neutral-100 text-black"
+                    : "border-white/10 bg-neutral-900/45 text-neutral-100 hover:border-neutral-600 hover:bg-neutral-900/80"
+                }`}
+              >
+                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${
+                  activePanel === "contact"
+                    ? "border-black/10 bg-black/5"
+                    : "border-white/10 bg-black/30"
+                }`}>
+                  <MessageCircle className="h-4 w-4" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[11px] font-semibold">Contact Dealer</span>
+                  <span className={`mt-0.5 block text-[9px] ${
+                    activePanel === "contact" ? "text-neutral-600" : "text-neutral-500"
+                  }`}>
+                    Availability, offer or test drive
+                  </span>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setActivePanel((current) =>
+                    current === "estimate" ? null : "estimate"
+                  )
+                }
+                className={`group flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
+                  activePanel === "estimate"
+                    ? "border-neutral-200 bg-neutral-100 text-black"
+                    : "border-white/10 bg-neutral-900/45 text-neutral-100 hover:border-neutral-600 hover:bg-neutral-900/80"
+                }`}
+              >
+                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${
+                  activePanel === "estimate"
+                    ? "border-black/10 bg-black/5"
+                    : "border-white/10 bg-black/30"
+                }`}>
+                  <Calculator className="h-4 w-4" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[11px] font-semibold">Estimated Payment</span>
+                  <span className={`mt-0.5 block text-[9px] ${
+                    activePanel === "estimate" ? "text-neutral-600" : "text-neutral-500"
+                  }`}>
+                    Calculate an estimated monthly payment
+                  </span>
+                </span>
+              </button>
+
+            {activePanel === "contact" && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-sm"
+                onClick={() => setActivePanel(null)}
+              >
+                <div
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="contact-dealer-title"
+                  className="max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-neutral-700 bg-neutral-950 p-5 shadow-2xl sm:p-6"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="mb-4 flex items-center justify-between gap-4 border-b border-neutral-800 pb-3">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">
+                        {car.make} {car.model} {car.year}
+                      </p>
+                      <h2 id="contact-dealer-title" className="mt-1 text-lg font-semibold text-neutral-100">
+                        Contact Dealer
+                      </h2>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActivePanel(null)}
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-800 hover:text-white"
+                      aria-label="Close contact dealer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+            {activePanel === "contact" && (
+              <div className="mt-3 border-t border-neutral-800 pt-3">
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { id: "availability", label: "Confirm Availability", icon: BadgeCheck },
+                    { id: "offer", label: "Make an Offer", icon: BadgeDollarSign },
+                    { id: "testdrive", label: "Schedule Test Drive", icon: CalendarDays },
+                  ].map((option) => { const OptionIcon = option.icon; return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() =>
+                        setContactAction(
+                          option.id as "availability" | "offer" | "testdrive"
+                        )
+                      }
+                      className={`rounded-md border px-2.5 py-1.5 text-[10px] font-medium transition ${
+                        contactAction === option.id
+                          ? "border-neutral-300 bg-neutral-100 text-black"
+                          : "border-neutral-700 text-neutral-300 hover:border-neutral-500"
+                      }`}
+                    >
+                      <OptionIcon className="mr-1.5 inline h-3.5 w-3.5" />
+                      {option.label}
+                    </button>
+                  ); })}
+                </div>
+              </div>
             )}
 
-            <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-[11px] text-neutral-300">
-              <div>
-                <dt className="text-neutral-500">Mileage</dt>
-                <dd>
-                  {car.mileage != null
-                    ? `${car.mileage.toLocaleString()} mi`
-                    : "N/A"}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-neutral-500">Fuel</dt>
-                <dd>{car.fuel || "N/A"}</dd>
-              </div>
-              <div>
-                <dt className="text-neutral-500">Transmission</dt>
-                <dd>{car.transmission || "N/A"}</dd>
-              </div>
-              <div>
-                <dt className="text-neutral-500">Exterior</dt>
-                <dd>{car.exterior || "N/A"}</dd>
-              </div>
-              <div className="col-span-2">
-                <dt className="text-neutral-500">VIN</dt>
-                <dd className="font-mono text-[10px] uppercase">
-                  {car.vin || "N/A"}
-                </dd>
-              </div>
-            </dl>
-
-            <div className="mt-5 grid grid-cols-4 gap-1 text-[11px]">
-              {[
-                { id: "availability", label: "Confirm Availability" },
-                { id: "estimate", label: "Estimated Payment" },
-                { id: "offer", label: "Make an Offer" },
-                { id: "testdrive", label: "Schedule Test Drive" },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() =>
-                    setActivePanel(
-                      tab.id as
-                        | "availability"
-                        | "estimate"
-                        | "offer"
-                        | "testdrive"
-                    )
-                  }
-                  className={`rounded-sm px-2 py-1.5 text-center font-semibold ${
-                    activePanel === tab.id
-                      ? "bg-neutral-100 text-black"
-                      : "bg-neutral-900 text-neutral-200 hover:bg-neutral-800"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {activePanel === "availability" && (
+            {activePanel === "contact" && contactAction === "availability" && (
               <form
                 onSubmit={handleAvailabilitySubmit}
-                className="mt-4 space-y-3 rounded-lg border border-neutral-800 bg-neutral-950/80 p-3"
+                className="mt-5 space-y-3 border-t border-neutral-800 pt-5"
               >
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-1">
@@ -746,182 +847,10 @@ if (!car) {
               </form>
             )}
 
-            {activePanel === "estimate" && (
-              <div className="mt-4 rounded-lg border border-neutral-800 bg-neutral-950/80 p-3 space-y-4">
-                <p className="text-[11px] font-semibold text-neutral-200">
-                  Estimate your payment (example only)
-                </p>
-
-                {!vehiclePrice ? (
-                  <p className="text-[11px] text-neutral-400">
-                    Price is not set for this vehicle. Please contact the dealer
-                    for financing options.
-                  </p>
-                ) : (
-                  <div className="grid gap-3 sm:grid-cols-2 text-[11px]">
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-neutral-500">Vehicle price*</p>
-                        <p className="text-sm font-semibold text-neutral-100">
-                          ${vehiclePrice.toLocaleString()}
-                        </p>
-                        <p className="mt-1 text-[10px] text-neutral-500">
-                          *Price excludes taxes, DMV fees and dealer charges.
-                        </p>
-                      </div>
-
-                      <div className="space-y-1">
-                        <p className="text-neutral-500">Approx. credit score</p>
-                        <div className="space-y-1">
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name="creditTier"
-                              className="h-3 w-3"
-                              checked={creditTier === "low"}
-                              onChange={() => setCreditTier("low")}
-                            />
-                            <span>{"<"} 600 or no credit · 22% APR</span>
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name="creditTier"
-                              className="h-3 w-3"
-                              checked={creditTier === "midLow"}
-                              onChange={() => setCreditTier("midLow")}
-                            />
-                            <span>600–649 · 17.99% APR</span>
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name="creditTier"
-                              className="h-3 w-3"
-                              checked={creditTier === "midHigh"}
-                              onChange={() => setCreditTier("midHigh")}
-                            />
-                            <span>650–699 · 12.99% APR</span>
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name="creditTier"
-                              className="h-3 w-3"
-                              checked={creditTier === "high"}
-                              onChange={() => setCreditTier("high")}
-                            />
-                            <span>700+ · 6.99% APR</span>
-                          </label>
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="block text-neutral-500">
-                          Down payment (USD)
-                        </label>
-                        <input
-                          type="number"
-                          min={0}
-                          value={downPayment}
-                          onChange={(e) =>
-                            setDownPayment(
-                              Number(e.target.value) >= 0
-                                ? Number(e.target.value)
-                                : 0
-                            )
-                          }
-                          className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="block text-neutral-500">
-                          Term (months)
-                        </label>
-                        <input
-                          type="number"
-                          min={6}
-                          max={60}
-                          value={termMonths}
-                          onChange={(e) =>
-                            setTermMonths(
-                              Number(e.target.value) > 0
-                                ? Number(e.target.value)
-                                : 1
-                            )
-                          }
-                          className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] text-neutral-100 outline-none focus:border-emerald-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2 rounded border border-neutral-800 bg-neutral-900 p-3">
-                      <p className="text-[11px] font-semibold text-neutral-200">
-                        Estimated terms
-                      </p>
-                      <div className="space-y-1 text-[11px] text-neutral-300">
-                        <div className="flex justify-between">
-                          <span>Vehicle price</span>
-                          <span>
-                            $
-                            {vehiclePrice.toLocaleString(undefined, {
-                              maximumFractionDigits: 2,
-                            })}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Down payment</span>
-                          <span>
-                            -$
-                            {downPayment.toLocaleString(undefined, {
-                              maximumFractionDigits: 2,
-                            })}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Amount financed</span>
-                          <span>
-                            $
-                            {amountFinanced.toLocaleString(undefined, {
-                              maximumFractionDigits: 2,
-                            })}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>APR (estimated)</span>
-                          <span>{apr.toFixed(2)}%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Term</span>
-                          <span>{termMonths} months</span>
-                        </div>
-                      </div>
-
-                      <div className="mt-3 rounded bg-neutral-950 p-3 text-[11px]">
-                        <p className="text-neutral-500">Estimated payment</p>
-                        <p className="text-lg font-semibold text-emerald-400">
-                          {monthlyPayment
-                            ? `$${monthlyPayment.toFixed(2)} / mo`
-                            : "--"}
-                        </p>
-                        <p className="mt-1 text-[10px] text-neutral-500">
-                          Example only. Does not include taxes, DMV fees or
-                          dealer charges. Not all customers will qualify for
-                          these terms. Subject to credit approval and signed
-                          contract.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activePanel === "offer" && (
+            {activePanel === "contact" && contactAction === "offer" && (
               <form
                 onSubmit={handleMakeOfferSubmit}
-                className="mt-4 space-y-3 rounded-lg border border-neutral-800 bg-neutral-950/80 p-3"
+                className="mt-5 space-y-3 border-t border-neutral-800 pt-5"
               >
                 <p className="text-[11px] font-semibold text-neutral-200">
                   Make an Offer
@@ -988,10 +917,10 @@ if (!car) {
               </form>
             )}
 
-            {activePanel === "testdrive" && (
+            {activePanel === "contact" && contactAction === "testdrive" && (
               <form
                 onSubmit={handleTestDriveSubmit}
-                className="mt-4 space-y-3 rounded-lg border border-neutral-800 bg-neutral-950/80 p-3"
+                className="mt-5 space-y-3 border-t border-neutral-800 pt-5"
               >
                 <p className="text-[11px] font-semibold text-neutral-200">
                   Schedule Test Drive
@@ -1085,132 +1014,402 @@ if (!car) {
                 </button>
               </form>
             )}
-          </section>
-        </div>
+                </div>
+              </div>
+            )}
+            </section>
+</section>
 
-        <section className="space-y-4">
-          <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
-            <p className="mb-3 text-sm font-semibold text-neutral-100">
-              Basic information
-            </p>
-            <div className="grid gap-x-6 gap-y-2 sm:grid-cols-3">
+          <div className="w-full max-w-[400px] space-y-3 lg:mt-7 lg:sticky lg:top-5">
+            <section className="rounded-2xl border border-white/10 bg-neutral-900/70 p-5 text-xs shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur sm:p-6">
+            <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-neutral-500">Condition</p>
-                <p className="text-neutral-200">Used</p>
-              </div>
-              <div>
-                <p className="text-neutral-500">Mileage</p>
-                <p className="text-neutral-200">
-                  {car.mileage != null
-                    ? `${car.mileage.toLocaleString()} mi`
-                    : "N/A"}
+                <p className="text-[10px] uppercase tracking-[0.22em] text-neutral-500">
+                  Available Hybrid R&amp;M
                 </p>
+                <h1 className="mt-2 text-2xl font-semibold uppercase leading-tight text-neutral-50">
+                  {car.make} {car.model} {car.year}
+                </h1>
               </div>
-              <div>
-                <p className="text-neutral-500">Engine</p>
-                <p className="text-neutral-200">
-                  {vinInfo?.engineCylinders
-                    ? `${vinInfo.engineCylinders} cyl${
-                        vinInfo.engineDisplacementL
-                          ? ` · ${vinInfo.engineDisplacementL}L`
-                          : ""
-                      }`
-                    : "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-neutral-500">Body Type</p>
-                <p className="text-neutral-200">
-                  {vinInfo?.bodyClass || "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-neutral-500">Transmission</p>
-                <p className="text-neutral-200">
-                  {vinInfo?.transmission || car.transmission || "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-neutral-500">Drivetrain</p>
-                <p className="text-neutral-200">
-                  {vinInfo?.driveType || "N/A"}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-4 border-t border-neutral-800 pt-3">
-              <p className="mb-2 text-[11px] font-semibold text-neutral-200">
-                VIN decoded details
-              </p>
-              {vinLoading && (
-                <p className="text-neutral-400">Decoding VIN…</p>
-              )}
-              {vinError && (
-                <p className="text-[11px] text-red-400">{vinError}</p>
-              )}
-              {!vinLoading && !vinError && vinInfo && (
-                <div className="grid gap-x-6 gap-y-1 text-[11px] text-neutral-300 sm:grid-cols-3">
-                  {vinInfo.trim && (
-                    <div>
-                      <p className="text-neutral-500">Trim</p>
-                      <p>{vinInfo.trim}</p>
-                    </div>
-                  )}
-                  {vinInfo.make && (
-                    <div>
-                      <p className="text-neutral-500">Make</p>
-                      <p>{vinInfo.make}</p>
-                    </div>
-                  )}
-                  {vinInfo.model && (
-                    <div>
-                      <p className="text-neutral-500">Model</p>
-                      <p>{vinInfo.model}</p>
-                    </div>
+              {car.price != null && (
+                <div className="text-right">
+                  <p className="text-[11px] text-neutral-500">Our Price</p>
+                  <p className="text-2xl font-semibold tracking-tight text-emerald-400 sm:text-3xl">
+                    ${car.price.toLocaleString()}
+                  </p>
+                  {estimatedFees > 0 && (
+                    <p className="mt-1 text-[9px] text-neutral-500">
+                      Est. taxes &amp; fees ${estimatedFees.toFixed(0)}
+                    </p>
                   )}
                 </div>
               )}
-              {!vinLoading && !vinError && !vinInfo && (
-                <p className="text-neutral-500 text-[11px]">
-                  No extra VIN data available.
-                </p>
-              )}
             </div>
+
+            {car.status && (
+              <span className="mt-4 inline-flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-emerald-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                {car.status}
+              </span>
+            )}
+
+            <div className="mt-5 border-y border-neutral-800/80 py-4">
+              <div className="grid grid-cols-2 gap-x-5 gap-y-4 text-[11px]">
+                <div>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Gauge className="h-3.5 w-3.5" />Mileage</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">
+                    {car.mileage != null ? `${car.mileage.toLocaleString()} mi` : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><FileText className="h-3.5 w-3.5" />Title</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{car.titleStatus || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Fuel className="h-3.5 w-3.5" />Fuel</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{car.fuel || "N/A"}</p>
+                </div>
+                {(vinInfo?.mpgCity || vinInfo?.mpgHighway || vinInfo?.mpgCombined) && (
+                  <div>
+                    <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Gauge className="h-3.5 w-3.5" />MPG</p>
+                    <p className="mt-1 text-[12px] font-medium text-neutral-100">
+                      {vinInfo?.mpgCity ? `${vinInfo.mpgCity} city` : ""}
+                      {vinInfo?.mpgCity && vinInfo?.mpgHighway ? " · " : ""}
+                      {vinInfo?.mpgHighway ? `${vinInfo.mpgHighway} hwy` : ""}
+                    </p>
+                    {vinInfo?.mpgCombined && (
+                      <p className="mt-0.5 text-[10px] text-neutral-500">
+                        {vinInfo.mpgCombined} combined
+                      </p>
+                    )}
+                  </div>
+                )}
+                <div>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Settings className="h-3.5 w-3.5" />Transmission</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">
+                    {vinInfo?.transmission || car.transmission || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Palette className="h-3.5 w-3.5" />Exterior</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{car.exterior || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Cog className="h-3.5 w-3.5" />Engine</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">
+                    {vinInfo?.engineCylinders
+                      ? `${vinInfo.engineCylinders} cyl${vinInfo.engineDisplacementL ? ` · ${vinInfo.engineDisplacementL}L` : ""}`
+                      : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><CarIcon className="h-3.5 w-3.5" />Body Type</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{simplifiedBodyType}</p>
+                </div>
+                <div>
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><GitBranch className="h-3.5 w-3.5" />Drivetrain</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{vinInfo?.driveType || "N/A"}</p>
+                </div>
+              </div>
+            </div>
+
+            <details className="mt-4 border-t border-neutral-800 pt-3">
+              <summary className="cursor-pointer select-none text-[11px] font-medium text-neutral-400 hover:text-neutral-200">
+                More VIN details
+              </summary>
+              <div className="mt-3 space-y-3">
+                <div>
+                  <p className="text-neutral-500">VIN</p>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-neutral-300">
+                    {car.vin || "N/A"}
+                  </p>
+                </div>
+                {vinLoading && <p className="text-neutral-400">Decoding VIN…</p>}
+                {vinError && <p className="text-[11px] text-red-400">{vinError}</p>}
+                {!vinLoading && !vinError && vinInfo && (
+                  <div className="grid gap-x-6 gap-y-2 text-[11px] text-neutral-300 sm:grid-cols-3 lg:grid-cols-1">
+                    {vinInfo.trim && (
+                      <div>
+                        <p className="text-neutral-500">Trim</p>
+                        <p>{vinInfo.trim}</p>
+                      </div>
+                    )}
+                    {vinInfo.make && (
+                      <div>
+                        <p className="text-neutral-500">Make</p>
+                        <p>{vinInfo.make}</p>
+                      </div>
+                    )}
+                    {vinInfo.model && (
+                      <div>
+                        <p className="text-neutral-500">Model</p>
+                        <p>{vinInfo.model}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {friendlyOverview && (
+                  <div className="border-t border-neutral-800 pt-3">
+                    <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-neutral-500">
+                      Overview
+                    </p>
+                    <p className="mt-2 text-[11px] leading-relaxed text-neutral-300">
+                      {friendlyOverview}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </details>
+
+            </section>
+
+          </div>
+        </div>
+
+            <div className="mt-3">
+            {activePanel === "estimate" && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-sm"
+                onClick={() => setActivePanel(null)}
+              >
+                <section
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="payment-estimator-title"
+                  className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-2xl border border-neutral-700 bg-neutral-950 p-5 text-xs shadow-2xl sm:p-6"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="mb-4 flex items-center justify-between gap-4 border-b border-neutral-800 pb-3">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">
+                        {car.make} {car.model} {car.year}
+                      </p>
+                      <h2 id="payment-estimator-title" className="mt-1 text-lg font-semibold text-neutral-100">
+                        Estimated Payment
+                      </h2>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActivePanel(null)}
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-800 hover:text-white"
+                      aria-label="Close payment estimator"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                {!vehiclePrice ? (
+                  <p className="text-[11px] text-neutral-400">
+                    Price is not set for this vehicle. Please contact the dealer
+                    for financing options.
+                  </p>
+                ) : (
+                  <div className="overflow-hidden rounded-xl border border-neutral-800 bg-black/20">
+                    <div className="grid lg:grid-cols-[0.9fr_1.35fr]">
+                      <div className="flex flex-col justify-between border-b border-neutral-800 p-5 lg:border-b-0 lg:border-r sm:p-6">
+                        <div>
+                          <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-700 bg-neutral-900 text-lg text-neutral-100">
+                            $
+                          </div>
+                          <p className="text-lg font-semibold text-neutral-100">
+                            Estimate your payment
+                          </p>
+                          <p className="mt-1 max-w-sm text-[11px] leading-relaxed text-neutral-400">
+                            Get a quick payment estimate based on basic loan terms.
+                          </p>
+
+                          <div className="mt-5 space-y-2 border-t border-neutral-800 pt-4 text-[11px]">
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-neutral-500">Vehicle</span>
+                              <span className="text-right font-medium text-neutral-200">
+                                {car.make} {car.model} {car.year}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-neutral-500">Price</span>
+                              <span className="font-semibold text-emerald-400">
+                                {`${vehiclePrice.toLocaleString()}`}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-neutral-500">Mileage</span>
+                              <span className="text-neutral-200">
+                                {car.mileage != null
+                                  ? `${car.mileage.toLocaleString()} mi`
+                                  : "N/A"}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-neutral-500">Title</span>
+                              <span className="text-neutral-200">
+                                {car.titleStatus || "N/A"}
+                              </span>
+                            </div>
+                            <div className="mt-4 border-t border-neutral-800 pt-4">
+                              <label className="block text-[10px] font-medium uppercase tracking-[0.08em] text-neutral-400">
+                                Estimate another vehicle
+                              </label>
+                              <select
+                                value={car.id}
+                                onChange={(e) => {
+                                  const nextId = e.target.value;
+                                  if (nextId && nextId !== car.id) {
+                                    window.location.href = `/${encodeURIComponent(nextId)}`;
+                                  }
+                                }}
+                                className="mt-2 h-10 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 text-[11px] text-neutral-100 outline-none focus:border-neutral-400"
+                              >
+                                {inventoryOptions.map((vehicle) => (
+                                  <option key={vehicle.id} value={vehicle.id}>
+                                    {vehicle.year} {vehicle.make} {vehicle.model}
+                                    {vehicle.price != null
+                                      ? ` - ${vehicle.price.toLocaleString()}`
+                                      : ""}
+                                  </option>
+                                ))}
+                              </select>
+                              <p className="mt-2 text-[10px] leading-relaxed text-neutral-500">
+                                Selecting another vehicle opens its page and loads its payment estimate.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <p className="mt-5 text-[10px] leading-relaxed text-neutral-400">
+                          Estimate only. Final terms depend on credit approval,
+                          taxes, DMV fees and signed contract.
+                        </p>
+                      </div>
+
+                      <div className="p-5 sm:p-6">
+                        <div className="grid gap-3 sm:grid-cols-3">
+                          <label className="space-y-1">
+                            <span className="block text-[10px] uppercase tracking-[0.1em] text-neutral-500">
+                              Down Payment
+                            </span>
+                            <input
+                              type="number"
+                              min={0}
+                              value={downPayment}
+                              onChange={(e) =>
+                                setDownPayment(
+                                  Number(e.target.value) >= 0
+                                    ? Number(e.target.value)
+                                    : 0
+                                )
+                              }
+                              className="h-10 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 text-[12px] text-neutral-100 outline-none focus:border-neutral-400"
+                            />
+                          </label>
+
+                          <label className="space-y-1">
+                            <span className="block text-[10px] uppercase tracking-[0.1em] text-neutral-500">
+                              Loan Term
+                            </span>
+                            <select
+                              value={termMonths}
+                              onChange={(e) => setTermMonths(Number(e.target.value))}
+                              className="h-10 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 text-[12px] text-neutral-100 outline-none focus:border-neutral-400"
+                            >
+                              {[24, 36, 48, 60].map((months) => (
+                                <option key={months} value={months}>
+                                  {months} months
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+
+                          <label className="space-y-1">
+                            <span className="block text-[10px] uppercase tracking-[0.1em] text-neutral-500">
+                              APR
+                            </span>
+                            <select
+                              value={creditTier}
+                              onChange={(e) =>
+                                setCreditTier(
+                                  e.target.value as
+                                    | "low"
+                                    | "midLow"
+                                    | "midHigh"
+                                    | "high"
+                                )
+                              }
+                              className="h-10 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 text-[12px] text-neutral-100 outline-none focus:border-neutral-400"
+                            >
+                              <option value="low">22.00%</option>
+                              <option value="midLow">17.99%</option>
+                              <option value="midHigh">12.99%</option>
+                              <option value="high">6.99%</option>
+                            </select>
+                          </label>
+                        </div>
+
+                        <div className="mt-5">
+                          <div className="min-w-[230px] rounded-lg border border-neutral-800 bg-neutral-950/70 px-4 py-4 text-[11px] text-neutral-400">
+                            <div className="space-y-2">
+                              <div className="flex justify-between gap-5">
+                                <span>Vehicle price</span>
+                                <span className="font-medium text-neutral-200">
+                                  ${vehiclePrice.toLocaleString()}
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-5">
+                                <span>Down payment</span>
+                                <span className="font-medium text-neutral-200">
+                                  -${downPayment.toLocaleString()}
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-5">
+                                <span>Amount financed</span>
+                                <span className="font-medium text-neutral-100">
+                                  ${amountFinanced.toLocaleString(undefined, {
+                                    maximumFractionDigits: 0,
+                                  })}
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-5">
+                                <span>APR (estimated)</span>
+                                <span className="font-medium text-neutral-200">
+                                  {apr.toFixed(2)}%
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-5">
+                                <span>Term</span>
+                                <span className="font-medium text-neutral-200">
+                                  {termMonths} months
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="mt-4 rounded-lg bg-black/40 p-3">
+                              <p className="text-[10px] text-neutral-500">
+                                Estimated payment
+                              </p>
+                              <p className="mt-1 text-2xl font-semibold text-emerald-400">
+                                {monthlyPayment
+                                  ? `${monthlyPayment.toFixed(2)} / mo`
+                                  : "--"}
+                              </p>
+                              <p className="mt-2 text-[10px] leading-relaxed text-neutral-400">
+                                Example only. Does not include taxes, DMV fees or dealer charges.
+                                Not all customers will qualify for these terms. Subject to credit
+                                approval and signed contract.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                </section>
+              </div>
+            )}
           </div>
 
-          {car.description && (
-            <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
-              <p className="mb-2 text-sm font-semibold text-neutral-100">
-                Description
-              </p>
-              <p className="leading-relaxed text-neutral-300">
-                {car.description}
-              </p>
-            </div>
-          )}
-
-          <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
-            <p className="mb-2 text-sm font-semibold text-neutral-100">
-              Vehicle Location
-            </p>
-            <p className="text-neutral-300">
-              Available Hybrid R&amp;M Inc.
-              <br />
-              6726 Reseda Blvd Suite A7
-              <br />
-              Reseda, CA 91335
-            </p>
-            <Link
-              href="https://maps.app.goo.gl/"
-              target="_blank"
-              className="mt-3 inline-flex text-[11px] text-emerald-400 underline-offset-2 hover:underline"
-            >
-              View directions
-            </Link>
-          </div>
-
+        <section className="space-y-3">
           {suggestions.length > 0 && (
-            <div className="rounded-lg border border-neutral-800 bg-neutral-900/80 p-4 text-[11px] sm:p-5">
+            <div className="rounded-2xl border border-white/10 bg-neutral-900/55 p-5 text-[11px] sm:p-6">
               <p className="mb-3 text-sm font-semibold text-neutral-100">
                 You may also like
               </p>
@@ -1221,7 +1420,7 @@ if (!car) {
                     <Link
                       key={s.id}
                       href={`/${encodeURIComponent(s.id)}`}
-                      className="group rounded-md border border-neutral-800 bg-neutral-950/70 p-2 hover:border-neutral-400"
+                      className="group overflow-hidden rounded-xl border border-white/10 bg-black/30 p-2 transition hover:-translate-y-0.5 hover:border-neutral-500"
                     >
                       <div className="h-24 w-full overflow-hidden rounded bg-neutral-900">
                         <img
@@ -1247,8 +1446,54 @@ if (!car) {
               </div>
             </div>
           )}
+
+          <div className="flex justify-center border-t border-neutral-900 pt-7">
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=6726+Reseda+Blvd+Suite+A7+Reseda+CA+91335"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center rounded-full border border-neutral-700 px-5 py-2.5 text-[11px] font-medium text-neutral-300 transition hover:border-neutral-400 hover:bg-neutral-900 hover:text-white"
+            >
+              View dealership location
+            </a>
+          </div>
         </section>
       </div>
+
+      {isDescriptionOpen && friendlyOverview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm"
+          onClick={() => setIsDescriptionOpen(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="vehicle-description-title"
+            className="relative w-full max-w-xl rounded-xl border border-neutral-700 bg-neutral-950 p-5 shadow-2xl sm:p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-4 border-b border-neutral-800 pb-3">
+              <h2
+                id="vehicle-description-title"
+                className="text-lg font-semibold text-neutral-100"
+              >
+                Overview
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsDescriptionOpen(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-800 hover:text-white"
+                aria-label="Close description"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="mt-4 text-sm leading-6 text-neutral-200">
+              {friendlyOverview}
+            </p>
+          </div>
+        </div>
+      )}
 
       {isLightboxOpen && mainPhoto && (
         <div
@@ -1418,6 +1663,7 @@ export const getStaticProps: GetStaticProps<DetailProps> = async (ctx) => {
       props: {
         car: null,
         suggestions: [],
+        inventoryOptions: [],
       },
       revalidate: 60,
     };
@@ -1458,6 +1704,10 @@ export const getStaticProps: GetStaticProps<DetailProps> = async (ctx) => {
       exterior: c.exterior ?? "",
       vin: c.vin ?? "",
       status: (c as any).status ?? "",
+      titleStatus:
+        (c as any).titleStatus ??
+        (c as any).title_status ??
+        ((c as any).description?.match(/\b(Clean Title|Salvage Title|Rebuilt Title)\b/i)?.[1] || ""),
       description: (c as any).description ?? "",
       photos,
     };
@@ -1475,11 +1725,20 @@ export const getStaticProps: GetStaticProps<DetailProps> = async (ctx) => {
 
   const pool = (sameMake.length ? sameMake : others).slice(0, 3);
   const suggestions = pool.map(mapCarToVehicle);
+  const inventoryOptions = cars
+    .filter((c) => String((c as any).status ?? "available").toLowerCase() !== "sold")
+    .map(mapCarToVehicle)
+    .sort((a, b) => {
+      const yearDiff = (b.year ?? 0) - (a.year ?? 0);
+      if (yearDiff !== 0) return yearDiff;
+      return `${a.make} ${a.model}`.localeCompare(`${b.make} ${b.model}`);
+    });
 
   return {
     props: {
       car,
       suggestions,
+      inventoryOptions,
     },
     revalidate: 60,
   };

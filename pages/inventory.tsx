@@ -34,6 +34,7 @@ type Vehicle = {
   exterior: string;
   photos: string[];
   description: string;
+  cardHoverPhoto: string;
 };
 
 type InventoryProps = { inventory: Vehicle[] };
@@ -612,6 +613,10 @@ export default function Inventory({ inventory }: InventoryProps) {
             ) : (
               visible.map((car) => {
                 const mainPhoto = car.photos[0] ?? "/placeholder-car.jpg";
+                const hoverPhoto =
+                  car.cardHoverPhoto === "none"
+                    ? null
+                    : car.cardHoverPhoto || car.photos[1] || null;
                 const priceLabel =
                   car.price != null
                     ? `$${car.price.toLocaleString()}`
@@ -630,13 +635,24 @@ export default function Inventory({ inventory }: InventoryProps) {
                     className="group flex flex-col rounded-xl border border-neutral-900 bg-neutral-900/70 shadow-[0_10px_30px_rgba(0,0,0,0.65)] transition hover:-translate-y-0.5 hover:border-neutral-500 hover:bg-neutral-900 overflow-visible"
                   >
                     {/* Imagen principal + badges */}
-                    <div className="relative h-52 w-full overflow-hidden bg-neutral-950">
+                    <div className="relative aspect-[16/10] w-full overflow-hidden bg-neutral-950">
                       <Image
-  src={mainPhoto}
-  alt={car.title}
-  fill
-  className="object-cover transition duration-700 group-hover:scale-[1.04]"
-/>
+                        src={mainPhoto}
+                        alt={car.title}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                        className="object-cover object-center transition duration-700 group-hover:scale-[1.025]"
+                      />
+                      {hoverPhoto && (
+                        <Image
+                          src={hoverPhoto}
+                          alt=""
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                          className="object-cover object-center opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                        />
+                      )}
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/5" />
                       <div className="absolute left-3 top-3 flex gap-2 text-[10px] uppercase tracking-[0.16em]">
                         <span className="inline-flex items-center gap-1 rounded-full bg-black/80 px-2 py-0.5 text-neutral-200">
                           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
@@ -652,20 +668,17 @@ export default function Inventory({ inventory }: InventoryProps) {
 
                     {/* Info principal */}
                     <div className="flex flex-1 flex-col px-4 pb-3 pt-3 text-xs">
-                      <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">
-  {car.make || ""}
-</p>
-                      <h3 className="mt-1 text-sm font-semibold text-neutral-50">
-                        {car.model || car.title}
+                      <h3 className="text-sm font-semibold uppercase text-neutral-50">
+                        {[car.make, car.model, car.year].filter(Boolean).join(" ") || car.title}
                       </h3>
 
-                      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-neutral-400">
+                      <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-neutral-400">
                         {car.mileage != null && (
                           <span>{car.mileage.toLocaleString()} mi</span>
                         )}
-                        {car.fuel && <span>· {car.fuel}</span>}
-                        {car.transmission && <span>· {car.transmission}</span>}
-                        {car.exterior && <span>· {car.exterior}</span>}
+                        {car.fuel && <span>• {car.fuel}</span>}
+                        {car.transmission && <span>• {car.transmission}</span>}
+                        {car.exterior && <span>• {car.exterior}</span>}
                       </div>
 
                      <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
@@ -994,6 +1007,7 @@ export const getStaticProps: GetStaticProps<InventoryProps> = async () => {
       exterior: c.exterior ?? "",
       photos: parsePhotos(photoStrings.join(" ")),
       description: (c as any).description ?? "",
+      cardHoverPhoto: (c as any).cardHoverPhoto ?? "",
     };
   });
 
