@@ -1211,6 +1211,19 @@ if (!car) {
             </details>
 
             </section>
+            <Link
+              href={{
+                pathname: "/pre-qualification",
+                query: {
+                  id: car.id,
+                  vehicle: [car.year, car.make, car.model].filter(Boolean).join(" "),
+                  vin: car.vin || "",
+                },
+              }}
+              className="mt-3 inline-flex w-full max-w-[400px] items-center justify-center rounded-xl bg-neutral-100 px-4 py-3 text-sm font-semibold text-neutral-950 transition hover:bg-white"
+            >
+              Get Pre-Qualified for This Vehicle
+            </Link>
             <section className="mt-3 grid w-full max-w-[400px] gap-2 sm:grid-cols-2 lg:hidden">
               <button
                 type="button"
