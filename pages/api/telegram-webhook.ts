@@ -81,7 +81,7 @@ async function decodeVin(vin: string) {
     const data = await response.json();
     const result = data?.Results?.[0] ?? {};
     const electrification = String(result.ElectrificationLevel || "").trim();
-    const primaryFuel = String(result.FuelTypePrimary || "").trim();
+    const primaryFuel = String(result.FuelTypePrimary || result.FuelTypeSecondary || "").trim();
     const fuel = /hybrid/i.test(electrification)
       ? "Hybrid"
       : primaryFuel;
@@ -170,7 +170,13 @@ async function deleteSessionPhotos(sessionId: string) {
 
 
 function normalizeDraftCardDetails(draft: BotDraft) {
-  if (!draft.transmission && /hybrid/i.test(draft.fuel || "")) {
+  const normalizedTransmission = normalizeTransmission(draft.transmission || "");
+  if (normalizedTransmission) {
+    if (draft.transmission !== normalizedTransmission && !draft.transmissionDetail) {
+      draft.transmissionDetail = draft.transmission;
+    }
+    draft.transmission = normalizedTransmission;
+  } else if (!draft.transmission && /hybrid/i.test(draft.fuel || "")) {
     draft.transmission = "Automatic";
   }
 
@@ -193,7 +199,7 @@ function buildAutomaticDescription(draft: BotDraft) {
       ? `${Number(draft.mileage).toLocaleString()} miles`
       : "",
     draft.fuel,
-    draft.transmission,
+    draft.transmissionDetail || draft.transmission,
     draft.exterior ? `${draft.exterior} exterior` : "",
     draft.driveType,
     draft.engine,
@@ -230,7 +236,7 @@ function normalizeColor(text: string) {
 }
 
 function parseCompactNumber(raw: string) {
-  const cleaned = raw.toLowerCase().replace(/[$,\s]/g, "");
+  const cleaned = raw.toLowerCase().replace(/[$,\s]/g, "").replace(/^(\d{1,3})\.(\d{3})$/, "$1$2");
   const match = cleaned.match(/^(\d+(?:\.\d+)?)(k)?$/);
   if (!match) return "";
   const value = Number(match[1]);
@@ -246,6 +252,22 @@ function normalizeTransmission(text: string) {
     return "Manual";
   }
   return "";
+}
+
+function normalizeFuel(text: string) {
+  if (/\b(hybrid|híbrido|hibrido)\b/i.test(text)) return "Hybrid";
+  if (/\b(diesel|diésel)\b/i.test(text)) return "Diesel";
+  if (/\b(electric|eléctrico|electrico|ev)\b/i.test(text)) return "Electric";
+  if (/\b(gasoline|gasolina|gas|petrol)\b/i.test(text)) return "Gasoline";
+  return "";
+}
+
+function parseEngine(text: string) {
+  const displacement = text.match(/\b(\d(?:\.\d)?)\s*(?:l|liters?|litros?)\b/i)?.[1];
+  const cylinders = text.match(/\b(?:([3468])\s*(?:cyl(?:inders?)?|cilindros?)|v([468]))\b/i);
+  const count = cylinders?.[1] || cylinders?.[2];
+  return [count ? `${count} cyl` : "", displacement ? `${displacement}L` : ""]
+    .filter(Boolean).join(" · ");
 }
 
 function parseVehicleText(text: string) {
@@ -277,6 +299,26 @@ function parseVehicleText(text: string) {
     }
   }
 
+  const numbers = Array.from(
+    text.replace(vinMatch?.[0] || "", " ").matchAll(/\b(?:\d{1,3}(?:[,\.]\d{3})+|\d{4,6}|\d+(?:\.\d+)?\s*k)\b/gi)
+  )
+    .map((match) => parseCompactNumber(match[0]))
+    .filter((value) => {
+      const amount = Number(value);
+      return amount >= 1000 && amount <= 999999 && !(amount >= 1900 && amount <= 2100);
+    });
+  if (!mileage && !price && numbers.length === 2) {
+    const sorted = [...numbers].sort((a, b) => Number(a) - Number(b));
+    if (Number(sorted[1]) >= 50000 && Number(sorted[0]) <= 100000) {
+      mileage = sorted[1];
+      price = sorted[0];
+    }
+  }
+  if (!price && mileage) {
+    const candidates = numbers.filter((n) => n !== mileage && Number(n) <= 100000);
+    if (candidates.length === 1) price = candidates[0];
+  }
+
   let titleStatus = "";
   if (/\b(clean title|titulo limpio|título limpio|clean)\b/i.test(text)) {
     titleStatus = "Clean Title";
@@ -293,6 +335,8 @@ function parseVehicleText(text: string) {
     titleStatus,
     exterior: normalizeColor(text),
     transmission: normalizeTransmission(text),
+    fuel: normalizeFuel(text),
+    engine: parseEngine(text),
   };
 }
 
@@ -337,7 +381,9 @@ async function enrichDraftFromText(draft: BotDraft, text: string) {
       draft.year = decoded.year;
       draft.make = decoded.make;
       draft.model = decoded.model;
-      draft.transmission = decoded.transmission;
+      const normalized = normalizeTransmission(decoded.transmission);
+      draft.transmission = normalized || decoded.transmission;
+      draft.transmissionDetail = normalized && decoded.transmission !== normalized ? decoded.transmission : "";
       draft.fuel = decoded.fuel;
       draft.trim = decoded.trim;
       draft.bodyClass = decoded.bodyClass;
@@ -351,6 +397,8 @@ async function enrichDraftFromText(draft: BotDraft, text: string) {
   if (parsed.titleStatus) draft.titleStatus = parsed.titleStatus;
   if (parsed.exterior) draft.exterior = parsed.exterior;
   if (parsed.transmission) draft.transmission = parsed.transmission;
+  if (parsed.fuel) draft.fuel = parsed.fuel;
+  if (parsed.engine) draft.engine = parsed.engine;
 
   const explicitNotes = text.match(
     /(?:notes?|notas?|description|descripcion|descripción)\s*[:=-]\s*(.+)$/i
@@ -372,6 +420,8 @@ function missingVehicleFields(draft: BotDraft) {
   if (!draft.titleStatus) missing.push("title status");
   if (!draft.transmission) missing.push("transmission");
   if (!draft.exterior) missing.push("exterior color");
+  if (!draft.fuel) missing.push("fuel (gasoline, hybrid, diesel or electric)");
+  if (!draft.engine) missing.push("engine (example: 4 cyl 2.5L)");
   return missing;
 }
 
@@ -606,6 +656,7 @@ function vehicleToDraft(vehicle: StoredVehicle): BotDraft {
     make: vehicle.make || "",
     model: vehicle.model || "",
     transmission: vehicle.transmission || "",
+    transmissionDetail: vehicle.transmissionDetail || "",
     mileage: vehicle.mileage || "",
     price: vehicle.price || "",
     titleStatus: vehicle.titleStatus || "",
@@ -633,7 +684,8 @@ function applyDraftToVehicle(
     mileage: draft.mileage || vehicle.mileage || "",
     price: draft.price || vehicle.price || "",
     exterior: draft.exterior || vehicle.exterior || "",
-    transmission: draft.transmission || vehicle.transmission || "",
+    transmission: normalizeTransmission(draft.transmission || vehicle.transmission || "") || draft.transmission || vehicle.transmission || "",
+    transmissionDetail: draft.transmissionDetail || vehicle.transmissionDetail || "",
     fuel: draft.fuel || vehicle.fuel || "",
     vin: draft.vin || vehicle.vin || "",
     titleStatus: draft.titleStatus || vehicle.titleStatus || "",
@@ -1181,7 +1233,8 @@ async function handleCallback(query: TelegramCallbackQuery) {
       mileage: draft.mileage || "",
       price: draft.price || "",
       exterior: draft.exterior || "",
-      transmission: draft.transmission || "",
+      transmission: normalizeTransmission(draft.transmission || "") || draft.transmission || "",
+      transmissionDetail: draft.transmissionDetail || "",
       fuel: draft.fuel || "",
       vin: draft.vin || "",
       status: "Available",
@@ -1491,7 +1544,7 @@ async function handleMessage(message: TelegramMessage) {
           "",
           `Still missing: <b>${escapeHtml(missing.join(", "))}</b>`,
           "",
-          "Send only the missing information.",
+          "Send only the missing information. For example: fuel gasoline, engine 4 cyl 2.5L.",
         ].join("\n")
       );
       return;
@@ -1536,7 +1589,9 @@ async function handleMessage(message: TelegramMessage) {
       draft.year = decoded.year;
       draft.make = decoded.make;
       draft.model = decoded.model;
-      draft.transmission = decoded.transmission;
+      const normalized = normalizeTransmission(decoded.transmission);
+      draft.transmission = normalized || decoded.transmission;
+      draft.transmissionDetail = normalized && decoded.transmission !== normalized ? decoded.transmission : "";
       draft.fuel = decoded.fuel;
       draft.trim = decoded.trim;
       draft.bodyClass = decoded.bodyClass;
