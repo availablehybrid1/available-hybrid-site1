@@ -54,7 +54,9 @@ type Vehicle = {
   mileage: number | null;
   price: number | null;
   transmission: string;
+  transmissionDetail: string;
   fuel: string;
+  engine: string;
   exterior: string;
   vin: string;
   status: string;
@@ -72,12 +74,19 @@ type VinDecoded = {
   engineCylinders?: string | null;
   engineDisplacementL?: string | null;
   transmission?: string | null;
+  fuel?: string | null;
   driveType?: string | null;
   mpgCity?: number | null;
   mpgHighway?: number | null;
   mpgCombined?: number | null;
   mpgSource?: string | null;
 };
+
+function displayTransmission(raw: string) {
+  if (/\b(cvt|automatic|auto|continuously variable|e-cvt)\b/i.test(raw)) return "Automatic";
+  if (/\b(manual|stick shift)\b/i.test(raw)) return "Manual";
+  return raw || "N/A";
+}
 
 type DetailProps = {
   car: Vehicle | null;
@@ -274,6 +283,10 @@ if (!car) {
       .trim();
 
     if (notesOnly.length > 12) pieces.push(notesOnly);
+    const transmissionDetail = car.transmissionDetail || (/\b(cvt|continuously variable)\b/i.test(car.transmission) ? car.transmission : "");
+    if (transmissionDetail && !cleanDescription.toLowerCase().includes(transmissionDetail.toLowerCase())) {
+      pieces.push(`Transmission: ${transmissionDetail}.`);
+    }
 
     return pieces.join(" ");
   })();
@@ -1102,7 +1115,7 @@ if (!car) {
                 </div>
                 <div>
                   <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Fuel className="h-3.5 w-3.5" />Fuel</p>
-                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{car.fuel || "N/A"}</p>
+                  <p className="mt-1 text-[12px] font-medium text-neutral-100">{car.fuel || vinInfo?.fuel || "N/A"}</p>
                 </div>
                 {(vinInfo?.mpgCity || vinInfo?.mpgHighway || vinInfo?.mpgCombined) && (
                   <div>
@@ -1122,7 +1135,7 @@ if (!car) {
                 <div>
                   <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-400"><Settings className="h-3.5 w-3.5" />Transmission</p>
                   <p className="mt-1 text-[12px] font-medium text-neutral-100">
-                    {vinInfo?.transmission || car.transmission || "N/A"}
+                    {displayTransmission(car.transmission || vinInfo?.transmission || "")}
                   </p>
                 </div>
                 <div>
@@ -1134,7 +1147,7 @@ if (!car) {
                   <p className="mt-1 text-[12px] font-medium text-neutral-100">
                     {vinInfo?.engineCylinders
                       ? `${vinInfo.engineCylinders} cyl${vinInfo.engineDisplacementL ? ` · ${vinInfo.engineDisplacementL}L` : ""}`
-                      : "N/A"}
+                      : car.engine || "N/A"}
                   </p>
                 </div>
                 <div>
@@ -1795,7 +1808,9 @@ export const getStaticProps: GetStaticProps<DetailProps> = async (ctx) => {
           ? Number(c.price)
           : null,
       transmission: c.transmission ?? "",
+      transmissionDetail: (c as any).transmissionDetail ?? "",
       fuel: c.fuel ?? "",
+      engine: (c as any).engine ?? "",
       exterior: c.exterior ?? "",
       vin: c.vin ?? "",
       status: (c as any).status ?? "",
