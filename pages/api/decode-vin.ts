@@ -163,6 +163,9 @@ export default async function handler(
       engineCylinders: result.EngineCylinders || null,
       engineDisplacementL: result.DisplacementL || null,
       transmission: result.TransmissionStyle || null,
+      fuel: /hybrid/i.test(String(result.ElectrificationLevel || ""))
+        ? "Hybrid"
+        : result.FuelTypePrimary || result.FuelTypeSecondary || null,
       driveType: result.DriveType || null,
       mpgCity: mpg?.mpgCity ?? null,
       mpgHighway: mpg?.mpgHighway ?? null,
