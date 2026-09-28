@@ -27,6 +27,16 @@ export function PreQualificationForm({
   const [hasLicenseValue, setHasLicenseValue] = React.useState<string>("");
   const [heardAbout, setHeardAbout] = React.useState<string>("");
   const [step, setStep] = React.useState(0);
+  const [finalStepReady, setFinalStepReady] = React.useState(false);
+
+  React.useEffect(() => {
+    if (step !== 2) {
+      setFinalStepReady(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setFinalStepReady(true), 2500);
+    return () => window.clearTimeout(timer);
+  }, [step]);
 
   // 🔹 Auto-fill desde la URL (id, vehicle, vin, lang, contact)
   React.useEffect(() => {
@@ -106,15 +116,17 @@ export function PreQualificationForm({
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (step < 2) {
-      advanceStep();
-      return;
-    }
-    const form = e.currentTarget;
+    if (step < 2) advanceStep();
+  }
+
+  function sendApplication() {
+    if (step !== 2 || !finalStepReady || submitting) return;
+    const form = formRef.current;
+    if (!form) return;
     setSubmitting(true);
     setError(null);
 
-    const fd = new FormData(e.currentTarget);
+    const fd = new FormData(form);
 
     const name = (fd.get("name") as string)?.trim();
     const phone = (fd.get("phone") as string)?.trim();
@@ -583,7 +595,7 @@ export function PreQualificationForm({
                     {isEN ? "Next" : "Siguiente"}
                   </button>
                 ) : (
-                  <button type="submit" disabled={submitting} className="rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-semibold text-neutral-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60">
+                  <button type="button" onClick={sendApplication} disabled={submitting || !finalStepReady} className="rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-semibold text-neutral-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60">
                     {submitting ? (isEN ? "Sending…" : "Enviando…") : (isEN ? "Send my info" : "Enviar mi información")}
                   </button>
                 )}
