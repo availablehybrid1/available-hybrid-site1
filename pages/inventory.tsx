@@ -305,12 +305,6 @@ export default function Inventory({ inventory }: InventoryProps) {
             >
               {text.inventoryNav}
             </Link>
-            <Link
-              href="/pre-qualification"
-              className="hover:text-white transition-colors"
-            >
-              {text.prequalifyNav}
-            </Link>
           </nav>
 
           {/* bloque derecho */}
@@ -625,13 +619,6 @@ export default function Inventory({ inventory }: InventoryProps) {
                                 <p className="mt-2 text-[11px] leading-snug text-neutral-200">
                                   {text.paymentDisclaimer}
                                 </p>
-                                <Link
-                                  href="/pre-qualification"
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="mt-3 inline-flex w-full items-center justify-center rounded-sm bg-neutral-100 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-black hover:bg-neutral-200"
-                                >
-                                  {text.getPrequalified}
-                                </Link>
                               </div>
                             </div>
                           </div>
