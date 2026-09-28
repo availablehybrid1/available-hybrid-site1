@@ -87,6 +87,8 @@ export default function VehicleDetail({ car, suggestions, inventoryOptions }: De
   const [current, setCurrent] = React.useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false);
   const [isDescriptionOpen, setIsDescriptionOpen] = React.useState(false);
+  const galleryTouchStart = React.useRef<{ x: number; y: number } | null>(null);
+  const suppressGalleryClick = React.useRef(false);
 
   // zoom dentro del modal
   const [isZoomed, setIsZoomed] = React.useState(false);
@@ -614,8 +616,39 @@ if (!car) {
                 <div className="relative inline-flex max-w-full items-center justify-center">
                   <button
                     type="button"
-                    onClick={() => setIsLightboxOpen(true)}
-                    className="group relative inline-flex max-w-full items-center justify-center"
+                    onClick={() => {
+                      if (suppressGalleryClick.current) {
+                        suppressGalleryClick.current = false;
+                        return;
+                      }
+                      setIsLightboxOpen(true);
+                    }}
+                    onTouchStart={(e) => {
+                      galleryTouchStart.current = {
+                        x: e.touches[0].clientX,
+                        y: e.touches[0].clientY,
+                      };
+                    }}
+                    onTouchEnd={(e) => {
+                      const start = galleryTouchStart.current;
+                      galleryTouchStart.current = null;
+                      if (!start || !hasMultiplePhotos) return;
+
+                      const deltaX = e.changedTouches[0].clientX - start.x;
+                      const deltaY = e.changedTouches[0].clientY - start.y;
+                      if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                        suppressGalleryClick.current = true;
+                        if (deltaX < 0) goNext();
+                        else goPrev();
+                        window.setTimeout(() => {
+                          suppressGalleryClick.current = false;
+                        }, 400);
+                      }
+                    }}
+                    onTouchCancel={() => {
+                      galleryTouchStart.current = null;
+                    }}
+                    className="group relative inline-flex max-w-full touch-pan-y items-center justify-center"
                   >
                     <img
                       src={mainPhoto}
