@@ -2,7 +2,24 @@
 import * as React from "react";
 import Head from "next/head";
 
+type PreQualificationFormProps = {
+  embedded?: boolean;
+  selectedVehicle?: string;
+  selectedVin?: string;
+  onClose?: () => void;
+};
+
 export default function PreQualification() {
+  return <PreQualificationForm />;
+}
+
+export function PreQualificationForm({
+  embedded = false,
+  selectedVehicle = "",
+  selectedVin = "",
+  onClose,
+}: PreQualificationFormProps) {
+  const formRef = React.useRef<HTMLFormElement>(null);
   const [submitting, setSubmitting] = React.useState(false);
   const [sent, setSent] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -22,11 +39,13 @@ export default function PreQualification() {
     const contactParam = params.get("contact");
 
     // Vehicle of Interest
-    const vehicleInput = document.querySelector(
+    const vehicleInput = formRef.current?.querySelector(
       "input[name='vehicle']"
     ) as HTMLInputElement | null;
     if (vehicleInput) {
-      if (vehicleParam && vehicleParam.trim().length > 0) {
+      if (selectedVehicle) {
+        vehicleInput.value = selectedVehicle;
+      } else if (vehicleParam && vehicleParam.trim().length > 0) {
         vehicleInput.value = vehicleParam;
       } else if (idParam) {
         vehicleInput.value = idParam.replace(/-/g, " ").trim();
@@ -34,11 +53,11 @@ export default function PreQualification() {
     }
 
     // VIN
-    const vinInput = document.querySelector(
+    const vinInput = formRef.current?.querySelector(
       "input[name='vin']"
     ) as HTMLInputElement | null;
-    if (vinInput && vinParam) {
-      vinInput.value = vinParam;
+    if (vinInput && (selectedVin || vinParam)) {
+      vinInput.value = selectedVin || vinParam || "";
     }
 
     // Idioma inicial EN/ES
@@ -63,10 +82,11 @@ export default function PreQualification() {
         if (value === "email") contactSelect.value = "Email";
       }
     }
-  }, []);
+  }, [selectedVehicle, selectedVin]);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
     setSubmitting(true);
     setError(null);
 
@@ -120,7 +140,7 @@ export default function PreQualification() {
         if (!r.ok) throw new Error(data?.msg || "Request failed");
 
         setSent(true);
-        (e.currentTarget as HTMLFormElement).reset();
+        form.reset();
         setHasLicenseValue("");
         setHeardAbout("");
       })
@@ -141,15 +161,15 @@ export default function PreQualification() {
 
   return (
     <>
-      <Head>
+      {!embedded && <Head>
         <title>
           {isEN
             ? "Get Pre-Qualified – Available Hybrid R&M Inc."
             : "Pre-Califícate – Available Hybrid R&M Inc."}
         </title>
-      </Head>
+      </Head>}
 
-      <main className="min-h-screen bg-neutral-950 text-white px-4 py-10">
+      <main className={embedded ? "bg-neutral-950 text-white px-4 py-6" : "min-h-screen bg-neutral-950 text-white px-4 py-10"}>
         <div className="mx-auto max-w-3xl">
           <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-2">
@@ -166,8 +186,9 @@ export default function PreQualification() {
               </p>
             </div>
 
-            {/* Toggle de idioma */}
-            <div className="mt-2 flex items-center gap-2 self-start rounded-full border border-neutral-700 bg-neutral-900 px-2 py-1 text-[11px] sm:self-auto">
+            {/* Language and close controls */}
+            <div className="mt-2 flex items-center gap-2 self-start sm:self-auto">
+            <div className="flex items-center gap-2 rounded-full border border-neutral-700 bg-neutral-900 px-2 py-1 text-[11px]">
               <span className="text-neutral-400">
                 {isEN ? "Language" : "Idioma"}
               </span>
@@ -194,10 +215,15 @@ export default function PreQualification() {
                 ES
               </button>
             </div>
+            {embedded && (
+              <button type="button" onClick={onClose} aria-label="Close pre-qualification" className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-700 text-neutral-300 hover:bg-neutral-800 hover:text-white">✕</button>
+            )}
+            </div>
           </header>
 
           {!sent ? (
             <form
+              ref={formRef}
               onSubmit={handleSubmit}
               className="mt-8 grid gap-5 rounded-3xl border border-neutral-800 bg-neutral-900/80 p-6 shadow-xl sm:p-8"
             >
@@ -257,6 +283,7 @@ export default function PreQualification() {
                 <Field
                   label={isEN ? "Vehicle of Interest" : "Vehículo de interés"}
                   name="vehicle"
+                  defaultValue={selectedVehicle}
                   placeholder="2013 Toyota Prius"
                 />
               </div>
@@ -266,6 +293,7 @@ export default function PreQualification() {
                 <Field
                   label={isEN ? "VIN (optional)" : "VIN (opcional)"}
                   name="vin"
+                  defaultValue={selectedVin}
                   placeholder="JTDKN3DU..."
                   help={
                     isEN
@@ -516,7 +544,7 @@ export default function PreQualification() {
               </p>
             </form>
           ) : (
-            <SuccessBox uiLang={uiLang} />
+            <SuccessBox uiLang={uiLang} embedded={embedded} onClose={onClose} />
           )}
         </div>
       </main>
@@ -533,6 +561,7 @@ function Field({
   name,
   placeholder,
   required,
+  defaultValue,
   type = "text",
   help,
 }: any) {
@@ -545,6 +574,7 @@ function Field({
       <input
         name={name}
         required={required}
+        defaultValue={defaultValue}
         type={type}
         placeholder={placeholder}
         className="rounded-2xl border border-neutral-700 bg-neutral-900/80 px-3 py-2.5 text-sm text-white placeholder:text-neutral-500 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 transition"
@@ -586,7 +616,7 @@ function InfoDot({ text }: { text: string }) {
   );
 }
 
-function SuccessBox({ uiLang }: { uiLang: "EN" | "ES" }) {
+function SuccessBox({ uiLang, embedded, onClose }: { uiLang: "EN" | "ES"; embedded?: boolean; onClose?: () => void }) {
   const isEN = uiLang === "EN";
 
   const whatsappLink = isEN
@@ -605,19 +635,20 @@ function SuccessBox({ uiLang }: { uiLang: "EN" | "ES" }) {
       </p>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-        <a
-          href="/pre-qualification"
-          className="rounded-2xl border border-emerald-400 bg-transparent px-5 py-2 text-sm font-medium text-emerald-300 hover:bg-emerald-500/10"
-        >
-          {isEN ? "Send another request" : "Enviar otra solicitud"}
-        </a>
-
-        <a
-          href="/"
-          className="rounded-2xl bg-white px-5 py-2 text-sm font-semibold text-neutral-900 hover:bg-neutral-200"
-        >
-          {isEN ? "Back to inventory" : "Volver al inventario"}
-        </a>
+        {embedded ? (
+          <button type="button" onClick={onClose} className="rounded-2xl bg-white px-5 py-2 text-sm font-semibold text-neutral-900 hover:bg-neutral-200">
+            {isEN ? "Back to vehicle" : "Volver al vehículo"}
+          </button>
+        ) : (
+          <>
+            <a href="/pre-qualification" className="rounded-2xl border border-emerald-400 bg-transparent px-5 py-2 text-sm font-medium text-emerald-300 hover:bg-emerald-500/10">
+              {isEN ? "Send another request" : "Enviar otra solicitud"}
+            </a>
+            <a href="/" className="rounded-2xl bg-white px-5 py-2 text-sm font-semibold text-neutral-900 hover:bg-neutral-200">
+              {isEN ? "Back to inventory" : "Volver al inventario"}
+            </a>
+          </>
+        )}
 
         <a
           href={whatsappLink}
