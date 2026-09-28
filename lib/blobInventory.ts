@@ -20,6 +20,7 @@ export type BotDraft = {
   make?: string;
   model?: string;
   transmission?: string;
+  transmissionDetail?: string;
   mileage?: string;
   price?: string;
   titleStatus?: string;
