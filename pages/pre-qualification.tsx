@@ -26,6 +26,7 @@ export function PreQualificationForm({
   const [uiLang, setUiLang] = React.useState<"EN" | "ES">("EN"); // idioma UI
   const [hasLicenseValue, setHasLicenseValue] = React.useState<string>("");
   const [heardAbout, setHeardAbout] = React.useState<string>("");
+  const [step, setStep] = React.useState(0);
 
   // 🔹 Auto-fill desde la URL (id, vehicle, vin, lang, contact)
   React.useEffect(() => {
@@ -84,8 +85,31 @@ export function PreQualificationForm({
     }
   }, [selectedVehicle, selectedVin]);
 
+  function changeStep(next: number) {
+    setError(null);
+    setStep(next);
+    const container = formRef.current?.closest('[role="dialog"]');
+    if (container instanceof HTMLElement) container.scrollTo({ top: 0, behavior: "smooth" });
+    else window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function advanceStep() {
+    if (step === 0) {
+      const inputs = ["name", "phone", "email"];
+      for (const name of inputs) {
+        const input = formRef.current?.querySelector<HTMLInputElement>(`input[name="${name}"]`);
+        if (input && !input.reportValidity()) return;
+      }
+    }
+    changeStep(Math.min(step + 1, 2));
+  }
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (step < 2) {
+      advanceStep();
+      return;
+    }
     const form = e.currentTarget;
     setSubmitting(true);
     setError(null);
@@ -227,48 +251,37 @@ export function PreQualificationForm({
               onSubmit={handleSubmit}
               className="mt-8 grid gap-5 rounded-3xl border border-neutral-800 bg-neutral-900/80 p-6 shadow-xl sm:p-8"
             >
+              <div className="space-y-2">
+                <p className="text-xs font-medium uppercase tracking-[0.12em] text-neutral-400">
+                  {isEN ? `Step ${step + 1} of 3` : `Paso ${step + 1} de 3`}
+                </p>
+                <div className="grid grid-cols-3 gap-2" aria-hidden="true">
+                  {[0, 1, 2].map((index) => (
+                    <span key={index} className={`h-1 rounded-full ${index <= step ? "bg-emerald-400" : "bg-neutral-700"}`} />
+                  ))}
+                </div>
+                <h2 className="pt-2 text-lg font-semibold text-white">
+                  {step === 0
+                    ? (isEN ? "Contact and vehicle" : "Contacto y vehículo")
+                    : step === 1
+                    ? (isEN ? "Financing information" : "Información financiera")
+                    : (isEN ? "Address and preferences" : "Dirección y preferencias")}
+                </h2>
+              </div>
+              <div className={step === 0 ? "grid gap-5" : "hidden"}>
               {/* NAME + PHONE */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field
                   label={isEN ? "Full Name *" : "Nombre completo *"}
                   name="name"
-                  required
+                  required={step === 0}
                   placeholder={isEN ? "John Doe" : "Juan Pérez"}
                 />
                 <Field
                   label={isEN ? "Phone *" : "Teléfono *"}
                   name="phone"
-                  required
+                  required={step === 0}
                   placeholder="(747) 354-4098"
-                />
-              </div>
-
-              {/* ADDRESS */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field
-                  label={isEN ? "Street Address" : "Dirección (calle y número)"}
-                  name="addressStreet"
-                  placeholder={
-                    isEN ? "6726 Reseda Blvd Suite A7" : "6726 Reseda Blvd Suite A7"
-                  }
-                />
-                <Field
-                  label={isEN ? "City" : "Ciudad"}
-                  name="addressCity"
-                  placeholder="Reseda"
-                />
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field
-                  label={isEN ? "State" : "Estado"}
-                  name="addressState"
-                  placeholder="CA"
-                />
-                <Field
-                  label={isEN ? "ZIP Code" : "Código ZIP"}
-                  name="addressZip"
-                  placeholder="91335"
                 />
               </div>
 
@@ -313,6 +326,8 @@ export function PreQualificationForm({
                 />
               </div>
 
+              </div>
+              <div className={step === 1 ? "grid gap-5" : "hidden"}>
               {/* BUDGET + INCOME */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field
@@ -440,6 +455,37 @@ export function PreQualificationForm({
                 />
               </div>
 
+              </div>
+              <div className={step === 2 ? "grid gap-5" : "hidden"}>
+              {/* ADDRESS */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field
+                  label={isEN ? "Street Address" : "Dirección (calle y número)"}
+                  name="addressStreet"
+                  placeholder={
+                    isEN ? "6726 Reseda Blvd Suite A7" : "6726 Reseda Blvd Suite A7"
+                  }
+                />
+                <Field
+                  label={isEN ? "City" : "Ciudad"}
+                  name="addressCity"
+                  placeholder="Reseda"
+                />
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field
+                  label={isEN ? "State" : "Estado"}
+                  name="addressState"
+                  placeholder="CA"
+                />
+                <Field
+                  label={isEN ? "ZIP Code" : "Código ZIP"}
+                  name="addressZip"
+                  placeholder="91335"
+                />
+              </div>
+
               {/* HOW DID YOU HEAR ABOUT US */}
               <div className="grid gap-2">
                 <div className="flex items-center gap-1">
@@ -518,30 +564,36 @@ export function PreQualificationForm({
                 />
               </div>
 
+              </div>
+
               {error && (
                 <p className="rounded-xl border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-200">
                   {error}
                 </p>
               )}
 
-              <button
-                disabled={submitting}
-                className="mt-2 inline-flex items-center justify-center rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-semibold text-neutral-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {submitting
-                  ? isEN
-                    ? "Sending…"
-                    : "Enviando…"
-                  : isEN
-                  ? "Send my info"
-                  : "Enviar mi información"}
-              </button>
+              <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
+                {step > 0 ? (
+                  <button type="button" onClick={() => changeStep(step - 1)} className="rounded-2xl border border-neutral-600 px-6 py-3 text-sm font-semibold text-neutral-200 hover:bg-neutral-800">
+                    {isEN ? "Back" : "Atrás"}
+                  </button>
+                ) : <span />}
+                {step < 2 ? (
+                  <button type="button" onClick={advanceStep} className="rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-semibold text-neutral-950 hover:bg-emerald-400">
+                    {isEN ? "Next" : "Siguiente"}
+                  </button>
+                ) : (
+                  <button type="submit" disabled={submitting} className="rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-semibold text-neutral-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60">
+                    {submitting ? (isEN ? "Sending…" : "Enviando…") : (isEN ? "Send my info" : "Enviar mi información")}
+                  </button>
+                )}
+              </div>
 
-              <p className="text-[11px] text-neutral-500">
+              {step === 2 && <p className="text-[11px] text-neutral-500">
                 {isEN
                   ? "By submitting this form you agree to be contacted by phone, text, WhatsApp or email based on your preferred contact method."
                   : "Al enviar este formulario aceptas que te contactemos por llamada, texto, WhatsApp o correo electrónico según tu método preferido."}
-              </p>
+              </p>}
             </form>
           ) : (
             <SuccessBox uiLang={uiLang} embedded={embedded} onClose={onClose} />
