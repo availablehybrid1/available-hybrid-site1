@@ -21,6 +21,7 @@ import {
   Instagram,
 } from "lucide-react";
 import { getInventory, type Car } from "../lib/getInventory";
+import { PreQualificationForm } from "./pre-qualification";
 
 // misma función que en index.tsx para convertir links de Drive a imágenes
 function parsePhotos(raw?: string | null): string[] {
@@ -98,6 +99,7 @@ export default function VehicleDetail({ car, suggestions, inventoryOptions }: De
   const [current, setCurrent] = React.useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false);
   const [isDescriptionOpen, setIsDescriptionOpen] = React.useState(false);
+  const [isPrequalOpen, setIsPrequalOpen] = React.useState(false);
   const galleryTouchStart = React.useRef<{ x: number; y: number } | null>(null);
   const suppressGalleryClick = React.useRef(false);
 
@@ -1211,19 +1213,13 @@ if (!car) {
             </details>
 
             </section>
-            <Link
-              href={{
-                pathname: "/pre-qualification",
-                query: {
-                  id: car.id,
-                  vehicle: [car.year, car.make, car.model].filter(Boolean).join(" "),
-                  vin: car.vin || "",
-                },
-              }}
+            <button
+              type="button"
+              onClick={() => setIsPrequalOpen(true)}
               className="mt-3 inline-flex w-full max-w-[400px] items-center justify-center rounded-xl bg-neutral-100 px-4 py-3 text-sm font-semibold text-neutral-950 transition hover:bg-white"
             >
               Get Pre-Qualified for This Vehicle
-            </Link>
+            </button>
             <section className="mt-3 grid w-full max-w-[400px] gap-2 sm:grid-cols-2 lg:hidden">
               <button
                 type="button"
@@ -1580,6 +1576,28 @@ if (!car) {
           </div>
         </section>
       </div>
+
+      {isPrequalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-3 py-4 backdrop-blur-sm sm:px-4"
+          onClick={() => setIsPrequalOpen(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Get pre-qualified for this vehicle"
+            className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-neutral-700 bg-neutral-950 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <PreQualificationForm
+              embedded
+              selectedVehicle={[car.year, car.make, car.model].filter(Boolean).join(" ")}
+              selectedVin={car.vin}
+              onClose={() => setIsPrequalOpen(false)}
+            />
+          </div>
+        </div>
+      )}
 
       {isDescriptionOpen && friendlyOverview && (
         <div
