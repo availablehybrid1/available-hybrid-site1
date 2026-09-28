@@ -17,6 +17,8 @@ import {
   BadgeCheck,
   BadgeDollarSign,
   CalendarDays,
+  Phone,
+  Instagram,
 } from "lucide-react";
 import { getInventory, type Car } from "../lib/getInventory";
 
@@ -601,7 +603,7 @@ if (!car) {
         </div>
       </header>
 
-      <div className="max-w-6xl space-y-4 px-4 pb-10 pt-4">
+      <div className="max-w-6xl space-y-4 px-4 pb-24 pt-4 sm:pb-10">
         <div className="grid items-start gap-1 lg:grid-cols-[fit-content(520px)_400px]">
           <section className="min-w-0 lg:w-fit lg:max-w-[520px]">
             <Link
@@ -693,7 +695,7 @@ if (!car) {
               )}
             </div>
 
-            <section className="mt-2 grid max-w-[420px] gap-2 sm:grid-cols-2">
+            <section className="mt-2 hidden max-w-[420px] gap-2 sm:grid-cols-2 lg:grid">
               <button
                 type="button"
                 onClick={() =>
@@ -1196,7 +1198,67 @@ if (!car) {
             </details>
 
             </section>
+            <section className="mt-3 grid w-full max-w-[400px] gap-2 sm:grid-cols-2 lg:hidden">
+              <button
+                type="button"
+                onClick={() =>
+                  setActivePanel((current) =>
+                    current === "contact" ? null : "contact"
+                  )
+                }
+                className={`group flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
+                  activePanel === "contact"
+                    ? "border-neutral-200 bg-neutral-100 text-black"
+                    : "border-white/10 bg-neutral-900/45 text-neutral-100 hover:border-neutral-600 hover:bg-neutral-900/80"
+                }`}
+              >
+                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${
+                  activePanel === "contact"
+                    ? "border-black/10 bg-black/5"
+                    : "border-white/10 bg-black/30"
+                }`}>
+                  <MessageCircle className="h-4 w-4" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[11px] font-semibold">Contact Dealer</span>
+                  <span className={`mt-0.5 block text-[9px] ${
+                    activePanel === "contact" ? "text-neutral-600" : "text-neutral-500"
+                  }`}>
+                    Availability, offer or test drive
+                  </span>
+                </span>
+              </button>
 
+              <button
+                type="button"
+                onClick={() =>
+                  setActivePanel((current) =>
+                    current === "estimate" ? null : "estimate"
+                  )
+                }
+                className={`group flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
+                  activePanel === "estimate"
+                    ? "border-neutral-200 bg-neutral-100 text-black"
+                    : "border-white/10 bg-neutral-900/45 text-neutral-100 hover:border-neutral-600 hover:bg-neutral-900/80"
+                }`}
+              >
+                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${
+                  activePanel === "estimate"
+                    ? "border-black/10 bg-black/5"
+                    : "border-white/10 bg-black/30"
+                }`}>
+                  <Calculator className="h-4 w-4" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[11px] font-semibold">Estimated Payment</span>
+                  <span className={`mt-0.5 block text-[9px] ${
+                    activePanel === "estimate" ? "text-neutral-600" : "text-neutral-500"
+                  }`}>
+                    Calculate an estimated monthly payment
+                  </span>
+                </span>
+              </button>
+            </section>
           </div>
         </div>
 
@@ -1620,37 +1682,37 @@ if (!car) {
           </div>
         </div>
       )}
-      <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center px-4 sm:hidden">
-  <div className="flex w-full max-w-md gap-2">
-
-    <a
-      href={`https://wa.me/17473544098?text=${encodeURIComponent(
-        `Hi, I am interested in this vehicle: ${car.title} - $${car.price}`
-      )}`}
-      target="_blank"
-      className="flex-1 rounded-lg bg-green-500 px-4 py-3 text-center text-sm font-semibold text-white"
-    >
-      WhatsApp
-    </a>
-
-    <a
-      href="tel:+17473544098"
-      className="flex-1 rounded-lg bg-white px-4 py-3 text-center text-sm font-semibold text-black"
-    >
-      Call
-    </a>
-
-    <a
-  href="https://www.instagram.com/availablehybridrm/"
-  target="_blank"
-  rel="noreferrer"
-  className="flex-1 rounded-lg bg-gradient-to-r from-pink-500 to-yellow-500 px-4 py-3 text-center text-sm font-semibold text-white"
->
-  IG
-</a>
-
-  </div>
-</div>
+      <nav aria-label="Quick contact" className="fixed bottom-4 left-0 right-0 z-40 flex justify-center px-4 sm:hidden">
+        <div className="flex items-center gap-2 rounded-full border border-white/15 bg-neutral-950/90 p-1.5 shadow-xl backdrop-blur">
+          <a
+            href={`https://wa.me/17473544098?text=${encodeURIComponent(
+              `Hi, I am interested in this vehicle: ${car.title} - ${car.price}`
+            )}`}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="WhatsApp"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-white transition hover:bg-white/10"
+          >
+            <img src="/whatsapp-green.png" alt="" className="h-6 w-6 object-contain" />
+          </a>
+          <a
+            href="tel:+17473544098"
+            aria-label="Call"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-neutral-100 transition hover:bg-white/10"
+          >
+            <Phone className="h-5 w-5" aria-hidden="true" />
+          </a>
+          <a
+            href="https://www.instagram.com/availablehybridrm/"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Instagram"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-neutral-100 transition hover:bg-white/10"
+          >
+            <Instagram className="h-5 w-5" aria-hidden="true" />
+          </a>
+        </div>
+      </nav>
     </main>
   );
 }
