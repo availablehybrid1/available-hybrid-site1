@@ -25,7 +25,7 @@ export default function CarRental() {
             <p className="text-base tracking-widest text-white/60">Car Rental</p>
             <h1 className="mt-4 text-5xl font-semibold tracking-tight sm:text-7xl">Coming Soon</h1>
             <Link href="/inventory" className="mt-8 inline-flex items-center justify-center rounded-xl bg-white px-6 py-3 text-base font-semibold text-black hover:bg-white/90 transition">
-              View Inventory
+              View Inventory to Buy
             </Link>
           </div>
         </main>
