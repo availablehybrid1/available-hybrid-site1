@@ -174,7 +174,7 @@ export default function Home() {
                 {t.heroSubtitle}
               </p>
 
-              <div className="mt-6 flex gap-3">
+              <div className="mt-6 flex flex-wrap gap-3">
                 <Link href="/inventory" className="bg-white text-black px-5 py-3 rounded-xl">
                   {t.ctaInventory}
                 </Link>
@@ -184,6 +184,9 @@ export default function Home() {
 >
 {t.ctaService}
 </Link>
+                <Link href="/car-rental" className="inline-flex items-center justify-center rounded-2xl border border-white/30 text-white px-5 py-3 font-semibold hover:bg-white/10 transition">
+                  Car Rental
+                </Link>
               </div>
             </div>
 
