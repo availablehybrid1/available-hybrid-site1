@@ -1,5 +1,4 @@
 import { listStoredVehicles } from "./blobInventory";
-import { listStudioCovers, studioKey } from "./photoProcessing";
 
 export type Car = {
   id: string;
@@ -24,8 +23,6 @@ export async function getInventory(): Promise<Car[]> {
     return [];
   });
 
-  const covers = await listStudioCovers().catch(() => new Map());
-
   return vehicles
     .filter((vehicle) => vehicle?.id && String(vehicle.status || "").toLowerCase() !== "sold")
     .map((vehicle) => {
@@ -41,7 +38,7 @@ export async function getInventory(): Promise<Car[]> {
 
       return {
         ...vehicle,
-        studioCover: covers.get(studioKey(vehicle.id, vehicle.photo1 || ""))?.coverUrl || "",
+        studioCover: "",
         photos: photoUrls.join(" "),
       } as Car;
     });
