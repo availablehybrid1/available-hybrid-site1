@@ -35,6 +35,7 @@ type Vehicle = {
   photos: string[];
   description: string;
   cardHoverPhoto: string;
+  studioCover: string;
 };
 
 type InventoryProps = { inventory: Vehicle[] };
@@ -495,9 +496,9 @@ export default function Inventory({ inventory }: InventoryProps) {
               <p className="text-sm text-neutral-400">{text.noVehicles}</p>
             ) : (
               visible.map((car) => {
-                const mainPhoto = car.photos[0] ?? "/placeholder-car.jpg";
+                const mainPhoto = car.studioCover || car.photos[0] || "/placeholder-car.jpg";
                 const hoverPhoto =
-                  car.cardHoverPhoto === "none"
+                  car.studioCover || car.cardHoverPhoto === "none"
                     ? null
                     : car.cardHoverPhoto || car.photos[1] || null;
                 const priceLabel =
@@ -888,8 +889,10 @@ export const getStaticProps: GetStaticProps<InventoryProps> = async () => {
       photos: parsePhotos(photoStrings.join(" ")),
       description: (c as any).description ?? "",
       cardHoverPhoto: (c as any).cardHoverPhoto ?? "",
+      studioCover: (c as any).studioCover ?? "",
     };
   });
 
   return { props: { inventory }, revalidate: 60 };
 };
+
