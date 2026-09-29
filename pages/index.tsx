@@ -184,9 +184,6 @@ export default function Home() {
 >
 {t.ctaService}
 </Link>
-                <Link href="/pre-qualification" className="border border-white/20 px-5 py-3 rounded-xl text-white">
-                  {t.ctaPrequal}
-                </Link>
               </div>
             </div>
 
