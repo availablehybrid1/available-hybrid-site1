@@ -546,7 +546,7 @@ export default function Inventory({ inventory }: InventoryProps) {
           </div>
 
           {/* GRID DE VEHÍCULOS */}
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-6 grid gap-x-6 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
             {visible.length === 0 ? (
               <p className="text-sm text-[color:var(--inv-muted)]">{text.noVehicles}</p>
             ) : (
@@ -571,9 +571,9 @@ export default function Inventory({ inventory }: InventoryProps) {
                   <Link
                     key={car.id}
                     href={`/${encodeURIComponent(car.id)}`}
-                    className="group flex flex-col rounded-xl border border-[var(--inv-border-subtle)] bg-[var(--inv-card)] [box-shadow:var(--inv-card-shadow)] transition hover:-translate-y-0.5 hover:border-[var(--inv-border-hover)] hover:bg-[var(--inv-raised)] overflow-visible"
+                    className="group flex min-w-0 flex-col bg-transparent overflow-visible"
                   >
-                    {/* Imagen principal + badges */}
+                    {/* Fotos originales sin etiquetas */}
                     <div className="relative aspect-[16/10] w-full overflow-hidden bg-[var(--inv-surface)]">
                       <Image
                         src={mainPhoto}
@@ -591,22 +591,11 @@ export default function Inventory({ inventory }: InventoryProps) {
                           className="object-cover object-center opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                         />
                       )}
-                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/5" />
-                      <div className="absolute left-3 top-3 flex gap-2 text-[10px] uppercase tracking-[0.16em]">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--inv-black80)] px-2 py-0.5 text-[color:var(--inv-secondary)]">
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                         {car.fuel || "Available"}
-                        </span>
-                        {car.year && (
-                          <span className="rounded-full bg-[var(--inv-black80)] px-2 py-0.5 text-[color:var(--inv-secondary)]">
-                            {car.year}
-                          </span>
-                        )}
-                      </div>
+
                     </div>
 
                     {/* Info principal */}
-                    <div className="flex flex-1 flex-col px-4 pb-3 pt-3 text-xs">
+                    <div className="flex flex-1 flex-col pb-3 pt-4 text-xs">
                       <h3 className="text-sm font-semibold uppercase text-[color:var(--inv-heading)]">
                         {[car.make, car.model, car.year].filter(Boolean).join(" ") || car.title}
                       </h3>
@@ -622,12 +611,12 @@ export default function Inventory({ inventory }: InventoryProps) {
 
                      <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
   {car.vin && (
-    <span className="rounded-full border border-[var(--inv-border)] bg-[var(--inv-surface)] px-2 py-0.5 font-mono uppercase text-[color:var(--inv-muted)]">
+    <span className="font-mono uppercase text-[color:var(--inv-muted)]">
       VIN {car.vin.slice(0, 8)}…
     </span>
   )}
   {car.fuel && (
-    <span className="rounded-full border border-[var(--inv-border)] bg-[var(--inv-surface)] px-2 py-0.5 text-[color:var(--inv-secondary)]">
+    <span className="text-[color:var(--inv-secondary)]">
       {car.fuel}
     </span>
   )}
@@ -635,10 +624,10 @@ export default function Inventory({ inventory }: InventoryProps) {
                     </div>
 
                     {/* Barra inferior precio + cuadro negro de pago mensual + ? */}
-                    <div className="mt-auto bg-[var(--inv-black80)] px-4 py-3 text-sm relative">
+                    <div className="relative mt-auto py-3 text-sm">
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <p className="text-[11px] text-[color:var(--inv-heading)]0">
+                          <p className="text-[11px] text-[color:var(--inv-muted-low)]">
                             {text.priceLabel}
                           </p>
                           <p className="font-semibold text-[color:var(--inv-heading)]">
@@ -649,7 +638,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                         {monthly && (
                           <div className="flex items-center gap-2">
                             {/* Cuadro negro con pago mensual en verde */}
-                            <div className="rounded-md bg-[var(--inv-raised)] px-3 py-1.5 text-right">
+                            <div className="py-1.5 text-right">
                               <p className="text-[10px] text-[color:var(--inv-muted)]">
                                 {text.estPayment}
                               </p>
@@ -717,13 +706,13 @@ export default function Inventory({ inventory }: InventoryProps) {
               <div className="rounded-lg border border-[var(--inv-border)] bg-[var(--inv-page)] px-3 py-3">
                 <div className="flex items-center justify-between">
                   <span>{text.price}</span>
-                  <span className="text-[11px] text-[color:var(--inv-heading)]0">
+                  <span className="text-[11px] text-[color:var(--inv-muted-low)]">
                     {text.adjustInStore}
                   </span>
                 </div>
                 <div className="mt-3 flex items-center justify-between gap-2 text-[11px]">
                   <div className="flex-1 rounded-md border border-[var(--inv-border)] bg-[var(--inv-black70)] px-2 py-1.5">
-                    <p className="text-[10px] text-[color:var(--inv-heading)]0">
+                    <p className="text-[10px] text-[color:var(--inv-muted-low)]">
                       {text.minLabel}
                     </p>
                     <input
@@ -743,7 +732,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                     />
                   </div>
                   <div className="flex-1 rounded-md border border-[var(--inv-border)] bg-[var(--inv-black70)] px-2 py-1.5 text-right">
-                    <p className="text-[10px] text-[color:var(--inv-heading)]0">
+                    <p className="text-[10px] text-[color:var(--inv-muted-low)]">
                       {text.maxLabel}
                     </p>
                     <input
@@ -769,7 +758,7 @@ export default function Inventory({ inventory }: InventoryProps) {
               <div className="rounded-lg border border-[var(--inv-border)] bg-[var(--inv-page)] px-3 py-3">
                 <div className="flex items-center justify-between">
                   <span>{text.year}</span>
-                  <span className="text-xs text-[color:var(--inv-heading)]0">
+                  <span className="text-xs text-[color:var(--inv-muted-low)]">
                     {yearFilter === "ALL" ? text.allYears : yearFilter}
                   </span>
                 </div>
@@ -791,7 +780,7 @@ export default function Inventory({ inventory }: InventoryProps) {
               <div className="rounded-lg border border-[var(--inv-border)] bg-[var(--inv-page)] px-3 py-3">
                 <div className="flex items-center justify-between">
                   <span>{text.make}</span>
-                  <span className="text-xs text-[color:var(--inv-heading)]0">
+                  <span className="text-xs text-[color:var(--inv-muted-low)]">
                     {makeFilter === "ALL" ? text.allMakes : makeFilter}
                   </span>
                 </div>
@@ -852,7 +841,7 @@ export default function Inventory({ inventory }: InventoryProps) {
             {/* input búsqueda */}
             <div className="px-4 py-3">
               <div className="relative">
-                <span className="pointer-events-none absolute inset-y-0 left-2 flex items-center text-[color:var(--inv-heading)]0">
+                <span className="pointer-events-none absolute inset-y-0 left-2 flex items-center text-[color:var(--inv-muted-low)]">
                   🔍
                 </span>
                 <input
@@ -860,7 +849,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={text.modalPlaceholder}
-                  className="w-full rounded-full border border-[var(--inv-border)] bg-[var(--inv-surface)] px-3 py-2 pl-7 text-sm text-[color:var(--inv-text)] outline-none placeholder:text-[color:var(--inv-heading)]0 focus:border-[var(--inv-border-hover)]"
+                  className="w-full rounded-full border border-[var(--inv-border)] bg-[var(--inv-surface)] px-3 py-2 pl-7 text-sm text-[color:var(--inv-text)] outline-none placeholder:text-[color:var(--inv-muted-low)] focus:border-[var(--inv-border-hover)]"
                 />
               </div>
             </div>
@@ -868,7 +857,7 @@ export default function Inventory({ inventory }: InventoryProps) {
             {/* resultados */}
             <div className="max-h-[60vh] overflow-y-auto px-2 pb-3">
               {searchQuery.trim() && searchResults.length === 0 && (
-                <p className="px-2 py-2 text-xs text-[color:var(--inv-heading)]0">
+                <p className="px-2 py-2 text-xs text-[color:var(--inv-muted-low)]">
                   {text.modalNoResults} “{searchQuery.trim()}”.
                 </p>
               )}
@@ -903,7 +892,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                       <p className="text-sm font-semibold">
                         {car.model || car.title}
                       </p>
-                      <p className="mt-0.5 text-[11px] text-[color:var(--inv-heading)]0">
+                      <p className="mt-0.5 text-[11px] text-[color:var(--inv-muted-low)]">
                         {car.vin ? `VIN ${car.vin}` : ""}
                       </p>
                     </div>
