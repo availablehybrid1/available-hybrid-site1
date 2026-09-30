@@ -39,9 +39,18 @@ type Vehicle = {
 };
 
 
+function vehicleOnlyDescription(value: string): string {
+  return value
+    .replace(/<[^>]*>/g, " ").replace(/&amp;/gi, "&").replace(/&nbsp;/gi, " ")
+    .replace(/(?:available at|offered by|for sale at|disponible en|a la venta en)\s+Available\s+Hybrid\s+R\s*&?\s*M(?:\s+Inc\.?)?[.!]?/gi, "")
+    .split(/\r?\n|(?<=[.!?])\s+/)
+    .filter(part => !/available\s+hybrid|hybridrm\.com|\b(?:visit us|contact us|call us|financing available|our dealership)\b|(?:ll[aá]manos|vis[ií]tanos)/i.test(part))
+    .map(part => part.trim()).filter(Boolean).join("\n").replace(/[ \t]+/g, " ").trim();
+}
+
 function inventoryExcerpt(car: Vehicle): string {
   const normalize = (value: string) => value.toLowerCase().replace(/[^a-záéíóúñ0-9]+/g, "");
-  const escape = (value: string) => value.replace(/[.*+?^$()|[\]\\{}]/g, "\\type InventoryProps = { inventory: Vehicle[] };");
+  const escape = (value: string) => value.replace(/[.*+?^$()|[\]\{}]/g, "\\$&");
   const titles = [
     car.title,
     [car.year, car.make, car.model].filter(Boolean).join(" "),
@@ -55,7 +64,7 @@ function inventoryExcerpt(car: Vehicle): string {
     "CVT", "Continuously Variable Transmission (CVT)",
   ].map(normalize).filter(Boolean));
 
-  const parts = (car.description || "")
+  const parts = vehicleOnlyDescription(car.description || "")
     .replace(/<[^>]*>/g, " ")
     .replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&")
     .split(/\r?\n|(?<=[.!?])\s+|[|;]|\s+[•·]\s+/)
@@ -451,10 +460,7 @@ export default function Inventory({ inventory }: InventoryProps) {
         {/* CONTENIDO PRINCIPAL */}
         <section className="flex-1">
           {/* contador de vehículos */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs text-[color:var(--inv-muted)]">
-              {visible.length} {text.vehiclesAvailable}
-            </p>
+          <div className="flex flex-wrap items-center justify-end gap-3">
             <div
               role="group"
               aria-label={lang === "en" ? "Inventory appearance" : "Apariencia del inventario"}
@@ -981,3 +987,4 @@ export const getStaticProps: GetStaticProps<InventoryProps> = async () => {
 
   return { props: { inventory }, revalidate: 60 };
 };
+
