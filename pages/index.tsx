@@ -15,7 +15,7 @@ const copy = {
 
     heroTitle: "HYBRID, RACING AND MOTORSPORT",
     heroSubtitle:
-  "Hybrid, performance and specialty vehicles in Los Angeles. Specialized in hybrid systems, including battery service and diagnostics, while offering full maintenance and repair services for all types of vehicles..",
+  "Hybrid, performance and specialty vehicles in Los Angeles. Hybrid service, diagnostics and repairs for all vehicles.",
 
     ctaInventory: "View Inventory",
     ctaSold: "Sold",
@@ -47,7 +47,7 @@ ctaService: "Schedule Service",
 
     heroTitle: "HYBRID, RACING AND MOTORSPORT",
     heroSubtitle:
-  "Vehículos híbridos, deportivos y especiales en Los Ángeles. Especialistas en sistemas híbridos, incluyendo servicio de baterías y diagnóstico, además de mantenimiento y reparación completa para todo tipo de vehículos.",
+  "Vehículos híbridos, deportivos y especiales en Los Ángeles. Servicio híbrido, diagnóstico y reparación para todo tipo de vehículos.",
 
     ctaInventory: "Ver inventario",
     ctaSold: "Vendidos",
@@ -165,39 +165,26 @@ export default function Home() {
             <div className="absolute inset-0 bg-black/70" />
           </div>
 
-          <div className="relative w-full mx-auto max-w-7xl px-4 grid lg:grid-cols-12 gap-10 items-center pt-28 pb-20">
-
-            <div className="lg:col-span-7">
-              <h1 className="text-white text-5xl font-semibold tracking-tight">
+          <div className="relative mx-auto flex w-full max-w-7xl items-center px-4 pb-20 pt-28 sm:px-6 lg:px-8">
+            <div className="w-full max-w-3xl">
+              <h1 className="text-4xl font-medium leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
                 {t.heroTitle}
               </h1>
-
-              <p className="mt-4 text-white/80 max-w-xl">
+              <p className="mt-6 max-w-xl text-base leading-7 text-white/75">
                 {t.heroSubtitle}
               </p>
-
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="/inventory" className="bg-white text-black px-5 py-3 rounded-xl">
+              <nav aria-label={lang === "EN" ? "Explore our services" : "Explora nuestros servicios"} className="mt-8 flex flex-wrap gap-3">
+                <Link href="/inventory" className="inline-flex min-h-12 items-center justify-center rounded-sm border border-white bg-white px-6 py-3 text-sm font-medium text-black transition hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
                   {t.ctaInventory}
                 </Link>
-<Link
-  href="/service"
-  className="inline-flex items-center justify-center rounded-2xl border border-white/30 text-white px-5 py-3 font-semibold hover:bg-white/10 transition"
->
-{t.ctaService}
-</Link>
-                <Link href="/car-rental" className="inline-flex items-center justify-center rounded-2xl border border-white/30 text-white px-5 py-3 font-semibold hover:bg-white/10 transition">
+                <Link href="/service" className="inline-flex min-h-12 items-center justify-center rounded-sm border border-white/40 px-6 py-3 text-sm font-medium text-white transition hover:border-white/70 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+                  {t.ctaService}
+                </Link>
+                <Link href="/car-rental" className="inline-flex min-h-12 items-center justify-center rounded-sm border border-white/40 px-6 py-3 text-sm font-medium text-white transition hover:border-white/70 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
                   Car Rental
                 </Link>
-              </div>
+              </nav>
             </div>
-
-            <div className="lg:col-span-5">
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-                <Image src="/placeholder-car.jpg" alt="car" width={500} height={300} className="rounded-xl" />
-              </div>
-            </div>
-
           </div>
         </section>
 
