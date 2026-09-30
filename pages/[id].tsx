@@ -785,7 +785,7 @@ if (!car) {
               ))}
             </div>
             <div id="vehicle-description-panel" role="tabpanel" aria-labelledby="vehicle-description-tab" hidden={detailTab !== "description"} className="py-8">
-              <p className="whitespace-pre-line text-base leading-8 text-[color:var(--detail-text-300)]">{cleanDescription || friendlyOverview}</p>
+              <p className="whitespace-pre-line text-base leading-8 text-[color:var(--detail-text-300)]">{friendlyOverview || cleanDescription}</p>
             </div>
             <div id="vehicle-specification-panel" role="tabpanel" aria-labelledby="vehicle-specification-tab" hidden={detailTab !== "specification"}>
             <div className="mt-5 border-y border-[var(--detail-border-800)] py-4">
@@ -884,16 +884,7 @@ if (!car) {
                   </div>
                 )}
 
-                {friendlyOverview && (
-                  <div className="border-t border-[var(--detail-border-800)] pt-3">
-                    <p className="text-sm font-medium uppercase tracking-[0.1em] text-[color:var(--detail-text-500)]">
-                      Overview
-                    </p>
-                    <p className="mt-2 text-sm leading-relaxed text-[color:var(--detail-text-300)]">
-                      {friendlyOverview}
-                    </p>
-                  </div>
-                )}
+
               </div>
             </details>
 
