@@ -298,6 +298,12 @@ export default function Inventory({ inventory }: InventoryProps) {
 
   const phone = "+1 747-354-4098";
   const whatsappDigits = "17473544098";
+  const fullDetails = lang === "en" ? "Full Details" : "Ver detalles";
+  function transmissionLabel(value: string) {
+    return /\bcvt\b|continu(?:ous|ously)\s+variable|\bautomatic\b|autom[aá]tic[ao]/i.test(value)
+      ? (lang === "en" ? "Automatic" : "Automática")
+      : value;
+  }
 
   return (
     <main data-theme={theme} className="min-h-screen bg-[var(--inv-page)] text-[color:var(--inv-text)] pb-16">
@@ -546,7 +552,7 @@ export default function Inventory({ inventory }: InventoryProps) {
           </div>
 
           {/* GRID DE VEHÍCULOS */}
-          <div className="mt-6 grid gap-x-6 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-6 grid gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-3">
             {visible.length === 0 ? (
               <p className="text-sm text-[color:var(--inv-muted)]">{text.noVehicles}</p>
             ) : (
@@ -563,15 +569,12 @@ export default function Inventory({ inventory }: InventoryProps) {
                     ? "Call for price"
                     : "Llama para precio";
 
-                // pago estimado basado en 12 meses
-                const monthly =
-                  car.price != null ? Math.round(car.price / 12) : null;
-
                 return (
                   <Link
                     key={car.id}
                     href={`/${encodeURIComponent(car.id)}`}
-                    className="group flex min-w-0 flex-col bg-transparent overflow-visible"
+                    aria-label={`${fullDetails}: ${car.title}`}
+                    className="group flex min-w-0 flex-col bg-transparent overflow-visible focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
                   >
                     {/* Fotos originales sin etiquetas */}
                     <div className="relative aspect-[16/10] w-full overflow-hidden bg-[var(--inv-surface)]">
@@ -579,7 +582,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                         src={mainPhoto}
                         alt={car.title}
                         fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                        sizes="(max-width: 639px) 100vw, (max-width: 767px) 50vw, 33vw"
                         className="object-cover object-center transition duration-700 group-hover:scale-[1.025]"
                       />
                       {hoverPhoto && (
@@ -587,29 +590,34 @@ export default function Inventory({ inventory }: InventoryProps) {
                           src={hoverPhoto}
                           alt=""
                           fill
-                          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                          sizes="(max-width: 639px) 100vw, (max-width: 767px) 50vw, 33vw"
                           className="object-cover object-center opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                         />
                       )}
-
+                      <div className="vehicle-details-overlay pointer-events-none absolute inset-0 flex items-center justify-center bg-black/55 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
+                        <span className="inline-flex min-h-11 items-center gap-3 border border-white px-6 py-3 text-sm font-semibold tracking-wide text-white">
+                          {fullDetails}
+                          <span aria-hidden="true">→</span>
+                        </span>
+                      </div>
                     </div>
 
                     {/* Info principal */}
                     <div className="flex flex-1 flex-col pb-3 pt-4 text-xs">
-                      <h3 className="text-sm font-semibold uppercase text-[color:var(--inv-heading)]">
+                      <h3 className="text-base font-semibold uppercase leading-snug tracking-wide text-[color:var(--inv-heading)] lg:text-lg">
                         {[car.make, car.model, car.year].filter(Boolean).join(" ") || car.title}
                       </h3>
 
-                      <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[color:var(--inv-muted)]">
+                      <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm leading-6 text-[color:var(--inv-muted)]">
                         {car.mileage != null && (
                           <span>{car.mileage.toLocaleString()} mi</span>
                         )}
                         {car.fuel && <span>• {car.fuel}</span>}
-                        {car.transmission && <span>• {car.transmission}</span>}
+                        {car.transmission && <span>• {transmissionLabel(car.transmission)}</span>}
                         {car.exterior && <span>• {car.exterior}</span>}
                       </div>
 
-                     <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
+                     <div className="mt-3 flex flex-wrap gap-2 text-xs">
   {car.vin && (
     <span className="font-mono uppercase text-[color:var(--inv-muted)]">
       VIN {car.vin.slice(0, 8)}…
@@ -623,52 +631,13 @@ export default function Inventory({ inventory }: InventoryProps) {
 </div>
                     </div>
 
-                    {/* Barra inferior precio + cuadro negro de pago mensual + ? */}
-                    <div className="relative mt-auto py-3 text-sm">
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-[11px] text-[color:var(--inv-muted-low)]">
-                            {text.priceLabel}
-                          </p>
-                          <p className="font-semibold text-[color:var(--inv-heading)]">
-                            {priceLabel}
-                          </p>
-                        </div>
-
-                        {monthly && (
-                          <div className="flex items-center gap-2">
-                            {/* Cuadro negro con pago mensual en verde */}
-                            <div className="py-1.5 text-right">
-                              <p className="text-[10px] text-[color:var(--inv-muted)]">
-                                {text.estPayment}
-                              </p>
-                              <p className="text-[13px] font-semibold text-[color:var(--inv-accent)]">
-                                ${monthly.toLocaleString()}/mo
-                              </p>
-                            </div>
-
-                            {/* Icono ? con tooltip */}
-                            <div className="relative group/payment">
-                              <button
-                                type="button"
-                                onClick={(e) => e.preventDefault()}
-                                className="flex h-6 w-6 items-center justify-center rounded-full border border-[var(--inv-border-hover)] bg-[var(--inv-raised)] text-xs font-bold text-[color:var(--inv-text)] hover:border-[var(--inv-border-hover)]"
-                              >
-                                ?
-                              </button>
-                              <div className="pointer-events-none absolute right-0 bottom-full z-20 mb-2 w-72 rounded-md border border-[var(--inv-border-strong)] bg-[var(--inv-surface)] px-4 py-3 text-[11px] opacity-0 shadow-xl transition-opacity group-hover/payment:opacity-100 group-hover/payment:pointer-events-auto">
-                                <p className="text-sm font-semibold text-[color:var(--inv-heading)]">
-                                  {text.tooltipTitlePrefix} $
-                                  {monthly.toLocaleString()}
-                                </p>
-                                <p className="mt-2 text-[11px] leading-snug text-[color:var(--inv-secondary)]">
-                                  {text.paymentDisclaimer}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                    <div className="mt-auto flex items-center justify-between gap-3 py-3">
+                      <p className="text-lg font-semibold text-[color:var(--inv-heading)]">
+                        {priceLabel}
+                      </p>
+                      <span className="vehicle-details-touch items-center gap-2 text-sm font-medium text-[color:var(--inv-heading)]">
+                        {fullDetails} <span aria-hidden="true">→</span>
+                      </span>
                     </div>
                   </Link>
                 );
@@ -960,6 +929,22 @@ export default function Inventory({ inventory }: InventoryProps) {
         }
         header {
           color-scheme: dark;
+        }
+        .vehicle-details-touch {
+          display: none;
+        }
+        @media (hover: none) {
+          .vehicle-details-overlay {
+            display: none;
+          }
+          .vehicle-details-touch {
+            display: inline-flex;
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .vehicle-details-overlay {
+            transition: none;
+          }
         }
       `}</style>
     </main>
