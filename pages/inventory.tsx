@@ -459,8 +459,16 @@ export default function Inventory({ inventory }: InventoryProps) {
       <div className="mx-auto flex max-w-6xl gap-6 px-4 pt-6">
         {/* CONTENIDO PRINCIPAL */}
         <section className="flex-1">
-          {/* contador de vehículos */}
-          <div className="flex flex-wrap items-center justify-end gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <Link
+              href="/"
+              aria-label={lang === "en" ? "Back to home" : "Volver al inicio"}
+              className="inline-flex h-11 w-11 items-center justify-center text-[color:var(--inv-heading)] transition hover:bg-[var(--inv-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m6-6-6 6 6 6" />
+              </svg>
+            </Link>
             <div
               role="group"
               aria-label={lang === "en" ? "Inventory appearance" : "Apariencia del inventario"}
