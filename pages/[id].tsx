@@ -659,9 +659,18 @@ if (!car) {
                     aria-label={mode === "dark" ? "Dark mode" : "Light mode"}
                     aria-pressed={theme === mode}
                     onClick={() => selectTheme(mode)}
-                    className={`flex h-10 w-10 items-center justify-center rounded-full border text-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current ${theme === mode ? "border-[var(--detail-border-100)] bg-[var(--detail-bg-800)]" : "border-transparent hover:bg-[var(--detail-bg-900)]"}`}
+                    className={`flex h-10 w-10 items-center justify-center rounded-full border text-[color:var(--detail-text-100)] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current ${theme === mode ? "border-[var(--detail-border-100)] bg-[var(--detail-bg-800)]" : "border-transparent hover:bg-[var(--detail-bg-900)]"}`}
                   >
-                    <span aria-hidden="true">{mode === "dark" ? "🌙" : "☀️"}</span>
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+                    {mode === "dark" ? (
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z" />
+                    ) : (
+                      <>
+                        <circle cx="12" cy="12" r="4" />
+                        <path strokeLinecap="round" d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" />
+                      </>
+                    )}
+                  </svg>
                   </button>
                 ))}
               </div>
