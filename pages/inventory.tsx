@@ -38,6 +38,41 @@ type Vehicle = {
   studioCover: string;
 };
 
+
+function inventoryExcerpt(car: Vehicle): string {
+  const normalize = (value: string) => value.toLowerCase().replace(/[^a-záéíóúñ0-9]+/g, "");
+  const escape = (value: string) => value.replace(/[.*+?^$()|[\]\\{}]/g, "\\type InventoryProps = { inventory: Vehicle[] };");
+  const titles = [
+    car.title,
+    [car.year, car.make, car.model].filter(Boolean).join(" "),
+    [car.make, car.model, car.year].filter(Boolean).join(" "),
+  ].filter(Boolean);
+  const titlePrefix = new RegExp("^(?:" + titles.map(escape).join("|") + ")(?=\\s|[.,:;–—-]|$)[\\s.,:;–—-]*", "i");
+  const specs = new Set([
+    ...titles, car.make, car.model, String(car.year ?? ""), car.vin,
+    car.fuel, car.transmission, car.exterior, "Automatic", "Automática",
+    "Automatic transmission", "Transmisión automática",
+    "CVT", "Continuously Variable Transmission (CVT)",
+  ].map(normalize).filter(Boolean));
+
+  const parts = (car.description || "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&")
+    .split(/\r?\n|(?<=[.!?])\s+|[|;]|\s+[•·]\s+/)
+    .map(part => part.trim().replace(/^[•✓✔✅*\s-]+/, "").replace(titlePrefix, "").trim())
+    .filter(part => {
+      if (!part || specs.has(normalize(part))) return false;
+      if (/^(?:vin|mileage|miles|millaje|millas|price|precio|year|año|make|marca|model|modelo|transmission|transmisión|fuel|combustible|exterior|color)\s*[:=]/i.test(part)) return false;
+      if (/^(?:\d[\d,.\s]*\s*(?:mi|miles|millas)|\$\s*[\d,.]+)[.!]?$/.test(part)) return false;
+      return true;
+    });
+  const excerpt = parts.join(" ").replace(/\s+/g, " ").trim();
+  if (excerpt.length <= 180) return excerpt;
+  const shortened = excerpt.slice(0, 177);
+  const wordEnd = shortened.lastIndexOf(" ");
+  return shortened.slice(0, wordEnd > 120 ? wordEnd : 177).replace(/[,:;\s]+$/, "") + "…";
+}
+
 type InventoryProps = { inventory: Vehicle[] };
 
 export default function Inventory({ inventory }: InventoryProps) {
@@ -455,35 +490,6 @@ export default function Inventory({ inventory }: InventoryProps) {
             </div>
           </div>
 
-          {/* Chips de marcas */}
-          <div className="mt-4 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => setMakeFilter("ALL")}
-              className={`rounded-full px-4 py-1.5 text-xs font-semibold ${
-                makeFilter === "ALL"
-                  ? "bg-[var(--inv-active)] text-[color:var(--inv-on-active)]"
-                  : "bg-[var(--inv-raised)] text-[color:var(--inv-secondary)] hover:bg-[var(--inv-hover)]"
-              }`}
-            >
-              {text.allInventory}
-            </button>
-            {makes.map((mk) => (
-              <button
-                key={mk}
-                type="button"
-                onClick={() => setMakeFilter(mk)}
-                className={`rounded-full px-4 py-1.5 text-xs font-medium ${
-                  makeFilter.toLowerCase() === mk.toLowerCase()
-                    ? "bg-[var(--inv-active)] text-[color:var(--inv-on-active)]"
-                    : "bg-[var(--inv-raised)] text-[color:var(--inv-secondary)] hover:bg-[var(--inv-hover)]"
-                }`}
-              >
-                {mk}
-              </button>
-            ))}
-          </div>
-
           {/* Search, filters and sort */}
           <div className="mt-5 flex items-center justify-between gap-3">
             <button
@@ -501,7 +507,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                 className="inline-flex h-9 items-center gap-2 rounded-full border border-[var(--inv-border)] bg-[var(--inv-surface)] px-3 text-xs text-[color:var(--inv-secondary)] hover:border-[var(--inv-border-hover)] hover:bg-[var(--inv-raised)]"
               >
                 <span aria-hidden="true">⚙</span>
-                <span>{text.filtersLabel}</span>
+                <span>{text.filtersLabel}{makeFilter !== "ALL" ? ` · ${makeFilter}` : ""}</span>
               </button>
               <div className="relative z-30">
                 <button
@@ -569,6 +575,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                     ? "Call for price"
                     : "Llama para precio";
 
+                const descriptionExcerpt = inventoryExcerpt(car);
                 return (
                   <Link
                     key={car.id}
@@ -617,18 +624,11 @@ export default function Inventory({ inventory }: InventoryProps) {
                         {car.exterior && <span>• {car.exterior}</span>}
                       </div>
 
-                     <div className="mt-3 flex flex-wrap gap-2 text-xs">
-  {car.vin && (
-    <span className="font-mono uppercase text-[color:var(--inv-muted)]">
-      VIN {car.vin.slice(0, 8)}…
-    </span>
-  )}
-  {car.fuel && (
-    <span className="text-[color:var(--inv-secondary)]">
-      {car.fuel}
-    </span>
-  )}
-</div>
+                      {descriptionExcerpt && (
+                        <p className="mt-3 text-sm leading-6 text-[color:var(--inv-secondary)]">
+                          {descriptionExcerpt}
+                        </p>
+                      )}
                     </div>
 
                     <div className="mt-auto flex items-center justify-between gap-3 py-3">
@@ -755,6 +755,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                 </div>
                 <select
                   value={makeFilter}
+                  aria-label={text.make}
                   onChange={(e) => setMakeFilter(e.target.value)}
                   className="mt-2 w-full rounded-md border border-[var(--inv-border)] bg-[var(--inv-black70)] px-2 py-1.5 text-[11px] text-[color:var(--inv-text)] outline-none focus:border-[var(--inv-border-hover)]"
                 >
