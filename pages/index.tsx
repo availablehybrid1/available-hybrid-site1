@@ -18,6 +18,7 @@ const copy = {
   "Hybrid, performance and specialty vehicles in Los Angeles. Specialized in hybrid systems, including battery service and diagnostics, while offering full maintenance and repair services for all types of vehicles..",
 
     ctaInventory: "View Inventory",
+    ctaSold: "Sold",
     ctaPrequal: "Get Pre-Qualified",
     ctaWhatsapp: "WhatsApp",
 ctaService: "Schedule Service",
@@ -49,6 +50,7 @@ ctaService: "Schedule Service",
   "Vehículos híbridos, deportivos y especiales en Los Ángeles. Especialistas en sistemas híbridos, incluyendo servicio de baterías y diagnóstico, además de mantenimiento y reparación completa para todo tipo de vehículos.",
 
     ctaInventory: "Ver inventario",
+    ctaSold: "Vendidos",
     ctaPrequal: "Pre-Calificación",
     ctaWhatsapp: "WhatsApp",
 ctaService: "Agenda tu servicio",
@@ -201,8 +203,12 @@ export default function Home() {
 
         {/* FOOTER (SIN LINEA BLANCA) */}
         <footer className="bg-black">
-          <div className="mx-auto max-w-7xl px-4 py-10 text-white/70">
-            {t.footerAddress}
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-10 text-white/70">
+            <span>{t.footerAddress}</span>
+            <Link href="/sold" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-medium text-white/80 transition hover:border-white/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              {t.ctaSold}
+              <span aria-hidden="true">→</span>
+            </Link>
           </div>
         </footer>
 
