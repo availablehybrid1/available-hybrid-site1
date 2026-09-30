@@ -106,6 +106,10 @@ type DetailProps = {
 
 export default function VehicleDetail({ car, suggestions, inventoryOptions }: DetailProps) {
   const [theme, setTheme] = React.useState<"dark" | "light">("dark");
+  const selectTheme = (value: "dark" | "light") => {
+    setTheme(value);
+    try { window.localStorage.setItem("hybridrm-inventory-theme", value); } catch {}
+  };
   const [detailTab, setDetailTab] = React.useState<"description" | "specification">("description");
   React.useEffect(() => {
     try {
@@ -637,15 +641,31 @@ if (!car) {
       <div className="mx-auto max-w-7xl space-y-10 px-4 pb-24 pt-6 sm:px-8 sm:pb-12">
         <div className="space-y-10">
           <section className="min-w-0">
+            <div className="mb-3 flex items-center justify-between gap-3">
               <Link
                 href="/inventory"
                 aria-label="Back to inventory"
-                className="mb-3 inline-flex h-11 w-11 items-center justify-center text-[color:var(--detail-text-100)] transition hover:bg-[var(--detail-bg-900)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                className="inline-flex h-11 w-11 items-center justify-center text-[color:var(--detail-text-100)] transition hover:bg-[var(--detail-bg-900)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
               >
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m6-6-6 6 6 6" />
                 </svg>
               </Link>
+              <div role="group" aria-label="Appearance" className="inline-flex items-center rounded-full border border-[var(--detail-border-800)] bg-[var(--detail-bg-950)] p-1">
+                {(["dark", "light"] as const).map(mode => (
+                  <button
+                    key={mode}
+                    type="button"
+                    aria-label={mode === "dark" ? "Dark mode" : "Light mode"}
+                    aria-pressed={theme === mode}
+                    onClick={() => selectTheme(mode)}
+                    className={`flex h-10 w-10 items-center justify-center rounded-full border text-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current ${theme === mode ? "border-[var(--detail-border-100)] bg-[var(--detail-bg-800)]" : "border-transparent hover:bg-[var(--detail-bg-900)]"}`}
+                  >
+                    <span aria-hidden="true">{mode === "dark" ? "🌙" : "☀️"}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="relative flex w-full items-center justify-center">
 
               <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-10 h-40 bg-gradient-to-b from-black/60 to-transparent sm:h-52" />
