@@ -845,48 +845,34 @@ if (!car) {
                   <p className="flex items-center gap-1.5 text-sm font-medium uppercase tracking-[0.08em] text-[color:var(--detail-text-400)]"><GitBranch className="h-3.5 w-3.5" />Drivetrain</p>
                   <p className="mt-1 text-sm font-medium text-[color:var(--detail-text-100)]">{vinInfo?.driveType || "N/A"}</p>
                 </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <p className="text-sm font-medium uppercase tracking-[0.08em] text-[color:var(--detail-text-400)]">VIN</p>
+                  <p className="mt-1 break-all font-mono text-sm uppercase text-[color:var(--detail-text-100)]">{car.vin || "N/A"}</p>
+                </div>
+                {vinInfo?.trim && (
+                  <div>
+                    <p className="text-sm font-medium uppercase tracking-[0.08em] text-[color:var(--detail-text-400)]">Trim</p>
+                    <p className="mt-1 text-sm font-medium text-[color:var(--detail-text-100)]">{vinInfo.trim}</p>
+                  </div>
+                )}
+                {vinInfo?.make && vinInfo.make.toLowerCase().trim() !== car.make.toLowerCase().trim() && (
+                  <div>
+                    <p className="text-sm font-medium uppercase tracking-[0.08em] text-[color:var(--detail-text-400)]">VIN Make</p>
+                    <p className="mt-1 text-sm font-medium text-[color:var(--detail-text-100)]">{vinInfo.make}</p>
+                  </div>
+                )}
+                {vinInfo?.model && vinInfo.model.toLowerCase().trim() !== car.model.toLowerCase().trim() && (
+                  <div>
+                    <p className="text-sm font-medium uppercase tracking-[0.08em] text-[color:var(--detail-text-400)]">VIN Model</p>
+                    <p className="mt-1 text-sm font-medium text-[color:var(--detail-text-100)]">{vinInfo.model}</p>
+                  </div>
+                )}
               </div>
             </div>
 
-            <details className="mt-4 border-t border-[var(--detail-border-800)] pt-3">
-              <summary className="cursor-pointer select-none text-sm font-medium text-[color:var(--detail-text-400)] hover:text-[color:var(--detail-text-200)]">
-                More VIN details
-              </summary>
-              <div className="mt-3 space-y-3">
-                <div>
-                  <p className="text-[color:var(--detail-text-500)]">VIN</p>
-                  <p className="font-mono text-sm uppercase tracking-[0.08em] text-[color:var(--detail-text-300)]">
-                    {car.vin || "N/A"}
-                  </p>
-                </div>
-                {vinLoading && <p className="text-[color:var(--detail-text-400)]">Decoding VIN…</p>}
-                {vinError && <p className="text-sm text-red-400">{vinError}</p>}
-                {!vinLoading && !vinError && vinInfo && (
-                  <div className="grid gap-x-6 gap-y-2 text-sm text-[color:var(--detail-text-300)] sm:grid-cols-3 lg:grid-cols-1">
-                    {vinInfo.trim && (
-                      <div>
-                        <p className="text-[color:var(--detail-text-500)]">Trim</p>
-                        <p>{vinInfo.trim}</p>
-                      </div>
-                    )}
-                    {vinInfo.make && (
-                      <div>
-                        <p className="text-[color:var(--detail-text-500)]">Make</p>
-                        <p>{vinInfo.make}</p>
-                      </div>
-                    )}
-                    {vinInfo.model && (
-                      <div>
-                        <p className="text-[color:var(--detail-text-500)]">Model</p>
-                        <p>{vinInfo.model}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
+            {vinLoading && <p className="mt-4 text-sm text-[color:var(--detail-text-400)]">Decoding VIN…</p>}
+            {vinError && <p className="mt-4 text-sm text-red-400">{vinError}</p>}
 
-
-              </div>
-            </details>
 
             </div>
             </section>
