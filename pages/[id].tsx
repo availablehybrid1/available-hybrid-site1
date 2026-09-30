@@ -745,7 +745,7 @@ if (!car) {
           <div className="mx-auto w-full max-w-4xl space-y-6">
             <section className="vehicle-information text-sm">
             <div role="tablist" aria-label="Vehicle information" className="flex border-b border-[var(--detail-border-800)]">
-              {(["description", "specification"] as const).map(tab => (
+              {(["specification", "description"] as const).map(tab => (
                 <button key={tab} id={`vehicle-${tab}-tab`} role="tab" type="button"
                   aria-selected={detailTab === tab} aria-controls={`vehicle-${tab}-panel`}
                   onClick={() => setDetailTab(tab)}
