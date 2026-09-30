@@ -637,16 +637,17 @@ if (!car) {
       <div className="mx-auto max-w-7xl space-y-10 px-4 pb-24 pt-6 sm:px-8 sm:pb-12">
         <div className="space-y-10">
           <section className="min-w-0">
-            <div className="relative flex w-full items-center justify-center">
               <Link
                 href="/inventory"
                 aria-label="Back to inventory"
-                className="absolute bottom-3 left-3 z-20 flex h-11 w-11 items-center justify-center bg-black/60 text-white transition hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="mb-3 inline-flex h-11 w-11 items-center justify-center text-[color:var(--detail-text-100)] transition hover:bg-[var(--detail-bg-900)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
               >
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m6-6-6 6 6 6" />
                 </svg>
               </Link>
+            <div className="relative flex w-full items-center justify-center">
+
               <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-10 h-40 bg-gradient-to-b from-black/60 to-transparent sm:h-52" />
               <div className="pointer-events-none absolute inset-x-14 top-5 z-10 flex flex-col items-center gap-3 text-center text-white sm:top-10">
                 <h1 className="text-lg font-semibold uppercase leading-tight tracking-wide sm:text-2xl lg:text-3xl [text-shadow:0_2px_8px_rgba(0,0,0,0.7)]">
