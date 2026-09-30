@@ -1529,6 +1529,21 @@ if (!car) {
             </a>
           </div>
         </section>
+        <div className="flex justify-center pt-2">
+          <button
+            type="button"
+            onClick={() => window.scrollTo({
+              top: 0,
+              behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+            })}
+            className="inline-flex min-h-11 items-center gap-2 px-4 py-2 text-sm font-medium text-[color:var(--detail-text-300)] transition hover:text-[color:var(--detail-text-100)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5m-6 6 6-6 6 6" />
+            </svg>
+            Back to top
+          </button>
+        </div>
       </div>
 
       {isPrequalOpen && (
