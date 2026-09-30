@@ -110,7 +110,7 @@ export default function VehicleDetail({ car, suggestions, inventoryOptions }: De
     setTheme(value);
     try { window.localStorage.setItem("hybridrm-inventory-theme", value); } catch {}
   };
-  const [detailTab, setDetailTab] = React.useState<"description" | "specification">("description");
+  const [detailTab, setDetailTab] = React.useState<"description" | "specification">("specification");
   React.useEffect(() => {
     try {
       const saved = window.localStorage.getItem("hybridrm-inventory-theme");
