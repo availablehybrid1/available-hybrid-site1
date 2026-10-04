@@ -108,6 +108,21 @@ export default function SellYourCarModal({
 
   const fieldClass =
     "mt-1.5 w-full rounded-xl border border-white/15 bg-white/[0.05] px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/35 focus:border-white/45";
+
+  const yearOptions = Array.from({ length: 48 }, (_, index) => String(2027 - index));
+  const makeOptions = [
+    "Acura", "Audi", "BMW", "Buick", "Cadillac", "Chevrolet", "Chrysler",
+    "Dodge", "Ford", "Genesis", "GMC", "Honda", "Hyundai", "Infiniti",
+    "Jeep", "Kia", "Lexus", "Lincoln", "Mazda", "Mercedes-Benz", "MINI",
+    "Mitsubishi", "Nissan", "Porsche", "Ram", "Subaru", "Tesla", "Toyota",
+    "Volkswagen", "Volvo"
+  ];
+  const titleOptions = isEN
+    ? ["Clean", "Salvage", "Rebuilt", "Lien", "Other"]
+    : ["Limpio", "Salvage", "Rebuilt", "Con préstamo / lien", "Otro"];
+  const conditionOptions = isEN
+    ? ["Excellent", "Good", "Fair", "Needs repairs", "Not running"]
+    : ["Excelente", "Buena", "Regular", "Necesita reparaciones", "No enciende"];
   const labelClass = "text-xs font-medium text-white/70";
 
   return (
@@ -173,15 +188,42 @@ export default function SellYourCarModal({
             <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <label className={labelClass}>
                 {isEN ? "Year" : "Año"} *
-                <input required value={form.year} onChange={update("year")} inputMode="numeric" className={fieldClass} />
+                <input
+                  required
+                  list="sell-car-years"
+                  value={form.year}
+                  onChange={update("year")}
+                  inputMode="numeric"
+                  placeholder={isEN ? "Select or type year" : "Selecciona o escribe el año"}
+                  className={fieldClass}
+                />
+                <datalist id="sell-car-years">
+                  {yearOptions.map((year) => <option key={year} value={year} />)}
+                </datalist>
               </label>
               <label className={labelClass}>
                 {isEN ? "Make" : "Marca"} *
-                <input required value={form.make} onChange={update("make")} className={fieldClass} />
+                <input
+                  required
+                  list="sell-car-makes"
+                  value={form.make}
+                  onChange={update("make")}
+                  placeholder={isEN ? "Select or type make" : "Selecciona o escribe la marca"}
+                  className={fieldClass}
+                />
+                <datalist id="sell-car-makes">
+                  {makeOptions.map((make) => <option key={make} value={make} />)}
+                </datalist>
               </label>
               <label className={labelClass}>
                 {isEN ? "Model" : "Modelo"} *
-                <input required value={form.model} onChange={update("model")} className={fieldClass} />
+                <input
+                  required
+                  value={form.model}
+                  onChange={update("model")}
+                  placeholder={isEN ? "Type model" : "Escribe el modelo"}
+                  className={fieldClass}
+                />
               </label>
               <label className={labelClass}>
                 {isEN ? "Mileage" : "Millas"} *
@@ -193,24 +235,31 @@ export default function SellYourCarModal({
               </label>
               <label className={labelClass}>
                 {isEN ? "Title status" : "Estado del título"} *
-                <select required value={form.titleStatus} onChange={update("titleStatus")} className={fieldClass}>
-                  <option value="" className="bg-neutral-950">{isEN ? "Select" : "Selecciona"}</option>
-                  <option value="Clean" className="bg-neutral-950">{isEN ? "Clean" : "Limpio"}</option>
-                  <option value="Salvage" className="bg-neutral-950">Salvage</option>
-                  <option value="Rebuilt" className="bg-neutral-950">Rebuilt</option>
-                  <option value="Other" className="bg-neutral-950">{isEN ? "Other" : "Otro"}</option>
-                </select>
+                <input
+                  required
+                  list="sell-car-title-status"
+                  value={form.titleStatus}
+                  onChange={update("titleStatus")}
+                  placeholder={isEN ? "Select or type" : "Selecciona o escribe"}
+                  className={fieldClass}
+                />
+                <datalist id="sell-car-title-status">
+                  {titleOptions.map((option) => <option key={option} value={option} />)}
+                </datalist>
               </label>
               <label className={labelClass}>
                 {isEN ? "Vehicle condition" : "Condición"} *
-                <select required value={form.condition} onChange={update("condition")} className={fieldClass}>
-                  <option value="" className="bg-neutral-950">{isEN ? "Select" : "Selecciona"}</option>
-                  <option value="Excellent" className="bg-neutral-950">{isEN ? "Excellent" : "Excelente"}</option>
-                  <option value="Good" className="bg-neutral-950">{isEN ? "Good" : "Buena"}</option>
-                  <option value="Fair" className="bg-neutral-950">{isEN ? "Fair" : "Regular"}</option>
-                  <option value="Needs repairs" className="bg-neutral-950">{isEN ? "Needs repairs" : "Necesita reparaciones"}</option>
-                  <option value="Not running" className="bg-neutral-950">{isEN ? "Not running" : "No enciende"}</option>
-                </select>
+                <input
+                  required
+                  list="sell-car-condition"
+                  value={form.condition}
+                  onChange={update("condition")}
+                  placeholder={isEN ? "Select or describe" : "Selecciona o describe"}
+                  className={fieldClass}
+                />
+                <datalist id="sell-car-condition">
+                  {conditionOptions.map((option) => <option key={option} value={option} />)}
+                </datalist>
               </label>
               <label className={labelClass}>
                 {isEN ? "Asking price" : "Precio solicitado"}
