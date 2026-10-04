@@ -4,6 +4,7 @@ import type { GetStaticProps } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { getInventory, type Car } from "../lib/getInventory";
+import SellYourCarModal from "../components/SellYourCarModal";
 
 // Convierte fotos de Drive a imágenes visibles
 function parsePhotos(raw?: string | null): string[] {
@@ -128,6 +129,7 @@ export default function Inventory({ inventory }: InventoryProps) {
 
   // idioma EN / ES
   const [lang, setLang] = React.useState<"en" | "es">("en");
+  const [sellOpen, setSellOpen] = React.useState(false);
 
   const text =
     lang === "en"
@@ -425,18 +427,13 @@ export default function Inventory({ inventory }: InventoryProps) {
             </Link>
 
             <div className="flex items-center justify-end gap-3">
-              <a
-                href={`https://wa.me/${whatsappDigits}?text=${encodeURIComponent(
-                  lang === "en"
-                    ? "Hi, I would like to sell my car."
-                    : "Hola, me gustaría vender mi vehículo."
-                )}`}
-                target="_blank"
-                rel="noreferrer"
+              <button
+                type="button"
+                onClick={() => setSellOpen(true)}
                 className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/35 px-5 text-xs font-semibold uppercase tracking-[0.12em] text-white transition hover:border-white hover:bg-white hover:text-black"
               >
                 {lang === "en" ? "Sell Your Car" : "Vende Tu Auto"}
-              </a>
+              </button>
 
               <button
                 type="button"
@@ -496,18 +493,13 @@ export default function Inventory({ inventory }: InventoryProps) {
               </div>
 
               <div className="flex items-center gap-2">
-                <a
-                  href={`https://wa.me/${whatsappDigits}?text=${encodeURIComponent(
-                    lang === "en"
-                      ? "Hi, I would like to sell my car."
-                      : "Hola, me gustaría vender mi vehículo."
-                  )}`}
-                  target="_blank"
-                  rel="noreferrer"
+                <button
+                  type="button"
+                  onClick={() => setSellOpen(true)}
                   className="inline-flex min-h-9 items-center justify-center rounded-full border border-white/35 px-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-white"
                 >
                   {lang === "en" ? "Sell Your Car" : "Vende Tu Auto"}
-                </a>
+                </button>
                 <button
                   type="button"
                   onClick={() => setLang(lang === "en" ? "es" : "en")}
@@ -956,6 +948,13 @@ export default function Inventory({ inventory }: InventoryProps) {
           </div>
         </div>
       )}
+
+      <SellYourCarModal
+        open={sellOpen}
+        onClose={() => setSellOpen(false)}
+        lang={lang}
+        whatsappDigits={whatsappDigits}
+      />
 
       <style jsx>{`
         main {
