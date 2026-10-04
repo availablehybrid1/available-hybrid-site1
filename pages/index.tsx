@@ -3,6 +3,7 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import SellYourCarModal from "../components/SellYourCarModal";
 
 const copy = {
   EN: {
@@ -73,6 +74,7 @@ ctaService: "Agenda tu servicio",
 
 export default function Home() {
   const [lang, setLang] = React.useState<"EN" | "ES">("EN");
+  const [sellOpen, setSellOpen] = React.useState(false);
 
   const t = copy[lang];
 
@@ -139,18 +141,13 @@ export default function Home() {
             </Link>
 
             <div className="flex items-center justify-end gap-3">
-              <a
-                href={`https://wa.me/17473544098?text=${encodeURIComponent(
-                  lang === "EN"
-                    ? "Hi, I would like to sell my car."
-                    : "Hola, me gustaría vender mi vehículo."
-                )}`}
-                target="_blank"
-                rel="noreferrer"
+              <button
+                type="button"
+                onClick={() => setSellOpen(true)}
                 className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/35 px-5 text-xs font-semibold uppercase tracking-[0.12em] text-white transition hover:border-white hover:bg-white hover:text-black"
               >
                 {lang === "EN" ? "Sell Your Car" : "Vende Tu Auto"}
-              </a>
+              </button>
 
               <button
                 type="button"
@@ -195,18 +192,13 @@ export default function Home() {
               </div>
 
               <div className="flex items-center gap-2">
-                <a
-                  href={`https://wa.me/17473544098?text=${encodeURIComponent(
-                    lang === "EN"
-                      ? "Hi, I would like to sell my car."
-                      : "Hola, me gustaría vender mi vehículo."
-                  )}`}
-                  target="_blank"
-                  rel="noreferrer"
+                <button
+                  type="button"
+                  onClick={() => setSellOpen(true)}
                   className="inline-flex min-h-9 items-center justify-center rounded-full border border-white/35 px-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-white"
                 >
                   {lang === "EN" ? "Sell Your Car" : "Vende Tu Auto"}
-                </a>
+                </button>
                 <button
                   type="button"
                   onClick={() => setLang(lang === "EN" ? "ES" : "EN")}
@@ -264,6 +256,12 @@ export default function Home() {
         </footer>
 
       </main>
+
+      <SellYourCarModal
+        open={sellOpen}
+        onClose={() => setSellOpen(false)}
+        lang={lang === "EN" ? "en" : "es"}
+      />
     </>
   );
 }
