@@ -352,46 +352,16 @@ export default function Inventory({ inventory }: InventoryProps) {
   return (
     <main data-theme={theme} className="min-h-screen bg-[var(--inv-page)] text-[color:var(--inv-text)] pb-16">
       {/* HEADER */}
-      <header className="border-b border-neutral-900 bg-black/90">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-          {/* Logo */}
-          <Link
-            href="/"
-            className="flex items-center justify-center gap-3 sm:justify-start"
-          >
-            <div className="relative h-16 w-40 sm:h-[120px] sm:w-[360px]">
-              <img
-                src="/logo. available hybrid premium.png"
-                alt="Available Hybrid R&M Inc. logo"
-                className="h-full w-full object-contain"
-              />
-            </div>
-          </Link>
-
-          {/* navegación (inventario + pre-qualify) solo en desktop */}
-          <nav className="hidden flex-1 items-center justify-center gap-6 text-xs font-medium text-neutral-300 sm:flex">
-            <Link
-              href="/inventory"
-              className="hover:text-white transition-colors"
-            >
-              {text.inventoryNav}
-            </Link>
-          </nav>
-
-          {/* bloque derecho */}
-          <div className="flex flex-col items-end gap-2 text-right text-[11px] text-neutral-400">
-            {/* Dirección solo en pantallas medianas en adelante */}
-            <span className="hidden sm:block">
-              6726 Reseda Blvd Suite A7 · Reseda, CA 91335
-            </span>
-
-            <div className="flex w-full items-center justify-end gap-3">
-              {/* WhatsApp con logo */}
+      <header className="border-b border-neutral-900 bg-black/95">
+        <div className="mx-auto max-w-7xl px-4">
+          {/* Desktop: contact icons left, centered logo, sell CTA right */}
+          <div className="hidden min-h-[150px] grid-cols-[1fr_auto_1fr] items-center gap-4 sm:grid">
+            <div className="flex items-center justify-start gap-3">
               <a
                 href={`https://wa.me/${whatsappDigits}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-transparent"
                 aria-label="WhatsApp"
               >
                 <img
@@ -401,48 +371,73 @@ export default function Inventory({ inventory }: InventoryProps) {
                 />
               </a>
 
-              {/* Teléfono solo número */}
-             <a
-  href={`tel:${phone.replace(/[^+\d]/g, "")}`}
-  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition-all duration-300 hover:border-white hover:bg-white/[0.08] hover:text-white"
-  aria-label="Call"
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    className="h-4 w-4"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.6 2.6a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6.09 6.09l1.48-1.21a2 2 0 0 1 2.11-.45c.83.28 1.7.48 2.6.6A2 2 0 0 1 22 16.92z"
-    />
-  </svg>
-</a>
-<a
-  href="https://www.instagram.com/availablehybridrm/"
-  target="_blank"
-  rel="noreferrer"
-  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition-all duration-300 hover:border-white hover:bg-white/[0.08] hover:text-white"
-  aria-label="Instagram"
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    className="h-4 w-4"
-  >
-    <rect x="3" y="3" width="18" height="18" rx="5" ry="5" />
-    <path d="M16 11.37a4 4 0 1 1-7.75 1.26 4 4 0 0 1 7.75-1.26z" />
-    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-  </svg>
-</a>
-              {/* Toggle EN / ES */}
+              <a
+                href={`tel:${phone.replace(/[^+\\d]/g, "")}`}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition-all duration-300 hover:border-white hover:bg-white/[0.08] hover:text-white"
+                aria-label="Call"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  className="h-4 w-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.6 2.6a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6.09 6.09l1.48-1.21a2 2 0 0 1 2.11-.45c.83.28 1.7.48 2.6.6A2 2 0 0 1 22 16.92z"
+                  />
+                </svg>
+              </a>
+
+              <a
+                href="https://www.instagram.com/availablehybridrm/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition-all duration-300 hover:border-white hover:bg-white/[0.08] hover:text-white"
+                aria-label="Instagram"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  className="h-4 w-4"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="5" ry="5" />
+                  <path d="M16 11.37a4 4 0 1 1-7.75 1.26 4 4 0 0 1 7.75-1.26z" />
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                </svg>
+              </a>
+            </div>
+
+            <Link href="/" className="flex items-center justify-center" aria-label="Available Hybrid R&M home">
+              <div className="relative h-[132px] w-[420px]">
+                <img
+                  src="/logo. available hybrid premium.png"
+                  alt="Available Hybrid R&M Inc. logo"
+                  className="h-full w-full object-contain"
+                />
+              </div>
+            </Link>
+
+            <div className="flex items-center justify-end gap-3">
+              <a
+                href={`https://wa.me/${whatsappDigits}?text=${encodeURIComponent(
+                  lang === "en"
+                    ? "Hi, I would like to sell my car."
+                    : "Hola, me gustaría vender mi vehículo."
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/35 px-5 text-xs font-semibold uppercase tracking-[0.12em] text-white transition hover:border-white hover:bg-white hover:text-black"
+              >
+                {lang === "en" ? "Sell Your Car" : "Vende Tu Auto"}
+              </a>
+
               <button
                 type="button"
                 onClick={() => setLang(lang === "en" ? "es" : "en")}
@@ -450,6 +445,77 @@ export default function Inventory({ inventory }: InventoryProps) {
               >
                 {lang === "en" ? "ES" : "EN"}
               </button>
+            </div>
+          </div>
+
+          {/* Mobile */}
+          <div className="flex flex-col gap-1 py-3 sm:hidden">
+            <Link href="/" className="flex items-center justify-center" aria-label="Available Hybrid R&M home">
+              <div className="relative h-20 w-56">
+                <img
+                  src="/logo. available hybrid premium.png"
+                  alt="Available Hybrid R&M Inc. logo"
+                  className="h-full w-full object-contain"
+                />
+              </div>
+            </Link>
+
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <a
+                  href={`https://wa.me/${whatsappDigits}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full"
+                  aria-label="WhatsApp"
+                >
+                  <img src="/whatsapp-green.png" alt="WhatsApp" className="h-full w-full object-contain" />
+                </a>
+                <a
+                  href={`tel:${phone.replace(/[^+\\d]/g, "")}`}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-white/80"
+                  aria-label="Call"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.6 2.6a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6.09 6.09l1.48-1.21a2 2 0 0 1 2.11-.45c.83.28 1.7.48 2.6.6A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                </a>
+                <a
+                  href="https://www.instagram.com/availablehybridrm/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-white/80"
+                  aria-label="Instagram"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                    <rect x="3" y="3" width="18" height="18" rx="5" ry="5" />
+                    <path d="M16 11.37a4 4 0 1 1-7.75 1.26 4 4 0 0 1 7.75-1.26z" />
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                  </svg>
+                </a>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href={`https://wa.me/${whatsappDigits}?text=${encodeURIComponent(
+                    lang === "en"
+                      ? "Hi, I would like to sell my car."
+                      : "Hola, me gustaría vender mi vehículo."
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-9 items-center justify-center rounded-full border border-white/35 px-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-white"
+                >
+                  {lang === "en" ? "Sell Your Car" : "Vende Tu Auto"}
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setLang(lang === "en" ? "es" : "en")}
+                  className="rounded-full border border-neutral-700 bg-neutral-900 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-200"
+                >
+                  {lang === "en" ? "ES" : "EN"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
