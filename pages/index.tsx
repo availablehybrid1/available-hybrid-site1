@@ -88,70 +88,134 @@ export default function Home() {
       </Head>
 
       {/* HEADER */}
-      <header className="fixed inset-x-0 top-0 z-40 backdrop-blur bg-black/30 border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-4 h-16 flex items-center justify-between">
+      <header className="fixed inset-x-0 top-0 z-40 border-b border-white/10 bg-black/55 backdrop-blur">
+        <div className="mx-auto max-w-7xl px-4">
+          {/* Desktop */}
+          <div className="hidden h-[104px] grid-cols-[1fr_auto_1fr] items-center gap-4 sm:grid">
+            <div className="flex items-center justify-start gap-3">
+              <a
+                href={whatsapp}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-transparent"
+                aria-label="WhatsApp"
+              >
+                <img src="/whatsapp-green.png" alt="WhatsApp" className="h-full w-full object-contain" />
+              </a>
 
-          <Image src="/logo. available hybrid premium.png" alt="logo" width={220} height={70} />
+              <a
+                href={`tel:${phone.replace(/[^+\\d]/g, "")}`}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition-all duration-300 hover:border-white hover:bg-white/[0.08] hover:text-white"
+                aria-label="Call"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.6 2.6a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6.09 6.09l1.48-1.21a2 2 0 0 1 2.11-.45c.83.28 1.7.48 2.6.6A2 2 0 0 1 22 16.92z" />
+                </svg>
+              </a>
 
-          <div className="flex items-center gap-3">
-<div className="flex items-center rounded-full border border-white/30 bg-black/40 px-1 py-0.5 text-[11px] mr-2">
-  <button
-    type="button"
-    onClick={() => setLang("EN")}
-    className={`px-2 py-0.5 rounded-full ${
-      lang === "EN"
-        ? "bg-white text-black"
-        : "text-white/70 hover:text-white"
-    }`}
-  >
-    EN
-  </button>
+              <a
+                href="https://www.instagram.com/availablehybridrm/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition-all duration-300 hover:border-white hover:bg-white/[0.08] hover:text-white"
+                aria-label="Instagram"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                  <rect x="3" y="3" width="18" height="18" rx="5" ry="5" />
+                  <path d="M16 11.37a4 4 0 1 1-7.75 1.26 4 4 0 0 1 7.75-1.26z" />
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                </svg>
+              </a>
+            </div>
 
-  <button
-    type="button"
-    onClick={() => setLang("ES")}
-    className={`px-2 py-0.5 rounded-full ${
-      lang === "ES"
-        ? "bg-white text-black"
-        : "text-white/70 hover:text-white"
-    }`}
-  >
-    ES
-  </button>
-</div>
-            {/* WhatsApp (igual que tenías) */}
-            <a href={whatsapp} target="_blank" rel="noreferrer"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-transparent">
-              <img src="/whatsapp-green.png" className="h-full w-full object-contain" />
-            </a>
+            <Link href="/" className="flex items-center justify-center" aria-label="Available Hybrid R&M home">
+              <div className="relative h-[92px] w-[330px]">
+                <img
+                  src="/logo. available hybrid premium.png"
+                  alt="Available Hybrid R&M Inc. logo"
+                  className="h-full w-full object-contain"
+                />
+              </div>
+            </Link>
 
-            {/* Phone limpio */}
-            <a
-  href={`tel:${phone.replace(/[^+\d]/g, "")}`}
-  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/80 hover:border-white hover:text-white"
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-4 w-4"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.6 2.6a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6.09 6.09l1.48-1.21a2 2 0 0 1 2.11-.45c.83.28 1.7.48 2.6.6A2 2 0 0 1 22 16.92z"
-    />
-  </svg>
-</a>
+            <div className="flex items-center justify-end gap-3">
+              <a
+                href={`https://wa.me/17473544098?text=${encodeURIComponent(
+                  lang === "EN"
+                    ? "Hi, I would like to sell my car."
+                    : "Hola, me gustaría vender mi vehículo."
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/35 px-5 text-xs font-semibold uppercase tracking-[0.12em] text-white transition hover:border-white hover:bg-white hover:text-black"
+              >
+                {lang === "EN" ? "Sell Your Car" : "Vende Tu Auto"}
+              </a>
 
-            {/* Instagram */}
-            <a href="https://www.instagram.com/availablehybridrm/" target="_blank" rel="noreferrer"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/80 hover:border-white hover:text-white">
-              IG
-            </a>
+              <button
+                type="button"
+                onClick={() => setLang(lang === "EN" ? "ES" : "EN")}
+                className="rounded-full border border-neutral-700 bg-neutral-900/80 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-200 hover:border-neutral-300 hover:bg-neutral-800"
+                aria-label={lang === "EN" ? "Cambiar a español" : "Switch to English"}
+              >
+                {lang === "EN" ? "ES" : "EN"}
+              </button>
+            </div>
+          </div>
 
+          {/* Mobile */}
+          <div className="flex flex-col gap-1 py-2 sm:hidden">
+            <Link href="/" className="flex items-center justify-center" aria-label="Available Hybrid R&M home">
+              <div className="relative h-16 w-52">
+                <img
+                  src="/logo. available hybrid premium.png"
+                  alt="Available Hybrid R&M Inc. logo"
+                  className="h-full w-full object-contain"
+                />
+              </div>
+            </Link>
+
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <a href={whatsapp} target="_blank" rel="noreferrer" className="inline-flex h-8 w-8 items-center justify-center rounded-full" aria-label="WhatsApp">
+                  <img src="/whatsapp-green.png" alt="WhatsApp" className="h-full w-full object-contain" />
+                </a>
+                <a href={`tel:${phone.replace(/[^+\\d]/g, "")}`} className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-white/80" aria-label="Call">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.6 2.6a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6.09 6.09l1.48-1.21a2 2 0 0 1 2.11-.45c.83.28 1.7.48 2.6.6A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                </a>
+                <a href="https://www.instagram.com/availablehybridrm/" target="_blank" rel="noreferrer" className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-white/80" aria-label="Instagram">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                    <rect x="3" y="3" width="18" height="18" rx="5" ry="5" />
+                    <path d="M16 11.37a4 4 0 1 1-7.75 1.26 4 4 0 0 1 7.75-1.26z" />
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                  </svg>
+                </a>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href={`https://wa.me/17473544098?text=${encodeURIComponent(
+                    lang === "EN"
+                      ? "Hi, I would like to sell my car."
+                      : "Hola, me gustaría vender mi vehículo."
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-9 items-center justify-center rounded-full border border-white/35 px-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-white"
+                >
+                  {lang === "EN" ? "Sell Your Car" : "Vende Tu Auto"}
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setLang(lang === "EN" ? "ES" : "EN")}
+                  className="rounded-full border border-neutral-700 bg-neutral-900/80 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-200"
+                >
+                  {lang === "EN" ? "ES" : "EN"}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </header>
