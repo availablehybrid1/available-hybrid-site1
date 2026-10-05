@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import SellYourCarModal from "../components/SellYourCarModal";
+import { architectsDaughter } from "../lib/fonts";
 
 const copy = {
   EN: {
@@ -144,7 +145,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setSellOpen(true)}
-                className="font-santa-barbara inline-flex min-h-10 items-center justify-center rounded-full border border-white/35 px-5 text-sm uppercase tracking-[0.08em] text-white transition hover:border-white hover:bg-white hover:text-black"
+                className={`${architectsDaughter.className} inline-flex min-h-10 items-center justify-center rounded-full border border-white/35 px-5 text-sm uppercase tracking-[0.08em] text-white transition hover:border-white hover:bg-white hover:text-black"
               >
                 {lang === "EN" ? "Sell Your Car" : "Vende Tu Auto"}
               </button>
@@ -195,7 +196,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => setSellOpen(true)}
-                  className="font-santa-barbara inline-flex min-h-9 items-center justify-center rounded-full border border-white/35 px-3 text-xs uppercase tracking-[0.06em] text-white"
+                  className={`${architectsDaughter.className} inline-flex min-h-9 items-center justify-center rounded-full border border-white/35 px-3 text-xs uppercase tracking-[0.06em] text-white"
                 >
                   {lang === "EN" ? "Sell Your Car" : "Vende Tu Auto"}
                 </button>
@@ -223,20 +224,20 @@ export default function Home() {
 
           <div className="relative mx-auto flex w-full max-w-7xl items-center px-4 pb-20 pt-28 sm:px-6 lg:px-8">
             <div className="w-full max-w-3xl">
-              <h1 className="font-santa-barbara text-4xl leading-[1.08] tracking-[0.02em] text-white sm:text-5xl lg:text-6xl">
+              <h1 className={`${architectsDaughter.className} text-4xl leading-[1.08] tracking-[0.02em] text-white sm:text-5xl lg:text-6xl`}>
                 {t.heroTitle}
               </h1>
               <p className="mt-6 max-w-xl text-base leading-7 text-white/75">
                 {t.heroSubtitle}
               </p>
               <nav aria-label={lang === "EN" ? "Explore our services" : "Explora nuestros servicios"} className="mt-8 flex flex-wrap gap-3">
-                <Link href="/inventory" className="font-santa-barbara inline-flex min-h-12 items-center justify-center rounded-sm border border-white bg-white px-6 py-3 text-base text-black transition hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+                <Link href="/inventory" className={`${architectsDaughter.className} inline-flex min-h-12 items-center justify-center rounded-sm border border-white bg-white px-6 py-3 text-base text-black transition hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}>
                   {t.ctaInventory}
                 </Link>
-                <Link href="/service" className="font-santa-barbara inline-flex min-h-12 items-center justify-center rounded-sm border border-white/40 px-6 py-3 text-base text-white transition hover:border-white/70 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+                <Link href="/service" className={`${architectsDaughter.className} inline-flex min-h-12 items-center justify-center rounded-sm border border-white/40 px-6 py-3 text-base text-white transition hover:border-white/70 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}>
                   {t.ctaService}
                 </Link>
-                <Link href="/car-rental" className="font-santa-barbara inline-flex min-h-12 items-center justify-center rounded-sm border border-white/40 px-6 py-3 text-base text-white transition hover:border-white/70 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+                <Link href="/car-rental" className={`${architectsDaughter.className} inline-flex min-h-12 items-center justify-center rounded-sm border border-white/40 px-6 py-3 text-base text-white transition hover:border-white/70 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}>
                   Car Rental
                 </Link>
               </nav>
