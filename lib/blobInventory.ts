@@ -12,6 +12,7 @@ export type BotDraft = {
     | "exterior"
     | "notes"
     | "photos"
+    | "replacephotos"
     | "cover"
     | "hover"
     | "confirm"
