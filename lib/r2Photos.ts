@@ -1,3 +1,4 @@
+// Cloudflare R2 photo storage. Credentials and public base URL come from Vercel env vars.
 import {
   DeleteObjectCommand,
   PutObjectCommand,
