@@ -128,97 +128,160 @@ export default function Inventory({ inventory }: InventoryProps) {
   const [priceMin, setPriceMin] = React.useState<number | null>(null);
   const [priceMax, setPriceMax] = React.useState<number | null>(null);
 
-  // idioma EN / ES
-  const [lang, setLang] = React.useState<"en" | "es">("en");
+  type LanguageCode = "en" | "es" | "zh" | "ko" | "vi" | "hy" | "tl" | "ru" | "ar";
+  const [lang, setLang] = React.useState<LanguageCode>("en");
   const [sellOpen, setSellOpen] = React.useState(false);
   const [languageOpen, setLanguageOpen] = React.useState(false);
 
-  const text =
-    lang === "en"
-      ? {
-          filtersLabel: "Filters",
-          inventoryNav: "Inventory",
-          prequalifyNav: "Pre-Qualify",
-          vehiclesAvailable: "vehicles available",
-          allInventory: "All inventory",
-          sort: "Sort",
-          sortHighestPrice: "Highest Price",
-          sortLowestPrice: "Lowest Price",
-          sortNewestYear: "Newest Year",
-          sortOldestYear: "Oldest Year",
-          sortHighestMileage: "Highest Mileage",
-          sortLowestMileage: "Lowest Mileage",
-          sortMostImages: "Most Images",
-          sortLeastImages: "Least Images",
-          sortMakeAZ: "Make A–Z",
-          sortMakeZA: "Make Z–A",
-          price: "Price",
-          adjustInStore: "Adjust in-store",
-          year: "Year",
-          allYears: "All years",
-          make: "Make",
-          allMakes: "All makes",
-          model: "Model",
-          comingSoon: "Coming soon",
-          estPayment: "Est. payment",
-          paymentDisclaimer:
-            "Example based on up to 12 monthly payments. Amount may vary. Only for approved customers.",
-          tooltipTitlePrefix: "Monthly payment of",
-          getPrequalified: "Get Pre-Qualified",
-          noVehicles:
-            "No vehicles found with the selected filters. Try another make or year.",
-          modalTitle: "Search all inventory",
-          modalPlaceholder: "Search by model, year, VIN…",
-          modalNoResults: "No results for",
-          priceLabel: "Price",
-          searchOpenLabel: "Open search",
-          filtersModalTitle: "Adjust filters",
-          applyFilters: "Close",
-          minLabel: "Min",
-          maxLabel: "Max",
-        }
-      : {
-          filtersLabel: "Filtros",
-          inventoryNav: "Inventario",
-          prequalifyNav: "Pre-Calificar",
-          vehiclesAvailable: "vehículos disponibles",
-          allInventory: "Todo el inventario",
-          sort: "Ordenar",
-          sortHighestPrice: "Precio más alto",
-          sortLowestPrice: "Precio más bajo",
-          sortNewestYear: "Año más nuevo",
-          sortOldestYear: "Año más antiguo",
-          sortHighestMileage: "Mayor kilometraje",
-          sortLowestMileage: "Menor kilometraje",
-          sortMostImages: "Más fotos",
-          sortLeastImages: "Menos fotos",
-          sortMakeAZ: "Marca A–Z",
-          sortMakeZA: "Marca Z–A",
-          price: "Precio",
-          adjustInStore: "Ajustar en el dealer",
-          year: "Año",
-          allYears: "Todos los años",
-          make: "Marca",
-          allMakes: "Todas las marcas",
-          model: "Modelo",
-          comingSoon: "Próximamente",
-          estPayment: "Pago estimado",
-          paymentDisclaimer:
-            "Ejemplo basado en hasta 12 pagos mensuales. El monto puede variar. Solo para clientes aprobados.",
-          tooltipTitlePrefix: "Pago mensual de",
-          getPrequalified: "Solicitar pre-calificación",
-          noVehicles:
-            "No se encontraron vehículos con estos filtros. Prueba otra marca o año.",
-          modalTitle: "Buscar en todo el inventario",
-          modalPlaceholder: "Busca por modelo, año, VIN…",
-          modalNoResults: "Sin resultados para",
-          priceLabel: "Precio",
-          searchOpenLabel: "Abrir búsqueda",
-          filtersModalTitle: "Ajustar filtros",
-          applyFilters: "Cerrar",
-          minLabel: "Mín",
-          maxLabel: "Máx",
-        };
+  const translations = {
+    en: {
+      language: "Language", sellYourCar: "Sell Your Car", sold: "Sold",
+      dark: "Dark", light: "Light", filtersLabel: "Filters", inventoryNav: "Inventory",
+      prequalifyNav: "Pre-Qualify", vehiclesAvailable: "vehicles available",
+      allInventory: "All inventory", sort: "Sort", sortHighestPrice: "Highest Price",
+      sortLowestPrice: "Lowest Price", sortNewestYear: "Newest Year", sortOldestYear: "Oldest Year",
+      sortHighestMileage: "Highest Mileage", sortLowestMileage: "Lowest Mileage",
+      sortMostImages: "Most Images", sortLeastImages: "Least Images", sortMakeAZ: "Make A–Z",
+      sortMakeZA: "Make Z–A", price: "Price", adjustInStore: "Adjust in-store", year: "Year",
+      allYears: "All years", make: "Make", allMakes: "All makes", model: "Model",
+      comingSoon: "Coming soon", estPayment: "Est. payment",
+      paymentDisclaimer: "Example based on up to 12 monthly payments. Amount may vary. Only for approved customers.",
+      tooltipTitlePrefix: "Monthly payment of", getPrequalified: "Get Pre-Qualified",
+      noVehicles: "No vehicles found with the selected filters. Try another make or year.",
+      modalTitle: "Search all inventory", modalPlaceholder: "Search by model, year, VIN…",
+      modalNoResults: "No results for", priceLabel: "Price", searchOpenLabel: "Open search",
+      filtersModalTitle: "Adjust filters", applyFilters: "Close", minLabel: "Min", maxLabel: "Max",
+      fullDetails: "Full Details", automatic: "Automatic", backHome: "Back to home",
+      appearance: "Inventory appearance"
+    },
+    es: {
+      language: "Idioma", sellYourCar: "Vende Tu Auto", sold: "Vendidos",
+      dark: "Oscuro", light: "Claro", filtersLabel: "Filtros", inventoryNav: "Inventario",
+      prequalifyNav: "Pre-Calificar", vehiclesAvailable: "vehículos disponibles",
+      allInventory: "Todo el inventario", sort: "Ordenar", sortHighestPrice: "Precio más alto",
+      sortLowestPrice: "Precio más bajo", sortNewestYear: "Año más nuevo", sortOldestYear: "Año más antiguo",
+      sortHighestMileage: "Mayor kilometraje", sortLowestMileage: "Menor kilometraje",
+      sortMostImages: "Más fotos", sortLeastImages: "Menos fotos", sortMakeAZ: "Marca A–Z",
+      sortMakeZA: "Marca Z–A", price: "Precio", adjustInStore: "Ajustar en el dealer", year: "Año",
+      allYears: "Todos los años", make: "Marca", allMakes: "Todas las marcas", model: "Modelo",
+      comingSoon: "Próximamente", estPayment: "Pago estimado",
+      paymentDisclaimer: "Ejemplo basado en hasta 12 pagos mensuales. El monto puede variar. Solo para clientes aprobados.",
+      tooltipTitlePrefix: "Pago mensual de", getPrequalified: "Solicitar pre-calificación",
+      noVehicles: "No se encontraron vehículos con estos filtros. Prueba otra marca o año.",
+      modalTitle: "Buscar en todo el inventario", modalPlaceholder: "Busca por modelo, año, VIN…",
+      modalNoResults: "Sin resultados para", priceLabel: "Precio", searchOpenLabel: "Abrir búsqueda",
+      filtersModalTitle: "Ajustar filtros", applyFilters: "Cerrar", minLabel: "Mín", maxLabel: "Máx",
+      fullDetails: "Ver detalles", automatic: "Automática", backHome: "Volver al inicio",
+      appearance: "Apariencia del inventario"
+    },
+    zh: {
+      language: "语言", sellYourCar: "出售您的车辆", sold: "已售", dark: "深色", light: "浅色",
+      filtersLabel: "筛选", inventoryNav: "库存", prequalifyNav: "预审", vehiclesAvailable: "辆可售车辆",
+      allInventory: "全部库存", sort: "排序", sortHighestPrice: "价格从高到低", sortLowestPrice: "价格从低到高",
+      sortNewestYear: "年份最新", sortOldestYear: "年份最旧", sortHighestMileage: "里程最高",
+      sortLowestMileage: "里程最低", sortMostImages: "图片最多", sortLeastImages: "图片最少",
+      sortMakeAZ: "品牌 A–Z", sortMakeZA: "品牌 Z–A", price: "价格", adjustInStore: "店内调整",
+      year: "年份", allYears: "所有年份", make: "品牌", allMakes: "所有品牌", model: "车型",
+      comingSoon: "即将推出", estPayment: "预计月供", paymentDisclaimer: "示例基于最多12期月付。金额可能不同，仅适用于获批客户。",
+      tooltipTitlePrefix: "每月付款", getPrequalified: "申请预审", noVehicles: "没有找到符合筛选条件的车辆。",
+      modalTitle: "搜索全部库存", modalPlaceholder: "按车型、年份、VIN搜索…", modalNoResults: "没有结果",
+      priceLabel: "价格", searchOpenLabel: "打开搜索", filtersModalTitle: "调整筛选", applyFilters: "关闭",
+      minLabel: "最低", maxLabel: "最高", fullDetails: "查看详情", automatic: "自动挡",
+      backHome: "返回主页", appearance: "库存外观"
+    },
+    ko: {
+      language: "언어", sellYourCar: "차량 판매", sold: "판매 완료", dark: "다크", light: "라이트",
+      filtersLabel: "필터", inventoryNav: "재고", prequalifyNav: "사전 승인", vehiclesAvailable: "대 판매 가능",
+      allInventory: "전체 재고", sort: "정렬", sortHighestPrice: "가격 높은 순", sortLowestPrice: "가격 낮은 순",
+      sortNewestYear: "최신 연식", sortOldestYear: "오래된 연식", sortHighestMileage: "주행거리 높은 순",
+      sortLowestMileage: "주행거리 낮은 순", sortMostImages: "사진 많은 순", sortLeastImages: "사진 적은 순",
+      sortMakeAZ: "브랜드 A–Z", sortMakeZA: "브랜드 Z–A", price: "가격", adjustInStore: "매장에서 조정",
+      year: "연식", allYears: "모든 연식", make: "브랜드", allMakes: "모든 브랜드", model: "모델",
+      comingSoon: "곧 제공", estPayment: "예상 결제", paymentDisclaimer: "최대 12개월 결제 예시입니다. 승인 고객에 한함.",
+      tooltipTitlePrefix: "월 결제", getPrequalified: "사전 승인 신청", noVehicles: "선택한 필터에 맞는 차량이 없습니다.",
+      modalTitle: "전체 재고 검색", modalPlaceholder: "모델, 연식, VIN 검색…", modalNoResults: "검색 결과 없음",
+      priceLabel: "가격", searchOpenLabel: "검색 열기", filtersModalTitle: "필터 조정", applyFilters: "닫기",
+      minLabel: "최소", maxLabel: "최대", fullDetails: "상세 보기", automatic: "자동",
+      backHome: "홈으로", appearance: "재고 화면"
+    },
+    vi: {
+      language: "Ngôn ngữ", sellYourCar: "Bán xe của bạn", sold: "Đã bán", dark: "Tối", light: "Sáng",
+      filtersLabel: "Bộ lọc", inventoryNav: "Xe hiện có", prequalifyNav: "Đăng ký trước", vehiclesAvailable: "xe đang có",
+      allInventory: "Tất cả xe", sort: "Sắp xếp", sortHighestPrice: "Giá cao nhất", sortLowestPrice: "Giá thấp nhất",
+      sortNewestYear: "Năm mới nhất", sortOldestYear: "Năm cũ nhất", sortHighestMileage: "Số dặm cao nhất",
+      sortLowestMileage: "Số dặm thấp nhất", sortMostImages: "Nhiều ảnh nhất", sortLeastImages: "Ít ảnh nhất",
+      sortMakeAZ: "Hãng A–Z", sortMakeZA: "Hãng Z–A", price: "Giá", adjustInStore: "Điều chỉnh tại đại lý",
+      year: "Năm", allYears: "Tất cả năm", make: "Hãng", allMakes: "Tất cả hãng", model: "Mẫu xe",
+      comingSoon: "Sắp có", estPayment: "Khoản trả ước tính", paymentDisclaimer: "Ví dụ dựa trên tối đa 12 khoản thanh toán hàng tháng. Chỉ dành cho khách được duyệt.",
+      tooltipTitlePrefix: "Thanh toán hàng tháng", getPrequalified: "Đăng ký trước", noVehicles: "Không tìm thấy xe phù hợp bộ lọc.",
+      modalTitle: "Tìm toàn bộ xe", modalPlaceholder: "Tìm theo mẫu xe, năm, VIN…", modalNoResults: "Không có kết quả cho",
+      priceLabel: "Giá", searchOpenLabel: "Mở tìm kiếm", filtersModalTitle: "Điều chỉnh bộ lọc", applyFilters: "Đóng",
+      minLabel: "Tối thiểu", maxLabel: "Tối đa", fullDetails: "Xem chi tiết", automatic: "Tự động",
+      backHome: "Về trang chủ", appearance: "Giao diện xe"
+    },
+    hy: {
+      language: "Լեզու", sellYourCar: "Վաճառեք ձեր մեքենան", sold: "Վաճառված", dark: "Մուգ", light: "Բաց",
+      filtersLabel: "Զտիչներ", inventoryNav: "Մեքենաներ", prequalifyNav: "Նախնական հաստատում", vehiclesAvailable: "մեքենա հասանելի",
+      allInventory: "Բոլոր մեքենաները", sort: "Դասավորել", sortHighestPrice: "Ամենաբարձր գինը", sortLowestPrice: "Ամենացածր գինը",
+      sortNewestYear: "Նորագույն տարեթիվ", sortOldestYear: "Հնագույն տարեթիվ", sortHighestMileage: "Ամենաբարձր վազքը",
+      sortLowestMileage: "Ամենացածր վազքը", sortMostImages: "Ամենաշատ նկարները", sortLeastImages: "Ամենաքիչ նկարները",
+      sortMakeAZ: "Մակնիշ A–Z", sortMakeZA: "Մակնիշ Z–A", price: "Գին", adjustInStore: "Կարգավորել սրահում",
+      year: "Տարի", allYears: "Բոլոր տարիները", make: "Մակնիշ", allMakes: "Բոլոր մակնիշները", model: "Մոդել",
+      comingSoon: "Շուտով", estPayment: "Մոտավոր վճարում", paymentDisclaimer: "Օրինակ՝ մինչև 12 ամսական վճարում։ Միայն հաստատված հաճախորդների համար։",
+      tooltipTitlePrefix: "Ամսական վճարում", getPrequalified: "Դիմել նախնական հաստատման", noVehicles: "Ընտրված զտիչներով մեքենա չի գտնվել։",
+      modalTitle: "Փնտրել բոլոր մեքենաներում", modalPlaceholder: "Փնտրել մոդելով, տարով, VIN-ով…", modalNoResults: "Արդյունք չկա",
+      priceLabel: "Գին", searchOpenLabel: "Բացել որոնումը", filtersModalTitle: "Կարգավորել զտիչները", applyFilters: "Փակել",
+      minLabel: "Նվազ.", maxLabel: "Առավ.", fullDetails: "Մանրամասներ", automatic: "Ավտոմատ",
+      backHome: "Վերադառնալ գլխավոր էջ", appearance: "Ցուցադրման տեսք"
+    },
+    tl: {
+      language: "Wika", sellYourCar: "Ibenta ang Iyong Sasakyan", sold: "Nabenta", dark: "Madilim", light: "Maliwanag",
+      filtersLabel: "Mga Filter", inventoryNav: "Mga Sasakyan", prequalifyNav: "Pre-Qualify", vehiclesAvailable: "sasakyang available",
+      allInventory: "Lahat ng sasakyan", sort: "Ayusin", sortHighestPrice: "Pinakamataas na presyo", sortLowestPrice: "Pinakamababang presyo",
+      sortNewestYear: "Pinakabagong taon", sortOldestYear: "Pinakalumang taon", sortHighestMileage: "Pinakamataas na mileage",
+      sortLowestMileage: "Pinakamababang mileage", sortMostImages: "Pinakamaraming larawan", sortLeastImages: "Pinakakaunting larawan",
+      sortMakeAZ: "Brand A–Z", sortMakeZA: "Brand Z–A", price: "Presyo", adjustInStore: "Ayusin sa dealer",
+      year: "Taon", allYears: "Lahat ng taon", make: "Brand", allMakes: "Lahat ng brand", model: "Modelo",
+      comingSoon: "Malapit na", estPayment: "Tinatayang bayad", paymentDisclaimer: "Halimbawa batay sa hanggang 12 buwanang bayad. Para lamang sa mga aprubadong customer.",
+      tooltipTitlePrefix: "Buwanang bayad na", getPrequalified: "Magpa-pre-qualify", noVehicles: "Walang sasakyang tumutugma sa napiling filter.",
+      modalTitle: "Hanapin lahat ng sasakyan", modalPlaceholder: "Hanapin ayon sa modelo, taon, VIN…", modalNoResults: "Walang resulta para sa",
+      priceLabel: "Presyo", searchOpenLabel: "Buksan ang paghahanap", filtersModalTitle: "Ayusin ang mga filter", applyFilters: "Isara",
+      minLabel: "Min", maxLabel: "Max", fullDetails: "Buong Detalye", automatic: "Awtomatiko",
+      backHome: "Bumalik sa home", appearance: "Itsura ng inventory"
+    },
+    ru: {
+      language: "Язык", sellYourCar: "Продать автомобиль", sold: "Продано", dark: "Тёмная", light: "Светлая",
+      filtersLabel: "Фильтры", inventoryNav: "Автомобили", prequalifyNav: "Предодобрение", vehiclesAvailable: "автомобилей в наличии",
+      allInventory: "Все автомобили", sort: "Сортировка", sortHighestPrice: "Сначала дороже", sortLowestPrice: "Сначала дешевле",
+      sortNewestYear: "Новее по году", sortOldestYear: "Старше по году", sortHighestMileage: "Больший пробег",
+      sortLowestMileage: "Меньший пробег", sortMostImages: "Больше фото", sortLeastImages: "Меньше фото",
+      sortMakeAZ: "Марка A–Z", sortMakeZA: "Марка Z–A", price: "Цена", adjustInStore: "Уточнить у дилера",
+      year: "Год", allYears: "Все годы", make: "Марка", allMakes: "Все марки", model: "Модель",
+      comingSoon: "Скоро", estPayment: "Примерный платёж", paymentDisclaimer: "Пример для до 12 ежемесячных платежей. Только для одобренных клиентов.",
+      tooltipTitlePrefix: "Ежемесячный платёж", getPrequalified: "Получить предодобрение", noVehicles: "Автомобили по выбранным фильтрам не найдены.",
+      modalTitle: "Поиск по всем автомобилям", modalPlaceholder: "Поиск по модели, году, VIN…", modalNoResults: "Нет результатов для",
+      priceLabel: "Цена", searchOpenLabel: "Открыть поиск", filtersModalTitle: "Настроить фильтры", applyFilters: "Закрыть",
+      minLabel: "Мин", maxLabel: "Макс", fullDetails: "Подробнее", automatic: "Автомат",
+      backHome: "На главную", appearance: "Вид каталога"
+    },
+    ar: {
+      language: "اللغة", sellYourCar: "بع سيارتك", sold: "تم البيع", dark: "داكن", light: "فاتح",
+      filtersLabel: "الفلاتر", inventoryNav: "المخزون", prequalifyNav: "تأهيل مبدئي", vehiclesAvailable: "سيارة متاحة",
+      allInventory: "كل السيارات", sort: "ترتيب", sortHighestPrice: "السعر الأعلى", sortLowestPrice: "السعر الأقل",
+      sortNewestYear: "الأحدث سنة", sortOldestYear: "الأقدم سنة", sortHighestMileage: "الأعلى أميالاً",
+      sortLowestMileage: "الأقل أميالاً", sortMostImages: "الأكثر صوراً", sortLeastImages: "الأقل صوراً",
+      sortMakeAZ: "الماركة A–Z", sortMakeZA: "الماركة Z–A", price: "السعر", adjustInStore: "تعديل لدى الوكيل",
+      year: "السنة", allYears: "كل السنوات", make: "الماركة", allMakes: "كل الماركات", model: "الموديل",
+      comingSoon: "قريباً", estPayment: "دفعة تقديرية", paymentDisclaimer: "مثال على ما يصل إلى 12 دفعة شهرية. للعملاء الموافق عليهم فقط.",
+      tooltipTitlePrefix: "دفعة شهرية", getPrequalified: "طلب تأهيل مبدئي", noVehicles: "لم يتم العثور على سيارات مطابقة للفلاتر.",
+      modalTitle: "البحث في كل السيارات", modalPlaceholder: "ابحث بالموديل أو السنة أو VIN…", modalNoResults: "لا توجد نتائج لـ",
+      priceLabel: "السعر", searchOpenLabel: "فتح البحث", filtersModalTitle: "تعديل الفلاتر", applyFilters: "إغلاق",
+      minLabel: "الأدنى", maxLabel: "الأعلى", fullDetails: "التفاصيل", automatic: "أوتوماتيك",
+      backHome: "العودة للرئيسية", appearance: "مظهر المخزون"
+    }
+  } as const;
+
+  const text = translations[lang];
 
   // modal de búsqueda con la lupa
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
@@ -346,10 +409,10 @@ export default function Inventory({ inventory }: InventoryProps) {
 
   const phone = "+1 747-354-4098";
   const whatsappDigits = "17473544098";
-  const fullDetails = lang === "en" ? "Full Details" : "Ver detalles";
+  const fullDetails = text.fullDetails;
   function transmissionLabel(value: string) {
     return /\bcvt\b|continu(?:ous|ously)\s+variable|\bautomatic\b|autom[aá]tic[ao]/i.test(value)
-      ? (lang === "en" ? "Automatic" : "Automática")
+      ? text.automatic
       : value;
   }
 
@@ -443,7 +506,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                 onClick={() => setSellOpen(true)}
                 className={`${architectsDaughter.className} inline-flex min-h-9 items-center gap-2 text-sm text-white/85 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
               >
-                <span>{lang === "en" ? "Sell Your Car" : "Vende Tu Auto"}</span>
+                <span>{text.sellYourCar}</span>
                 <span aria-hidden="true">→</span>
               </button>
             </div>
@@ -511,7 +574,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                   onClick={() => setSellOpen(true)}
                   className={`${architectsDaughter.className} inline-flex min-h-8 items-center gap-1.5 text-xs text-white/85 transition hover:text-white`}
                 >
-                  <span>{lang === "en" ? "Sell Your Car" : "Vende Tu Auto"}</span>
+                  <span>{text.sellYourCar}</span>
                   <span aria-hidden="true">→</span>
                 </button>
               </div>
@@ -527,7 +590,7 @@ export default function Inventory({ inventory }: InventoryProps) {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Link
               href="/"
-              aria-label={lang === "en" ? "Back to home" : "Volver al inicio"}
+              aria-label={text.backHome}
               className="inline-flex h-11 w-11 items-center justify-center text-[color:var(--inv-heading)] transition hover:bg-[var(--inv-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
             >
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
@@ -536,7 +599,7 @@ export default function Inventory({ inventory }: InventoryProps) {
             </Link>
             <div
               role="group"
-              aria-label={lang === "en" ? "Inventory appearance" : "Apariencia del inventario"}
+              aria-label={text.appearance}
               className="inline-flex rounded-full border border-[var(--inv-border)] bg-[var(--inv-surface)] p-1"
             >
               {(["dark", "light"] as const).map((mode) => (
@@ -561,9 +624,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                       </>
                     )}
                   </svg>
-                  {mode === "dark"
-                    ? (lang === "en" ? "Dark" : "Oscuro")
-                    : (lang === "en" ? "Light" : "Claro")}
+                  {mode === "dark" ? text.dark : text.light}
                 </button>
               ))}
             </div>
@@ -650,9 +711,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                 const priceLabel =
                   car.price != null
                     ? `$${car.price.toLocaleString()}`
-                    : lang === "en"
-                    ? "Call for price"
-                    : "Llama para precio";
+                    : "Call for price";
 
                 const descriptionExcerpt = inventoryExcerpt(car);
                 return (
@@ -987,23 +1046,21 @@ export default function Inventory({ inventory }: InventoryProps) {
               {[
                 { code: "en", label: "English", active: true },
                 { code: "es", label: "Español", active: true },
-                { code: "zh", label: "中文", active: false },
-                { code: "ko", label: "한국어", active: false },
-                { code: "vi", label: "Tiếng Việt", active: false },
-                { code: "hy", label: "Հայերեն", active: false },
-                { code: "tl", label: "Tagalog", active: false },
-                { code: "ru", label: "Русский", active: false },
-                { code: "ar", label: "العربية", active: false },
+                { code: "zh", label: "中文", active: true },
+                { code: "ko", label: "한국어", active: true },
+                { code: "vi", label: "Tiếng Việt", active: true },
+                { code: "hy", label: "Հայերեն", active: true },
+                { code: "tl", label: "Tagalog", active: true },
+                { code: "ru", label: "Русский", active: true },
+                { code: "ar", label: "العربية", active: true },
               ].map((option) => (
                 <button
                   key={option.code}
                   type="button"
                   disabled={!option.active}
                   onClick={() => {
-                    if (option.code === "en" || option.code === "es") {
-                      setLang(option.code);
-                      setLanguageOpen(false);
-                    }
+                    setLang(option.code as LanguageCode);
+                    setLanguageOpen(false);
                   }}
                   className={`flex min-h-12 items-center justify-between rounded-xl border px-4 py-3 text-left text-sm transition ${
                     option.active
@@ -1012,11 +1069,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                   }`}
                 >
                   <span>{option.label}</span>
-                  {option.active ? (
-                    lang === option.code ? <span aria-hidden="true">✓</span> : <span aria-hidden="true">→</span>
-                  ) : (
-                    <span className="text-[10px] uppercase tracking-[0.12em]">Soon</span>
-                  )}
+                  {lang === option.code ? <span aria-hidden="true">✓</span> : <span aria-hidden="true">→</span>}
                 </button>
               ))}
             </div>
@@ -1027,7 +1080,7 @@ export default function Inventory({ inventory }: InventoryProps) {
       <SellYourCarModal
         open={sellOpen}
         onClose={() => setSellOpen(false)}
-        lang={lang}
+        lang={lang === "es" ? "es" : "en"}
         whatsappDigits={whatsappDigits}
       />
 
