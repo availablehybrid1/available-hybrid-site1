@@ -508,7 +508,6 @@ export default function Inventory({ inventory }: InventoryProps) {
                 className={`${architectsDaughter.className} inline-flex min-h-9 items-center gap-2 text-sm text-white/85 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
               >
                 <span>Language</span>
-                <span aria-hidden="true">→</span>
               </button>
 
               <button
@@ -517,7 +516,6 @@ export default function Inventory({ inventory }: InventoryProps) {
                 className={`${architectsDaughter.className} inline-flex min-h-9 items-center gap-2 text-sm text-white/85 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
               >
                 <span>{text.sellYourCar}</span>
-                <span aria-hidden="true">→</span>
               </button>
             </div>
           </div>
@@ -576,7 +574,6 @@ export default function Inventory({ inventory }: InventoryProps) {
                   className={`${architectsDaughter.className} inline-flex min-h-8 items-center gap-1.5 text-xs text-white/85 transition hover:text-white`}
                 >
                   <span>Language</span>
-                  <span aria-hidden="true">→</span>
                 </button>
 
                 <button
@@ -585,7 +582,6 @@ export default function Inventory({ inventory }: InventoryProps) {
                   className={`${architectsDaughter.className} inline-flex min-h-8 items-center gap-1.5 text-xs text-white/85 transition hover:text-white`}
                 >
                   <span>{text.sellYourCar}</span>
-                  <span aria-hidden="true">→</span>
                 </button>
               </div>
             </div>
@@ -752,7 +748,6 @@ export default function Inventory({ inventory }: InventoryProps) {
                       <div className="vehicle-details-overlay pointer-events-none absolute inset-0 flex items-center justify-center bg-black/55 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
                         <span className="inline-flex min-h-11 items-center gap-3 border border-white px-6 py-3 text-sm font-semibold tracking-wide text-white">
                           {fullDetails}
-                          <span aria-hidden="true">→</span>
                         </span>
                       </div>
                     </div>
@@ -784,7 +779,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                         {priceLabel}
                       </p>
                       <span className="vehicle-details-touch items-center gap-2 text-sm font-medium text-[color:var(--inv-heading)]">
-                        {fullDetails} <span aria-hidden="true">→</span>
+                        {fullDetails}
                       </span>
                     </div>
                   </Link>
@@ -1079,7 +1074,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                   }`}
                 >
                   <span>{option.label}</span>
-                  {lang === option.code ? <span aria-hidden="true">✓</span> : <span aria-hidden="true">→</span>}
+                  {lang === option.code ? <span aria-hidden="true">✓</span> :}
                 </button>
               ))}
             </div>
