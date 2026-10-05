@@ -429,46 +429,14 @@ export default function Inventory({ inventory }: InventoryProps) {
             </Link>
 
             <div className="flex flex-col items-end gap-3">
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setLanguageOpen((open) => !open)}
-                  aria-expanded={languageOpen}
-                  aria-haspopup="menu"
-                  className={`${architectsDaughter.className} inline-flex min-h-9 items-center gap-2 text-sm text-white/85 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
-                >
-                  <span>Language</span>
-                  <span aria-hidden="true">⌄</span>
-                </button>
-
-                {languageOpen && (
-                  <div
-                    role="menu"
-                    className="absolute right-0 top-full z-40 mt-2 min-w-40 overflow-hidden rounded-xl border border-white/15 bg-neutral-950 py-1 shadow-2xl"
-                  >
-                    <button
-                      type="button"
-                      role="menuitemradio"
-                      aria-checked={lang === "en"}
-                      onClick={() => { setLang("en"); setLanguageOpen(false); }}
-                      className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm text-white/85 hover:bg-white/10"
-                    >
-                      <span>English</span>
-                      {lang === "en" && <span aria-hidden="true">✓</span>}
-                    </button>
-                    <button
-                      type="button"
-                      role="menuitemradio"
-                      aria-checked={lang === "es"}
-                      onClick={() => { setLang("es"); setLanguageOpen(false); }}
-                      className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm text-white/85 hover:bg-white/10"
-                    >
-                      <span>Español</span>
-                      {lang === "es" && <span aria-hidden="true">✓</span>}
-                    </button>
-                  </div>
-                )}
-              </div>
+              <button
+                type="button"
+                onClick={() => setLanguageOpen(true)}
+                className={`${architectsDaughter.className} inline-flex min-h-9 items-center gap-2 text-sm text-white/85 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+              >
+                <span>Language</span>
+                <span aria-hidden="true">→</span>
+              </button>
 
               <button
                 type="button"
@@ -529,46 +497,14 @@ export default function Inventory({ inventory }: InventoryProps) {
               </div>
 
               <div className="flex flex-col items-end gap-2">
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setLanguageOpen((open) => !open)}
-                    aria-expanded={languageOpen}
-                    aria-haspopup="menu"
-                    className={`${architectsDaughter.className} inline-flex min-h-8 items-center gap-1.5 text-xs text-white/85 transition hover:text-white`}
-                  >
-                    <span>Language</span>
-                    <span aria-hidden="true">⌄</span>
-                  </button>
-
-                  {languageOpen && (
-                    <div
-                      role="menu"
-                      className="absolute right-0 top-full z-40 mt-2 min-w-36 overflow-hidden rounded-xl border border-white/15 bg-neutral-950 py-1 shadow-2xl"
-                    >
-                      <button
-                        type="button"
-                        role="menuitemradio"
-                        aria-checked={lang === "en"}
-                        onClick={() => { setLang("en"); setLanguageOpen(false); }}
-                        className="flex w-full items-center justify-between px-4 py-2.5 text-left text-xs text-white/85 hover:bg-white/10"
-                      >
-                        <span>English</span>
-                        {lang === "en" && <span aria-hidden="true">✓</span>}
-                      </button>
-                      <button
-                        type="button"
-                        role="menuitemradio"
-                        aria-checked={lang === "es"}
-                        onClick={() => { setLang("es"); setLanguageOpen(false); }}
-                        className="flex w-full items-center justify-between px-4 py-2.5 text-left text-xs text-white/85 hover:bg-white/10"
-                      >
-                        <span>Español</span>
-                        {lang === "es" && <span aria-hidden="true">✓</span>}
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setLanguageOpen(true)}
+                  className={`${architectsDaughter.className} inline-flex min-h-8 items-center gap-1.5 text-xs text-white/85 transition hover:text-white`}
+                >
+                  <span>Language</span>
+                  <span aria-hidden="true">→</span>
+                </button>
 
                 <button
                   type="button"
@@ -1015,6 +951,74 @@ export default function Inventory({ inventory }: InventoryProps) {
                   </Link>
                 );
               })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {languageOpen && (
+        <div
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Choose language"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setLanguageOpen(false);
+          }}
+        >
+          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-white/15 bg-neutral-950 text-white shadow-2xl">
+            <div className="flex items-start justify-between border-b border-white/10 px-5 py-5 sm:px-6">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-white/45">Language</p>
+                <h2 className="mt-1 text-2xl font-semibold">Choose your language</h2>
+                <p className="mt-1 text-sm text-white/50">Select the language you prefer.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLanguageOpen(false)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-lg text-white/70 hover:border-white/35 hover:text-white"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="grid gap-2 p-4 sm:grid-cols-2 sm:p-5">
+              {[
+                { code: "en", label: "English", active: true },
+                { code: "es", label: "Español", active: true },
+                { code: "zh", label: "中文", active: false },
+                { code: "ko", label: "한국어", active: false },
+                { code: "vi", label: "Tiếng Việt", active: false },
+                { code: "hy", label: "Հայերեն", active: false },
+                { code: "tl", label: "Tagalog", active: false },
+                { code: "ru", label: "Русский", active: false },
+                { code: "ar", label: "العربية", active: false },
+              ].map((option) => (
+                <button
+                  key={option.code}
+                  type="button"
+                  disabled={!option.active}
+                  onClick={() => {
+                    if (option.code === "en" || option.code === "es") {
+                      setLang(option.code);
+                      setLanguageOpen(false);
+                    }
+                  }}
+                  className={`flex min-h-12 items-center justify-between rounded-xl border px-4 py-3 text-left text-sm transition ${
+                    option.active
+                      ? "border-white/15 bg-white/[0.04] text-white hover:border-white/30 hover:bg-white/[0.08]"
+                      : "cursor-not-allowed border-white/10 bg-white/[0.02] text-white/35"
+                  }`}
+                >
+                  <span>{option.label}</span>
+                  {option.active ? (
+                    lang === option.code ? <span aria-hidden="true">✓</span> : <span aria-hidden="true">→</span>
+                  ) : (
+                    <span className="text-[10px] uppercase tracking-[0.12em]">Soon</span>
+                  )}
+                </button>
+              ))}
             </div>
           </div>
         </div>
