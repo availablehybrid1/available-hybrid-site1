@@ -22,6 +22,8 @@ import {
 } from "lucide-react";
 import { getInventory, type Car } from "../lib/getInventory";
 import { PreQualificationForm } from "./pre-qualification";
+import { architectsDaughter } from "../lib/fonts";
+import { SITE_LANGUAGES, applyDocumentLanguage, readSiteLanguage, saveSiteLanguage, type SiteLanguage } from "../lib/siteLanguage";
 
 // misma función que en index.tsx para convertir links de Drive a imágenes
 function parsePhotos(raw?: string | null): string[] {
@@ -106,6 +108,8 @@ type DetailProps = {
 
 export default function VehicleDetail({ car, suggestions, inventoryOptions }: DetailProps) {
   const [theme, setTheme] = React.useState<"dark" | "light">("dark");
+  const [lang, setLang] = React.useState<SiteLanguage>("en");
+  const [languageOpen, setLanguageOpen] = React.useState(false);
   const selectTheme = (value: "dark" | "light") => {
     setTheme(value);
     try { window.localStorage.setItem("hybridrm-inventory-theme", value); } catch {}
@@ -117,6 +121,16 @@ export default function VehicleDetail({ car, suggestions, inventoryOptions }: De
       if (saved === "light" || saved === "dark") setTheme(saved);
     } catch {}
   }, []);
+
+  React.useEffect(() => {
+    const saved = readSiteLanguage();
+    setLang(saved);
+    applyDocumentLanguage(saved);
+  }, []);
+
+  React.useEffect(() => {
+    saveSiteLanguage(lang);
+  }, [lang]);
   const [current, setCurrent] = React.useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false);
   const [isDescriptionOpen, setIsDescriptionOpen] = React.useState(false);
@@ -554,7 +568,6 @@ if (!car) {
           </Link>
 
           <div className="flex flex-col items-end gap-1 text-right text-[11px] text-neutral-400">
-            <span>6726 Reseda Blvd Suite A7 · Reseda, CA 91335</span>
 <div className="flex flex-row items-center gap-3">
   <a
     href={`https://wa.me/17473544098?text=${encodeURIComponent(
@@ -634,9 +647,68 @@ if (!car) {
     </svg>
   </a>
 </div>
+            <button
+              type="button"
+              onClick={() => setLanguageOpen(true)}
+              className={`${architectsDaughter.className} mt-1 inline-flex min-h-8 items-center text-xs text-white/85 transition hover:text-white`}
+            >
+              {lang === "en" ? "Language" :
+               lang === "es" ? "Idioma" :
+               lang === "zh" ? "语言" :
+               lang === "ko" ? "언어" :
+               lang === "vi" ? "Ngôn ngữ" :
+               lang === "hy" ? "Լեզու" :
+               lang === "tl" ? "Wika" :
+               lang === "ru" ? "Язык" : "اللغة"}
+            </button>
           </div>
         </div>
       </header>
+
+      {languageOpen && (
+        <div
+          className="fixed inset-0 z-[95] flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Choose language"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setLanguageOpen(false);
+          }}
+        >
+          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-white/15 bg-neutral-950 text-white shadow-2xl">
+            <div className="flex items-start justify-between border-b border-white/10 px-5 py-5">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-white/45">Language</p>
+                <h2 className="mt-1 text-2xl font-semibold">Choose your language</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLanguageOpen(false)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-lg text-white/70"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+            <div className="grid gap-2 p-4 sm:grid-cols-2 sm:p-5">
+              {SITE_LANGUAGES.map((option) => (
+                <button
+                  key={option.code}
+                  type="button"
+                  onClick={() => {
+                    setLang(option.code);
+                    setLanguageOpen(false);
+                  }}
+                  className="flex min-h-12 items-center justify-between rounded-xl border border-white/15 bg-white/[0.04] px-4 py-3 text-left text-sm text-white transition hover:border-white/30 hover:bg-white/[0.08]"
+                >
+                  <span>{option.label}</span>
+                  {lang === option.code ? <span aria-hidden="true">✓</span> : null}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="mx-auto max-w-7xl space-y-10 px-4 pb-24 pt-6 sm:px-8 sm:pb-12">
         <div className="space-y-10">
