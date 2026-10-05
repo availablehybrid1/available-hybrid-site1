@@ -545,122 +545,139 @@ if (!car) {
   return (
     <main data-theme={theme} className="vehicle-page min-h-screen">
       <header className="border-b border-neutral-900 bg-black/90">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <Link href="/inventory" className="flex items-center gap-3 group">
-            <div className="relative h-10 w-10 overflow-hidden rounded-2xl bg-neutral-900/80 ring-1 ring-white/15 group-hover:ring-white/40 transition sm:h-12 sm:w-12">
-              <img
-                src="/logo.%20available%20hybrid%20premium.png"
-                alt="Available Hybrid R&M Inc. logo"
-                className="h-full w-full object-contain"
-              />
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="hidden h-[150px] grid-cols-[1fr_auto_1fr] items-center gap-4 sm:grid">
+            <div className="flex items-center justify-start gap-3">
+              <a
+                href={`https://wa.me/17473544098?text=${encodeURIComponent(
+                  `Hi, I am interested in this vehicle: ${car.title} - $${car.price}`
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-transparent"
+                aria-label="WhatsApp"
+              >
+                <img src="/whatsapp-green.png" alt="WhatsApp" className="h-full w-full object-contain" />
+              </a>
+
+              <a
+                href={`tel:${phone.replace(/[^+\\d]/g, "")}`}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition hover:border-white hover:bg-white/[0.08] hover:text-white"
+                aria-label="Call"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.6 2.6a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6.09 6.09l1.48-1.21a2 2 0 0 1 2.11-.45c.83.28 1.7.48 2.6.6A2 2 0 0 1 22 16.92z" />
+                </svg>
+              </a>
+
+              <a
+                href="https://www.instagram.com/availablehybridrm/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition hover:border-white hover:bg-white/[0.08] hover:text-white"
+                aria-label="Instagram"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                  <rect x="3" y="3" width="18" height="18" rx="5" ry="5" />
+                  <path d="M16 11.37a4 4 0 1 1-7.75 1.26 4 4 0 0 1 7.75-1.26z" />
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                </svg>
+              </a>
             </div>
-            <div className="leading-tight">
-              <p className="text-[10px] font-semibold tracking-[0.26em] text-neutral-400 group-hover:text-neutral-200">
-                AVAILABLE HYBRID
-              </p>
-              <p className="text-sm font-semibold text-neutral-50">
-                R&amp;M Inc.
-              </p>
-              <p className="hidden text-[11px] text-neutral-500 sm:block">
-                Hybrid &amp; fuel-efficient vehicles in Reseda, CA.
-              </p>
+
+            <Link href="/inventory" className="flex items-center justify-center" aria-label="Available Hybrid R&M inventory">
+              <div className="relative h-[132px] w-[420px]">
+                <img
+                  src="/logo. available hybrid premium.png"
+                  alt="Available Hybrid R&M Inc. logo"
+                  className="h-full w-full object-contain"
+                />
+              </div>
+            </Link>
+
+            <div className="flex items-center justify-end">
+              <button
+                type="button"
+                onClick={() => setLanguageOpen(true)}
+                className={`${architectsDaughter.className} inline-flex min-h-9 items-center text-sm text-white/85 transition hover:text-white`}
+              >
+                {lang === "en" ? "Language" :
+                 lang === "es" ? "Idioma" :
+                 lang === "zh" ? "语言" :
+                 lang === "ko" ? "언어" :
+                 lang === "vi" ? "Ngôn ngữ" :
+                 lang === "hy" ? "Լեզու" :
+                 lang === "tl" ? "Wika" :
+                 lang === "ru" ? "Язык" : "اللغة"}
+              </button>
             </div>
-          </Link>
+          </div>
 
-          <div className="flex flex-col items-end gap-1 text-right text-[11px] text-neutral-400">
-<div className="flex flex-row items-center gap-3">
-  <a
-    href={`https://wa.me/17473544098?text=${encodeURIComponent(
-      `Hi, I am interested in this vehicle: ${car.title} - $${car.price}`
-    )}`}
-    target="_blank"
-    rel="noreferrer"
-    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-transparent shrink-0"
-    aria-label="WhatsApp"
-  >
-    <img
-      src="/whatsapp-green.png"
-      alt="WhatsApp"
-      className="h-full w-full object-contain"
-    />
-  </a>
+          <div className="flex flex-col gap-1 py-3 sm:hidden">
+            <Link href="/inventory" className="flex items-center justify-center" aria-label="Available Hybrid R&M inventory">
+              <div className="relative h-20 w-56">
+                <img
+                  src="/logo. available hybrid premium.png"
+                  alt="Available Hybrid R&M Inc. logo"
+                  className="h-full w-full object-contain"
+                />
+              </div>
+            </Link>
 
-  <a
-    href={`tel:${phone.replace(/[^+\d]/g, "")}`}
-    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition-all duration-300 hover:border-white hover:bg-white/[0.08] hover:text-white"
-    aria-label="Call"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      className="h-4 w-4"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.6 2.6a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6.09 6.09l1.48-1.21a2 2 0 0 1 2.11-.45c.83.28 1.7.48 2.6.6A2 2 0 0 1 22 16.92z"
-      />
-    </svg>
-  </a>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <a
+                  href={`https://wa.me/17473544098?text=${encodeURIComponent(
+                    `Hi, I am interested in this vehicle: ${car.title} - $${car.price}`
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full"
+                  aria-label="WhatsApp"
+                >
+                  <img src="/whatsapp-green.png" alt="WhatsApp" className="h-full w-full object-contain" />
+                </a>
 
-  <a
-    href="https://www.instagram.com/availablehybridrm/"
-    target="_blank"
-    rel="noreferrer"
-    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition-all duration-300 hover:border-white hover:bg-white/[0.08] hover:text-white"
-    aria-label="Instagram"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      className="h-4 w-4"
-    >
-      <rect
-        x="3"
-        y="3"
-        width="18"
-        height="18"
-        rx="5"
-        ry="5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M16 11.37a4 4 0 1 1-7.75 1.26 4 4 0 0 1 7.75-1.26z"
-      />
-      <line
-        x1="17.5"
-        y1="6.5"
-        x2="17.51"
-        y2="6.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  </a>
-</div>
-            <button
-              type="button"
-              onClick={() => setLanguageOpen(true)}
-              className={`${architectsDaughter.className} mt-1 inline-flex min-h-8 items-center text-xs text-white/85 transition hover:text-white`}
-            >
-              {lang === "en" ? "Language" :
-               lang === "es" ? "Idioma" :
-               lang === "zh" ? "语言" :
-               lang === "ko" ? "언어" :
-               lang === "vi" ? "Ngôn ngữ" :
-               lang === "hy" ? "Լեզու" :
-               lang === "tl" ? "Wika" :
-               lang === "ru" ? "Язык" : "اللغة"}
-            </button>
+                <a
+                  href={`tel:${phone.replace(/[^+\\d]/g, "")}`}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-white/80"
+                  aria-label="Call"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.6 2.6a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6.09 6.09l1.48-1.21a2 2 0 0 1 2.11-.45c.83.28 1.7.48 2.6.6A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                </a>
+
+                <a
+                  href="https://www.instagram.com/availablehybridrm/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-white/80"
+                  aria-label="Instagram"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                    <rect x="3" y="3" width="18" height="18" rx="5" ry="5" />
+                    <path d="M16 11.37a4 4 0 1 1-7.75 1.26 4 4 0 0 1 7.75-1.26z" />
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                  </svg>
+                </a>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setLanguageOpen(true)}
+                className={`${architectsDaughter.className} inline-flex min-h-8 items-center text-xs text-white/85`}
+              >
+                {lang === "en" ? "Language" :
+                 lang === "es" ? "Idioma" :
+                 lang === "zh" ? "语言" :
+                 lang === "ko" ? "언어" :
+                 lang === "vi" ? "Ngôn ngữ" :
+                 lang === "hy" ? "Լեզու" :
+                 lang === "tl" ? "Wika" :
+                 lang === "ru" ? "Язык" : "اللغة"}
+              </button>
+            </div>
           </div>
         </div>
       </header>
