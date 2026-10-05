@@ -34,7 +34,7 @@ export default function Sold({ vehicles, loadError }: Props) {
         <title>{es ? "Vehículos vendidos" : "Sold Vehicles"} | Available Hybrid R&amp;M</title>
         <meta name="description" content={es ? "Vehículos vendidos anteriormente por Available Hybrid R&M Inc. en Reseda, California." : "Previously sold vehicles at Available Hybrid R&M Inc. in Reseda, California."} />
       </Head>
-      <header className="border-b border-[var(--sold-border)] bg-[var(--sold-page)] text-[color:var(--sold-text)] transition-colors">
+      <header className="bg-[var(--sold-page)] text-[color:var(--sold-text)] transition-colors">
         <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <Link href="/" aria-label="Available Hybrid R&M home">
             <img src="/logo.%20available%20hybrid%20premium.png" alt="Available Hybrid R&M" className="h-12 w-36 object-contain" />
