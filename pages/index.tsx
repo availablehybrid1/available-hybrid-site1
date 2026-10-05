@@ -349,7 +349,7 @@ export default function Home() {
                   className="flex min-h-12 items-center justify-between rounded-xl border border-white/15 bg-white/[0.04] px-4 py-3 text-left text-sm text-white transition hover:border-white/30 hover:bg-white/[0.08]"
                 >
                   <span>{option.label}</span>
-                  {lang === option.code ? <span aria-hidden="true">✓</span> :}
+                  {lang === option.code ? <span aria-hidden="true">✓</span> : null}
                 </button>
               ))}
             </div>
