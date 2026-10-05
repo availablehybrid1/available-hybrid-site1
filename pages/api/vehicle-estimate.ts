@@ -47,18 +47,23 @@ function estimateDealerRange(args: {
       ? args.nhtsaBasePrice
       : originalValueEstimate(args.make, args.bodyClass, args.fuel);
 
-  // Broad depreciation curve for a preliminary estimate only.
-  const ageFactor = Math.max(0.12, Math.pow(0.90, age));
+  // First estimate a broad consumer/retail reference, then convert it
+  // to a conservative dealer-acquisition reference.
+  const ageFactor = Math.max(0.10, Math.pow(0.885, age));
   let estimatedRetail = originalValue * ageFactor;
 
-  // Compare mileage with a simple 12,000 miles/year expectation.
   const expectedMiles = Math.max(12000, age * 12000);
   const mileageDifference = args.mileage - expectedMiles;
   const mileageAdjustment = Math.max(
-    -0.22,
-    Math.min(0.18, -(mileageDifference / 10000) * 0.025)
+    -0.28,
+    Math.min(0.15, -(mileageDifference / 10000) * 0.03)
   );
   estimatedRetail *= 1 + mileageAdjustment;
+
+  // Dealer acquisition should sit materially below retail.
+  // This margin accounts for recon, title/DMV work, transport, market risk,
+  // holding cost and resale spread.
+  let acquisitionBase = estimatedRetail * 0.62;
 
   const titleFactors: Record<string, number> = {
     clean: 1,
@@ -67,11 +72,11 @@ function estimateDealerRange(args: {
   };
 
   const conditionFactors: Record<string, [number, number]> = {
-    excellent: [0.58, 0.68],
-    good: [0.50, 0.61],
-    fair: [0.40, 0.51],
-    needs_repair: [0.24, 0.38],
-    not_running: [0.12, 0.25],
+    excellent: [0.92, 1.02],
+    good: [0.82, 0.94],
+    fair: [0.68, 0.82],
+    needs_repair: [0.45, 0.64],
+    not_running: [0.25, 0.45],
   };
 
   const titleFactor = titleFactors[args.titleStatus] ?? 1;
@@ -94,13 +99,20 @@ function estimateDealerRange(args: {
   else if (args.mileage >= 90000) acquisitionFactor *= 0.96;
 
   // Dealer-buy range, intentionally below consumer retail.
+  // Extra risk reserve for hybrids/EVs with high mileage.
+  if (/hybrid|electric/i.test(args.fuel)) {
+    if (args.mileage >= 200000) acquisitionFactor *= 0.72;
+    else if (args.mileage >= 150000) acquisitionFactor *= 0.82;
+    else if (args.mileage >= 120000) acquisitionFactor *= 0.90;
+  }
+
   const low =
-    estimatedRetail *
+    acquisitionBase *
     titleFactor *
     conditionFactor[0] *
     acquisitionFactor;
   const high =
-    estimatedRetail *
+    acquisitionBase *
     titleFactor *
     conditionFactor[1] *
     acquisitionFactor;
