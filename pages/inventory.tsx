@@ -89,6 +89,9 @@ type InventoryProps = { inventory: Vehicle[] };
 
 export default function Inventory({ inventory }: InventoryProps) {
   const [theme, setTheme] = React.useState<"dark" | "light">("dark");
+  const [lang, setLang] = React.useState<SiteLanguage>("en");
+  const [sellOpen, setSellOpen] = React.useState(false);
+  const [languageOpen, setLanguageOpen] = React.useState(false);
 
   React.useEffect(() => {
     try {
@@ -138,10 +141,6 @@ export default function Inventory({ inventory }: InventoryProps) {
   // rango de precio
   const [priceMin, setPriceMin] = React.useState<number | null>(null);
   const [priceMax, setPriceMax] = React.useState<number | null>(null);
-
-  const [lang, setLang] = React.useState<SiteLanguage>("en");
-  const [sellOpen, setSellOpen] = React.useState(false);
-  const [languageOpen, setLanguageOpen] = React.useState(false);
 
   const translations = {
     en: {
