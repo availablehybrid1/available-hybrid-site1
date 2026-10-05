@@ -39,7 +39,7 @@ export async function uploadR2Photo(args: {
     new PutObjectCommand({
       Bucket: bucket(),
       Key: args.key,
-      Body: Buffer.from(args.body),
+      Body: args.body instanceof Uint8Array ? args.body : new Uint8Array(args.body),
       ContentType: args.contentType,
       CacheControl: "public, max-age=31536000, immutable",
     })
