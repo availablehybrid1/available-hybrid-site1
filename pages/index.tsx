@@ -20,7 +20,7 @@ const copy = {
     heroSubtitle:
   "Hybrid, performance and specialty vehicles in Los Angeles. Service, diagnostics and repairs.",
 
-    ctaInventory: "View Inventory",
+    ctaInventory: "Inventory",
     ctaSold: "Sold",
     ctaPrequal: "Get Pre-Qualified",
     ctaWhatsapp: "WhatsApp",
@@ -52,7 +52,7 @@ ctaService: "Service",
     heroSubtitle:
   "Vehículos híbridos, deportivos y especiales en Los Ángeles. Servicio, diagnóstico y reparación.",
 
-    ctaInventory: "Ver inventario",
+    ctaInventory: "Inventario",
     ctaSold: "Vendidos",
     ctaPrequal: "Pre-Calificación",
     ctaWhatsapp: "WhatsApp",
