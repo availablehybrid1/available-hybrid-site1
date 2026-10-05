@@ -39,6 +39,9 @@ export type BotDraft = {
   coverPhotoIndex?: number;
   hoverPhotoIndex?: number;
   disableHoverPhoto?: boolean;
+  photoHashes?: string[];
+  pendingDuplicateUrl?: string;
+  pendingDuplicateHash?: string;
 };
 
 export type StoredVehicle = {
