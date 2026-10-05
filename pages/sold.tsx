@@ -34,14 +34,14 @@ export default function Sold({ vehicles, loadError }: Props) {
         <title>{es ? "Vehículos vendidos" : "Sold Vehicles"} | Available Hybrid R&amp;M</title>
         <meta name="description" content={es ? "Vehículos vendidos anteriormente por Available Hybrid R&M Inc. en Reseda, California." : "Previously sold vehicles at Available Hybrid R&M Inc. in Reseda, California."} />
       </Head>
-      <header className="bg-black text-white">
+      <header className="border-b border-[var(--sold-border)] bg-[var(--sold-page)] text-[color:var(--sold-text)] transition-colors">
         <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <Link href="/" aria-label="Available Hybrid R&M home">
             <img src="/logo.%20available%20hybrid%20premium.png" alt="Available Hybrid R&M" className="h-12 w-36 object-contain" />
           </Link>
           <div className="flex gap-1 text-xs">
             {(["EN", "ES"] as const).map(value => (
-              <button type="button" key={value} aria-pressed={lang === value} onClick={() => setLang(value)} className={`rounded-full px-3 py-2 ${lang === value ? "bg-white text-black" : "text-white/70"}`}>{value}</button>
+              <button type="button" key={value} aria-pressed={lang === value} onClick={() => setLang(value)} className={`rounded-full border px-3 py-2 transition ${lang === value ? "border-[var(--sold-text)] bg-[var(--sold-surface)] text-[color:var(--sold-text)]" : "border-transparent text-[color:var(--sold-muted)]"}`}>{value}</button>
             ))}
           </div>
         </div>
@@ -90,7 +90,6 @@ export default function Sold({ vehicles, loadError }: Props) {
       <style jsx>{`
         .sold-page {--sold-page:#050505;--sold-text:#f5f5f5;--sold-muted:#a3a3a3;--sold-border:#262626;--sold-surface:#171717;background:var(--sold-page);color:var(--sold-text);color-scheme:dark;}
         .sold-page[data-theme="light"] {--sold-page:#ffffff;--sold-text:#171717;--sold-muted:#5c5c5c;--sold-border:#dedede;--sold-surface:#f5f5f5;color-scheme:light;}
-        header {color-scheme:dark;}
       `}</style>
     </main>
   );
