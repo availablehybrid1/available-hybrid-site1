@@ -136,7 +136,7 @@ export default function Inventory({ inventory }: InventoryProps) {
     | "photosAsc"
     | "makeAsc"
     | "makeDesc"
-  >("priceDesc");
+  >("priceAsc");
 
   // rango de precio
   const [priceMin, setPriceMin] = React.useState<number | null>(null);
