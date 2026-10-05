@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { del, list, put } from "@vercel/blob";
+import { del, put } from "@vercel/blob";
 import {
   answerCallbackQuery,
   getTelegramFileUrl,
