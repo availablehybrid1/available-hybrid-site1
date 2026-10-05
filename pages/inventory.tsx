@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getInventory, type Car } from "../lib/getInventory";
 import SellYourCarModal from "../components/SellYourCarModal";
+import { architectsDaughter } from "../lib/fonts";
 
 // Convierte fotos de Drive a imágenes visibles
 function parsePhotos(raw?: string | null): string[] {
@@ -430,7 +431,7 @@ export default function Inventory({ inventory }: InventoryProps) {
               <button
                 type="button"
                 onClick={() => setSellOpen(true)}
-                className="font-santa-barbara inline-flex min-h-10 items-center justify-center rounded-full border border-white/35 px-5 text-sm uppercase tracking-[0.08em] text-white transition hover:border-white hover:bg-white hover:text-black"
+                className={`${architectsDaughter.className} inline-flex min-h-10 items-center justify-center rounded-full border border-white/35 px-5 text-sm uppercase tracking-[0.08em] text-white transition hover:border-white hover:bg-white hover:text-black"
               >
                 {lang === "en" ? "Sell Your Car" : "Vende Tu Auto"}
               </button>
@@ -496,7 +497,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                 <button
                   type="button"
                   onClick={() => setSellOpen(true)}
-                  className="font-santa-barbara inline-flex min-h-9 items-center justify-center rounded-full border border-white/35 px-3 text-xs uppercase tracking-[0.06em] text-white"
+                  className={`${architectsDaughter.className} inline-flex min-h-9 items-center justify-center rounded-full border border-white/35 px-3 text-xs uppercase tracking-[0.06em] text-white"
                 >
                   {lang === "en" ? "Sell Your Car" : "Vende Tu Auto"}
                 </button>
