@@ -564,6 +564,35 @@ function existingHoverKeyboard(vehicleId: string, photoCount: number) {
 }
 
 
+function replacePhotosMenuKeyboard(vehicleId: string) {
+  return {
+    inline_keyboard: [
+      [
+        { text: "Replace one photo", callback_data: `replaceone:${vehicleId}` },
+      ],
+      [
+        { text: "Replace all photos", callback_data: `replaceall:${vehicleId}` },
+      ],
+      [
+        { text: "Cancel", callback_data: `replacecancel:${vehicleId}` },
+      ],
+    ],
+  };
+}
+
+function replaceOnePhotoKeyboard(vehicleId: string, photoCount: number) {
+  const buttons = Array.from({ length: Math.min(photoCount, 20) }, (_, index) => ({
+    text: `${index + 1}`,
+    callback_data: `replacepick:${vehicleId}:${index}`,
+  }));
+
+  const rows = [];
+  for (let i = 0; i < buttons.length; i += 5) {
+    rows.push(buttons.slice(i, i + 5));
+  }
+  return { inline_keyboard: rows };
+}
+
 function deleteConfirmKeyboard(id: string) {
   return {
     inline_keyboard: [
@@ -998,6 +1027,31 @@ async function handleCallback(query: TelegramCallbackQuery) {
       return;
     }
 
+    await sendTelegramMessage(
+      chatId,
+      [
+        "📸 <b>Replace photos</b>",
+        "",
+        `Vehicle: <b>${escapeHtml(
+          [vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(" ")
+        )}</b>`,
+        "",
+        "What do you want to replace?",
+      ].join("\n"),
+      replacePhotosMenuKeyboard(id)
+    );
+    return;
+  }
+
+  if (query.data?.startsWith("replaceall:")) {
+    const id = query.data.slice("replaceall:".length);
+    const vehicle = await getStoredVehicle(id);
+
+    if (!vehicle) {
+      await sendTelegramMessage(chatId, "Vehicle not found.");
+      return;
+    }
+
     await deleteDraft(chatId);
 
     const photoDraft: BotDraft = {
@@ -1005,6 +1059,7 @@ async function handleCallback(query: TelegramCallbackQuery) {
       step: "replacephotos",
       editingVehicleId: id,
       photos: [],
+      photoHashes: [],
     };
 
     await saveDraft(chatId, photoDraft);
@@ -1012,19 +1067,94 @@ async function handleCallback(query: TelegramCallbackQuery) {
     await sendTelegramMessage(
       chatId,
       [
-        "📸 <b>Replace vehicle photos</b>",
+        "📸 <b>Replace all photos</b>",
         "",
-        `Vehicle: <b>${escapeHtml(
-          [vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(" ")
-        )}</b>`,
-        "",
-        "Send the new photos now.",
+        "Send the complete new photo set.",
         "The first photo will become the cover.",
         "When finished, type /done.",
-        "",
-        "The vehicle details will not be changed.",
       ].join("\n")
     );
+    return;
+  }
+
+  if (query.data?.startsWith("replaceone:")) {
+    const id = query.data.slice("replaceone:".length);
+    const vehicle = await getStoredVehicle(id);
+
+    if (!vehicle) {
+      await sendTelegramMessage(chatId, "Vehicle not found.");
+      return;
+    }
+
+    const photos = storedVehiclePhotos(vehicle);
+    if (!photos.length) {
+      await sendTelegramMessage(chatId, "This vehicle has no stored photos.");
+      return;
+    }
+
+    try {
+      await sendTelegramPhotoAlbum(
+        chatId,
+        photos.slice(0, 10).map((url, index) => ({
+          url,
+          caption: `Photo #${index + 1}`,
+        }))
+      );
+    } catch {}
+
+    await sendTelegramMessage(
+      chatId,
+      [
+        "Choose the photo you want to replace.",
+        "",
+        photos.length > 10
+          ? "Preview shows the first 10 photos."
+          : "Tap the matching number below.",
+      ].join("\n"),
+      replaceOnePhotoKeyboard(id, photos.length)
+    );
+    return;
+  }
+
+  if (query.data?.startsWith("replacepick:")) {
+    const [, id, indexText] = query.data.split(":");
+    const index = Number(indexText);
+    const vehicle = await getStoredVehicle(id);
+
+    if (!vehicle) {
+      await sendTelegramMessage(chatId, "Vehicle not found.");
+      return;
+    }
+
+    const photos = storedVehiclePhotos(vehicle);
+    if (!Number.isInteger(index) || index < 0 || index >= photos.length) {
+      await sendTelegramMessage(chatId, "That photo is no longer available.");
+      return;
+    }
+
+    await deleteDraft(chatId);
+
+    const photoDraft: BotDraft = {
+      sessionId: `replace-one-${id}-${Date.now()}`,
+      step: "replaceonephoto",
+      editingVehicleId: id,
+      replacePhotoIndex: index,
+      photos: [],
+      photoHashes: [],
+    };
+
+    await saveDraft(chatId, photoDraft);
+
+    await sendTelegramMessage(
+      chatId,
+      `Send the new photo for <b>Photo #${index + 1}</b>.`
+    );
+    return;
+  }
+
+  if (query.data?.startsWith("replacecancel:")) {
+    await deleteDraft(chatId);
+    await sendTelegramMessage(chatId, "Photo replacement canceled.");
     return;
   }
 
@@ -1509,6 +1639,68 @@ async function handleMessage(message: TelegramMessage) {
     return;
   }
 
+
+
+  if (draft.step === "replaceonephoto") {
+    const id = draft.editingVehicleId;
+    const index = draft.replacePhotoIndex;
+
+    if (!id || !Number.isInteger(index)) {
+      await deleteDraft(chatId);
+      await sendTelegramMessage(chatId, "Photo replacement session expired. Use /inventory.");
+      return;
+    }
+
+    if (!message.photo?.length) {
+      await sendTelegramMessage(chatId, `Send one new photo for Photo #${Number(index) + 1}.`);
+      return;
+    }
+
+    const vehicle = await getStoredVehicle(id);
+    if (!vehicle) {
+      await deleteDraft(chatId);
+      await sendTelegramMessage(chatId, "Vehicle not found.");
+      return;
+    }
+
+    const largest = [...message.photo].sort(
+      (a, b) => (b.file_size || 0) - (a.file_size || 0)
+    )[0];
+
+    const uploaded = await uploadTelegramPhoto(
+      draft.sessionId,
+      message.message_id,
+      largest
+    );
+
+    const photoNumber = Number(index) + 1;
+    const oldUrl = vehicle[`photo${photoNumber}`];
+
+    vehicle[`photo${photoNumber}`] = uploaded.url;
+    vehicle[`photoHash${photoNumber}`] = uploaded.sha256;
+
+    if (photoNumber === 1) {
+      vehicle.studioCover = "";
+    }
+    if (photoNumber === 2 || vehicle.cardHoverPhoto === oldUrl) {
+      vehicle.cardHoverPhoto = photoNumber === 2 ? uploaded.url : vehicle.cardHoverPhoto;
+    }
+
+    await saveVehicle(vehicle);
+    await deleteDraft(chatId);
+
+    if (typeof oldUrl === "string") {
+      try {
+        await deleteR2PhotoByUrl(oldUrl);
+      } catch {}
+    }
+
+    await sendTelegramMessage(
+      chatId,
+      `✅ Photo #${photoNumber} replaced successfully.`
+    );
+    return;
+  }
 
 
   if (draft.step === "replacephotos") {
