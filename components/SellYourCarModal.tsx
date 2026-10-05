@@ -10,7 +10,12 @@ type Props = {
 type Estimate = {
   low: number;
   high: number;
-  marketPrice: number;
+  vehicle?: {
+    year: number;
+    make: string;
+    model: string;
+    trim?: string;
+  };
 };
 
 export default function SellYourCarModal({
@@ -88,7 +93,7 @@ export default function SellYourCarModal({
       setEstimate({
         low: Number(data.low),
         high: Number(data.high),
-        marketPrice: Number(data.marketPrice),
+        vehicle: data.vehicle,
       });
       setStep(3);
     } catch (err) {
@@ -267,16 +272,23 @@ export default function SellYourCarModal({
           {step === 3 && estimate && (
             <div>
               <div className="rounded-2xl border border-white/15 bg-white/[0.04] px-5 py-6 text-center">
+                {estimate.vehicle && (
+                  <p className="mb-2 text-sm font-medium text-white/75">
+                    {[estimate.vehicle.year, estimate.vehicle.make, estimate.vehicle.model, estimate.vehicle.trim]
+                      .filter(Boolean)
+                      .join(" ")}
+                  </p>
+                )}
                 <p className="text-xs uppercase tracking-[0.18em] text-white/45">
-                  {isEN ? "Estimated dealer offer" : "Oferta estimada del dealer"}
+                  {isEN ? "Preliminary estimated offer" : "Oferta preliminar estimada"}
                 </p>
                 <p className="mt-3 text-3xl font-semibold text-white">
                   {"$" + estimate.low.toLocaleString() + " – $" + estimate.high.toLocaleString()}
                 </p>
                 <p className="mt-3 text-xs leading-5 text-white/45">
                   {isEN
-                    ? "Preliminary estimate only. Final value depends on inspection, vehicle history and verification."
-                    : "Estimado preliminar. El valor final depende de inspección, historial y verificación."}
+                    ? "Free preliminary estimate based on the VIN information, age, mileage, title and condition you provided. Final offer requires inspection and vehicle-history verification."
+                    : "Estimado preliminar gratuito basado en VIN, antigüedad, millas, título y condición indicada. La oferta final requiere inspección y verificación del historial."}
                 </p>
               </div>
 
