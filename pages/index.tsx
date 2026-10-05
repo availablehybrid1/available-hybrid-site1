@@ -146,14 +146,6 @@ export default function Home() {
             <div className="flex items-center justify-end gap-3">
               <button
                 type="button"
-                onClick={() => setSellOpen(true)}
-                className={`${architectsDaughter.className} inline-flex min-h-10 items-center justify-center rounded-full border border-white/35 px-5 text-sm uppercase tracking-[0.08em] text-white transition hover:border-white hover:bg-white hover:text-black`}
-              >
-                {lang === "EN" ? "Sell Your Car" : "Vende Tu Auto"}
-              </button>
-
-              <button
-                type="button"
                 onClick={() => setLang(lang === "EN" ? "ES" : "EN")}
                 className="rounded-full border border-neutral-700 bg-neutral-900/80 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-200 hover:border-neutral-300 hover:bg-neutral-800"
                 aria-label={lang === "EN" ? "Cambiar a español" : "Switch to English"}
@@ -195,13 +187,6 @@ export default function Home() {
               </div>
 
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSellOpen(true)}
-                  className={`${architectsDaughter.className} inline-flex min-h-9 items-center justify-center rounded-full border border-white/35 px-3 text-xs uppercase tracking-[0.06em] text-white`}
-                >
-                  {lang === "EN" ? "Sell Your Car" : "Vende Tu Auto"}
-                </button>
                 <button
                   type="button"
                   onClick={() => setLang(lang === "EN" ? "ES" : "EN")}
@@ -277,7 +262,17 @@ export default function Home() {
         {/* FOOTER (SIN LINEA BLANCA) */}
         <footer className="bg-black">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-7 text-sm text-white/65 sm:py-10 sm:text-base sm:text-white/70">
-            <span className="max-w-[17rem] sm:max-w-none">{t.footerAddress}</span>
+            <div className="flex max-w-[18rem] flex-col items-start gap-3 sm:max-w-none">
+              <span>{t.footerAddress}</span>
+              <button
+                type="button"
+                onClick={() => setSellOpen(true)}
+                className={`${architectsDaughter.className} inline-flex min-h-9 items-center gap-2 text-sm text-white/85 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+              >
+                <span>{lang === "EN" ? "Sell Your Car" : "Vende Tu Auto"}</span>
+                <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+              </button>
+            </div>
             <Link href="/sold" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-medium text-white/80 transition hover:border-white/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
               {t.ctaSold}
               <span aria-hidden="true">→</span>
