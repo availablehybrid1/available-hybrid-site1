@@ -15,7 +15,6 @@ import {
   MessageCircle,
   Calculator,
   BadgeCheck,
-  BadgeDollarSign,
   CalendarDays,
   Phone,
   Instagram,
@@ -159,7 +158,7 @@ const [touchEndX, setTouchEndX] = React.useState<number | null>(null);
     "contact" | "estimate" | null
   >(null);
   const [contactAction, setContactAction] = React.useState<
-    "availability" | "offer" | "testdrive"
+    "availability" | "testdrive"
   >("availability");
 
   // BHPH estimator UI
@@ -396,58 +395,11 @@ if (!car) {
     });
 
     if (!res.ok) {
-      alert(
-        "There was a problem sending your request. Please try again."
-      );
+      alert(t.requestError);
       return;
     }
 
-    alert("Your request was sent. We will contact you soon.");
-    form.reset();
-  };
-
-  // 💰 Manejar submit de "Make an Offer" -> EmailJS
-  const handleMakeOfferSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-
-    const name = (formData.get("name") || "").toString();
-    const phone = (formData.get("phone") || "").toString();
-    const email = (formData.get("email") || "").toString();
-    const offer = (formData.get("offer") || "").toString();
-    const message = (formData.get("message") || "").toString();
-
-    const page_url =
-      typeof window !== "undefined" ? window.location.href : "";
-
-    const res = await fetch("/api/lead", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "offer",
-        vehicleId: car.id,
-        vehicleTitle: `${car.year ?? ""} ${car.make} ${car.model}`,
-        vin: car.vin ?? "",
-        name,
-        phone,
-        email,
-        offer,
-        message,
-        page_url,
-      }),
-    });
-
-    if (!res.ok) {
-      alert(
-        "There was a problem sending your offer. Please try again."
-      );
-      return;
-    }
-
-    alert("Your offer was sent. We will contact you soon.");
+    alert(t.availabilitySent);
     form.reset();
   };
 
@@ -492,13 +444,11 @@ if (!car) {
     });
 
     if (!res.ok) {
-      alert(
-        "There was a problem sending your request. Please try again."
-      );
+      alert(t.requestError);
       return;
     }
 
-    alert("Your test drive request was sent. We will contact you soon.");
+    alert(t.testDriveSent);
     form.reset();
   };
 
@@ -528,6 +478,27 @@ if (!car) {
 
   const phone = "+1 747-354-4098";
   const hasMultiplePhotos = car.photos.length > 1;
+
+  const detailActionCopy: Record<SiteLanguage, {
+    contactDealer: string; contactSub: string; getPrequalified: string; prequalSub: string;
+    confirmAvailability: string; scheduleTestDrive: string; firstName: string; lastName: string;
+    phoneNumber: string; emailOptional: string; commentsOptional: string; name: string;
+    preferredContact: string; select: string; text: string; email: string; preferredDate: string;
+    preferredTime: string; comments: string; sendRequest: string; confirmNow: string;
+    call: string; whatsapp: string; close: string; availabilitySent: string; requestError: string;
+    testDriveSent: string;
+  }> = {
+    en: {contactDealer:"Contact Dealer",contactSub:"Availability or test drive",getPrequalified:"Get Pre-Qualified",prequalSub:"Start a quick financing application",confirmAvailability:"Confirm Availability",scheduleTestDrive:"Schedule Test Drive",firstName:"First Name",lastName:"Last Name",phoneNumber:"Phone Number",emailOptional:"Email Address (optional)",commentsOptional:"Comments (optional)",name:"Name",preferredContact:"Preferred contact",select:"Select",text:"Text",email:"Email",preferredDate:"Preferred date",preferredTime:"Preferred time",comments:"Comments",sendRequest:"Send Request",confirmNow:"Want to confirm now?",call:"Call",whatsapp:"WhatsApp",close:"Close",availabilitySent:"Your request was sent. We will contact you soon.",requestError:"There was a problem sending your request. Please try again.",testDriveSent:"Your test drive request was sent. We will contact you soon."},
+    es: {contactDealer:"Contactar al Dealer",contactSub:"Disponibilidad o prueba de manejo",getPrequalified:"Precalifícate",prequalSub:"Inicia una solicitud rápida de financiamiento",confirmAvailability:"Confirmar Disponibilidad",scheduleTestDrive:"Programar Prueba de Manejo",firstName:"Nombre",lastName:"Apellido",phoneNumber:"Número de teléfono",emailOptional:"Correo electrónico (opcional)",commentsOptional:"Comentarios (opcional)",name:"Nombre",preferredContact:"Contacto preferido",select:"Seleccionar",text:"Texto",email:"Correo",preferredDate:"Fecha preferida",preferredTime:"Hora preferida",comments:"Comentarios",sendRequest:"Enviar Solicitud",confirmNow:"¿Quieres confirmar ahora?",call:"Llamar",whatsapp:"WhatsApp",close:"Cerrar",availabilitySent:"Tu solicitud fue enviada. Te contactaremos pronto.",requestError:"Hubo un problema al enviar tu solicitud. Inténtalo de nuevo.",testDriveSent:"Tu solicitud de prueba de manejo fue enviada. Te contactaremos pronto."},
+    zh: {contactDealer:"联系经销商",contactSub:"确认车辆或预约试驾",getPrequalified:"融资预审",prequalSub:"快速开始融资申请",confirmAvailability:"确认车辆可用",scheduleTestDrive:"预约试驾",firstName:"名字",lastName:"姓氏",phoneNumber:"电话号码",emailOptional:"电子邮箱（可选）",commentsOptional:"备注（可选）",name:"姓名",preferredContact:"首选联系方式",select:"选择",text:"短信",email:"电子邮箱",preferredDate:"首选日期",preferredTime:"首选时间",comments:"备注",sendRequest:"发送请求",confirmNow:"想立即确认吗？",call:"电话",whatsapp:"WhatsApp",close:"关闭",availabilitySent:"请求已发送，我们会尽快联系您。",requestError:"发送请求时出现问题，请重试。",testDriveSent:"试驾请求已发送，我们会尽快联系您。"},
+    ko: {contactDealer:"딜러 문의",contactSub:"재고 확인 또는 시승 예약",getPrequalified:"사전 승인 받기",prequalSub:"간단한 금융 신청 시작",confirmAvailability:"재고 확인",scheduleTestDrive:"시승 예약",firstName:"이름",lastName:"성",phoneNumber:"전화번호",emailOptional:"이메일 (선택)",commentsOptional:"메모 (선택)",name:"이름",preferredContact:"선호 연락 방법",select:"선택",text:"문자",email:"이메일",preferredDate:"희망 날짜",preferredTime:"희망 시간",comments:"메모",sendRequest:"요청 보내기",confirmNow:"지금 바로 확인하시겠어요?",call:"전화",whatsapp:"WhatsApp",close:"닫기",availabilitySent:"요청이 전송되었습니다. 곧 연락드리겠습니다.",requestError:"요청을 보내는 중 문제가 발생했습니다. 다시 시도해 주세요.",testDriveSent:"시승 요청이 전송되었습니다. 곧 연락드리겠습니다."},
+    vi: {contactDealer:"Liên hệ đại lý",contactSub:"Kiểm tra xe hoặc lái thử",getPrequalified:"Đăng ký sơ tuyển",prequalSub:"Bắt đầu hồ sơ tài chính nhanh",confirmAvailability:"Xác nhận xe còn",scheduleTestDrive:"Đặt lịch lái thử",firstName:"Tên",lastName:"Họ",phoneNumber:"Số điện thoại",emailOptional:"Email (không bắt buộc)",commentsOptional:"Ghi chú (không bắt buộc)",name:"Họ tên",preferredContact:"Cách liên hệ ưu tiên",select:"Chọn",text:"Tin nhắn",email:"Email",preferredDate:"Ngày mong muốn",preferredTime:"Giờ mong muốn",comments:"Ghi chú",sendRequest:"Gửi yêu cầu",confirmNow:"Muốn xác nhận ngay?",call:"Gọi",whatsapp:"WhatsApp",close:"Đóng",availabilitySent:"Yêu cầu đã được gửi. Chúng tôi sẽ sớm liên hệ.",requestError:"Có lỗi khi gửi yêu cầu. Vui lòng thử lại.",testDriveSent:"Yêu cầu lái thử đã được gửi. Chúng tôi sẽ sớm liên hệ."},
+    hy: {contactDealer:"Կապվել դիլերի հետ",contactSub:"Հասանելիություն կամ փորձնական վարում",getPrequalified:"Նախնական հաստատում",prequalSub:"Սկսեք արագ ֆինանսավորման հայտ",confirmAvailability:"Հաստատել հասանելիությունը",scheduleTestDrive:"Գրանցվել փորձնական վարման",firstName:"Անուն",lastName:"Ազգանուն",phoneNumber:"Հեռախոսահամար",emailOptional:"Էլ․ փոստ (ըստ ցանկության)",commentsOptional:"Մեկնաբանություններ (ըստ ցանկության)",name:"Անուն",preferredContact:"Նախընտրելի կապ",select:"Ընտրել",text:"Տեքստ",email:"Էլ․ փոստ",preferredDate:"Նախընտրելի ամսաթիվ",preferredTime:"Նախընտրելի ժամ",comments:"Մեկնաբանություններ",sendRequest:"Ուղարկել հարցումը",confirmNow:"Ցանկանո՞ւմ եք հաստատել հիմա։",call:"Զանգահարել",whatsapp:"WhatsApp",close:"Փակել",availabilitySent:"Ձեր հարցումն ուղարկվել է։ Շուտով կկապվենք ձեզ հետ։",requestError:"Հարցումն ուղարկելիս խնդիր առաջացավ։ Փորձեք կրկին։",testDriveSent:"Փորձնական վարման հարցումն ուղարկվել է։ Շուտով կկապվենք ձեզ հետ։"},
+    tl: {contactDealer:"Contact Dealer",contactSub:"Availability o test drive",getPrequalified:"Magpa Pre-Qualified",prequalSub:"Magsimula ng mabilis na financing application",confirmAvailability:"Kumpirmahin ang Availability",scheduleTestDrive:"Mag-schedule ng Test Drive",firstName:"Pangalan",lastName:"Apelyido",phoneNumber:"Numero ng telepono",emailOptional:"Email (opsyonal)",commentsOptional:"Komento (opsyonal)",name:"Pangalan",preferredContact:"Gustong paraan ng contact",select:"Pumili",text:"Text",email:"Email",preferredDate:"Gustong petsa",preferredTime:"Gustong oras",comments:"Komento",sendRequest:"Ipadala ang Request",confirmNow:"Gusto mong kumpirmahin ngayon?",call:"Tumawag",whatsapp:"WhatsApp",close:"Isara",availabilitySent:"Naipadala ang request mo. Makikipag-ugnayan kami sa iyo sa lalong madaling panahon.",requestError:"Nagkaproblema sa pagpapadala ng request. Pakisubukang muli.",testDriveSent:"Naipadala ang test drive request mo. Makikipag-ugnayan kami sa iyo sa lalong madaling panahon."},
+    ru: {contactDealer:"Связаться с дилером",contactSub:"Наличие или тест-драйв",getPrequalified:"Предварительное одобрение",prequalSub:"Начать быструю заявку на финансирование",confirmAvailability:"Подтвердить наличие",scheduleTestDrive:"Записаться на тест-драйв",firstName:"Имя",lastName:"Фамилия",phoneNumber:"Номер телефона",emailOptional:"Email (необязательно)",commentsOptional:"Комментарий (необязательно)",name:"Имя",preferredContact:"Предпочтительный способ связи",select:"Выбрать",text:"SMS",email:"Email",preferredDate:"Предпочтительная дата",preferredTime:"Предпочтительное время",comments:"Комментарий",sendRequest:"Отправить запрос",confirmNow:"Хотите подтвердить сейчас?",call:"Позвонить",whatsapp:"WhatsApp",close:"Закрыть",availabilitySent:"Запрос отправлен. Мы скоро свяжемся с вами.",requestError:"Не удалось отправить запрос. Попробуйте еще раз.",testDriveSent:"Запрос на тест-драйв отправлен. Мы скоро свяжемся с вами."},
+    ar: {contactDealer:"التواصل مع الوكيل",contactSub:"التوفر أو تجربة القيادة",getPrequalified:"التأهل المسبق",prequalSub:"ابدأ طلب تمويل سريع",confirmAvailability:"تأكيد التوفر",scheduleTestDrive:"حجز تجربة قيادة",firstName:"الاسم الأول",lastName:"اسم العائلة",phoneNumber:"رقم الهاتف",emailOptional:"البريد الإلكتروني (اختياري)",commentsOptional:"ملاحظات (اختياري)",name:"الاسم",preferredContact:"طريقة التواصل المفضلة",select:"اختر",text:"رسالة نصية",email:"البريد الإلكتروني",preferredDate:"التاريخ المفضل",preferredTime:"الوقت المفضل",comments:"ملاحظات",sendRequest:"إرسال الطلب",confirmNow:"هل تريد التأكيد الآن؟",call:"اتصال",whatsapp:"WhatsApp",close:"إغلاق",availabilitySent:"تم إرسال طلبك. سنتواصل معك قريبًا.",requestError:"حدثت مشكلة أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.",testDriveSent:"تم إرسال طلب تجربة القيادة. سنتواصل معك قريبًا."}
+  };
+  const t = detailActionCopy[lang] || detailActionCopy.en;
 
   const goPrev = () => {
     setCurrent((prev) =>
@@ -966,38 +937,24 @@ if (!car) {
             </section>
             <button
               type="button"
-              onClick={() => setIsPrequalOpen(true)}
+              onClick={() => setActivePanel("contact")}
               className="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-[var(--detail-bg-100)] px-4 py-3 text-sm font-semibold text-[color:var(--detail-text-950)] transition hover:bg-[var(--detail-bg-200)]"
             >
-              Get Pre-Qualified for This Vehicle
+              {t.contactDealer}
             </button>
             <section className="vehicle-actions grid gap-3 sm:grid-cols-2">
               <button
                 type="button"
-                onClick={() =>
-                  setActivePanel((current) =>
-                    current === "contact" ? null : "contact"
-                  )
-                }
-                className={`group flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
-                  activePanel === "contact"
-                    ? "border-[var(--detail-border-200)] bg-[var(--detail-bg-100)] text-[color:var(--detail-text-950)]"
-                    : "border-[var(--detail-border-800)] bg-[var(--detail-bg-900)] text-[color:var(--detail-text-100)] hover:border-[var(--detail-border-600)] hover:bg-[var(--detail-bg-900)]"
-                }`}
+                onClick={() => setIsPrequalOpen(true)}
+                className="group flex items-center gap-3 rounded-xl border border-[var(--detail-border-800)] bg-[var(--detail-bg-900)] px-4 py-3 text-left text-[color:var(--detail-text-100)] transition hover:border-[var(--detail-border-600)] hover:bg-[var(--detail-bg-900)]"
               >
-                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${
-                  activePanel === "contact"
-                    ? "border-black/10 bg-black/5"
-                    : "border-[var(--detail-border-800)] bg-[var(--detail-bg-950)]"
-                }`}>
-                  <MessageCircle className="h-4 w-4" />
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--detail-border-800)] bg-[var(--detail-bg-950)]">
+                  <BadgeCheck className="h-4 w-4" />
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-sm font-semibold">Contact Dealer</span>
-                  <span className={`mt-0.5 block text-sm ${
-                    activePanel === "contact" ? "text-[color:var(--detail-text-600)]" : "text-[color:var(--detail-text-500)]"
-                  }`}>
-                    Availability, offer or test drive
+                  <span className="block text-sm font-semibold">{t.getPrequalified}</span>
+                  <span className="mt-0.5 block text-sm text-[color:var(--detail-text-500)]">
+                    {t.prequalSub}
                   </span>
                 </span>
               </button>
@@ -1050,14 +1007,14 @@ if (!car) {
                         {car.make} {car.model} {car.year}
                       </p>
                       <h2 id="contact-dealer-title" className="mt-1 text-lg font-semibold text-[color:var(--detail-text-100)]">
-                        Contact Dealer
+                        {t.contactDealer}
                       </h2>
                     </div>
                     <button
                       type="button"
                       onClick={() => setActivePanel(null)}
                       className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--detail-text-400)] transition hover:bg-[var(--detail-bg-800)] hover:text-[color:var(--detail-text-100)]"
-                      aria-label="Close contact dealer"
+                      aria-label={t.close}
                     >
                       ✕
                     </button>
@@ -1066,16 +1023,15 @@ if (!car) {
               <div className="mt-3 border-t border-[var(--detail-border-800)] pt-3">
                 <div className="flex flex-wrap gap-1.5">
                   {[
-                    { id: "availability", label: "Confirm Availability", icon: BadgeCheck },
-                    { id: "offer", label: "Make an Offer", icon: BadgeDollarSign },
-                    { id: "testdrive", label: "Schedule Test Drive", icon: CalendarDays },
+                    { id: "availability", label: t.confirmAvailability, icon: BadgeCheck },
+                    { id: "testdrive", label: t.scheduleTestDrive, icon: CalendarDays },
                   ].map((option) => { const OptionIcon = option.icon; return (
                     <button
                       key={option.id}
                       type="button"
                       onClick={() =>
                         setContactAction(
-                          option.id as "availability" | "offer" | "testdrive"
+                          option.id as "availability" | "testdrive"
                         )
                       }
                       className={`rounded-md border px-2.5 py-1.5 text-sm font-medium transition ${
@@ -1100,7 +1056,7 @@ if (!car) {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-1">
                     <label className="block text-sm text-[color:var(--detail-text-400)]">
-                      First Name
+                      {t.firstName}
                     </label>
                     <input
                       name="firstName"
@@ -1110,7 +1066,7 @@ if (!car) {
                   </div>
                   <div className="space-y-1">
                     <label className="block text-sm text-[color:var(--detail-text-400)]">
-                      Last Name
+                      {t.lastName}
                     </label>
                     <input
                       name="lastName"
@@ -1120,7 +1076,7 @@ if (!car) {
                   </div>
                   <div className="space-y-1">
                     <label className="block text-sm text-[color:var(--detail-text-400)]">
-                      Phone Number
+                      {t.phoneNumber}
                     </label>
                     <input
                       name="phone"
@@ -1130,7 +1086,7 @@ if (!car) {
                   </div>
                   <div className="space-y-1">
                     <label className="block text-sm text-[color:var(--detail-text-400)]">
-                      Email Address (optional)
+                      {t.emailOptional}
                     </label>
                     <input
                       name="email"
@@ -1141,7 +1097,7 @@ if (!car) {
                 </div>
                 <div className="space-y-1">
                   <label className="block text-sm text-[color:var(--detail-text-400)]">
-                    Comments (optional)
+                    {t.commentsOptional}
                   </label>
                   <textarea
                     name="comments"
@@ -1149,81 +1105,32 @@ if (!car) {
                     className="w-full rounded border border-[var(--detail-border-700)] bg-[var(--detail-bg-950)] px-2 py-1 text-sm text-[color:var(--detail-text-100)] outline-none focus:border-emerald-500"
                   />
                 </div>
-                <button
-                  type="submit"
-                  className="mt-2 w-full rounded bg-[var(--detail-bg-100)] px-3 py-2 text-sm font-semibold uppercase tracking-[0.16em] text-[color:var(--detail-text-950)] hover:bg-[var(--detail-bg-200)]"
-                >
-                  Confirm Availability
-                </button>
-              </form>
-            )}
-
-            {activePanel === "contact" && contactAction === "offer" && (
-              <form
-                onSubmit={handleMakeOfferSubmit}
-                className="mt-5 space-y-3 border-t border-[var(--detail-border-800)] pt-5"
-              >
-                <p className="text-sm font-semibold text-[color:var(--detail-text-200)]">
-                  Make an Offer
-                </p>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-1">
-                    <label className="block text-sm text-[color:var(--detail-text-400)]">
-                      Name
-                    </label>
-                    <input
-                      name="name"
-                      required
-                      className="w-full rounded border border-[var(--detail-border-700)] bg-[var(--detail-bg-950)] px-2 py-1 text-sm text-[color:var(--detail-text-100)] outline-none focus:border-emerald-500"
-                    />
+                <div className="flex items-center justify-between gap-3 rounded-lg border border-[var(--detail-border-800)] px-3 py-2">
+                  <span className="text-sm text-[color:var(--detail-text-400)]">{t.confirmNow}</span>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <a
+                      href="tel:+17473544098"
+                      aria-label={t.call}
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--detail-border-700)] text-[color:var(--detail-text-100)] transition hover:bg-[var(--detail-bg-900)]"
+                    >
+                      <Phone className="h-4 w-4" aria-hidden="true" />
+                    </a>
+                    <a
+                      href={`https://wa.me/17473544098?text=${encodeURIComponent(`Hi, I want to confirm availability for: ${car.title}`)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={t.whatsapp}
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--detail-border-700)] transition hover:bg-[var(--detail-bg-900)]"
+                    >
+                      <img src="/whatsapp-green.png" alt="" className="h-5 w-5 object-contain" />
+                    </a>
                   </div>
-                  <div className="space-y-1">
-                    <label className="block text-sm text-[color:var(--detail-text-400)]">
-                      Phone
-                    </label>
-                    <input
-                      name="phone"
-                      required
-                      className="w-full rounded border border-[var(--detail-border-700)] bg-[var(--detail-bg-950)] px-2 py-1 text-sm text-[color:var(--detail-text-100)] outline-none focus:border-emerald-500"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="block text-sm text-[color:var(--detail-text-400)]">
-                      Email (optional)
-                    </label>
-                    <input
-                      name="email"
-                      type="email"
-                      className="w-full rounded border border-[var(--detail-border-700)] bg-[var(--detail-bg-950)] px-2 py-1 text-sm text-[color:var(--detail-text-100)] outline-none focus:border-emerald-500"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="block text-sm text-[color:var(--detail-text-400)]">
-                      Offer amount (USD)
-                    </label>
-                    <input
-                      name="offer"
-                      type="number"
-                      min={0}
-                      className="w-full rounded border border-[var(--detail-border-700)] bg-[var(--detail-bg-950)] px-2 py-1 text-sm text-[color:var(--detail-text-100)] outline-none focus:border-emerald-500"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-sm text-[color:var(--detail-text-400)]">
-                    Message
-                  </label>
-                  <textarea
-                    name="message"
-                    rows={3}
-                    className="w-full rounded border border-[var(--detail-border-700)] bg-[var(--detail-bg-950)] px-2 py-1 text-sm text-[color:var(--detail-text-100)] outline-none focus:border-emerald-500"
-                  />
                 </div>
                 <button
                   type="submit"
                   className="mt-2 w-full rounded bg-[var(--detail-bg-100)] px-3 py-2 text-sm font-semibold uppercase tracking-[0.16em] text-[color:var(--detail-text-950)] hover:bg-[var(--detail-bg-200)]"
                 >
-                  Send Offer
+                  {t.confirmAvailability}
                 </button>
               </form>
             )}
@@ -1234,12 +1141,12 @@ if (!car) {
                 className="mt-5 space-y-3 border-t border-[var(--detail-border-800)] pt-5"
               >
                 <p className="text-sm font-semibold text-[color:var(--detail-text-200)]">
-                  Schedule Test Drive
+                  {t.scheduleTestDrive}
                 </p>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-1">
                     <label className="block text-sm text-[color:var(--detail-text-400)]">
-                      Name
+                      {t.name}
                     </label>
                     <input
                       name="name"
@@ -1249,7 +1156,7 @@ if (!car) {
                   </div>
                   <div className="space-y-1">
                     <label className="block text-sm text-[color:var(--detail-text-400)]">
-                      Phone
+                      {t.phoneNumber}
                     </label>
                     <input
                       name="phone"
@@ -1259,7 +1166,7 @@ if (!car) {
                   </div>
                   <div className="space-y-1">
                     <label className="block text-sm text-[color:var(--detail-text-400)]">
-                      Email (optional)
+                      {t.emailOptional}
                     </label>
                     <input
                       name="email"
@@ -1269,16 +1176,16 @@ if (!car) {
                   </div>
                   <div className="space-y-1">
                     <label className="block text-sm text-[color:var(--detail-text-400)]">
-                      Preferred contact
+                      {t.preferredContact}
                     </label>
                     <select
                       name="preferredContact"
                       className="w-full rounded border border-[var(--detail-border-700)] bg-[var(--detail-bg-950)] px-2 py-1 text-sm text-[color:var(--detail-text-100)] outline-none focus:border-emerald-500"
                     >
-                      <option value="">Select</option>
-                      <option value="Text">Text</option>
+                      <option value="">{t.select}</option>
+                      <option value="Text">{t.text}</option>
                       <option value="WhatsApp">WhatsApp</option>
-                      <option value="Email">Email</option>
+                      <option value="Email">{t.email}</option>
                     </select>
                   </div>
                 </div>
@@ -1286,7 +1193,7 @@ if (!car) {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-1">
                     <label className="block text-sm text-[color:var(--detail-text-400)]">
-                      Preferred date
+                      {t.preferredDate}
                     </label>
                     <input
                       type="date"
@@ -1296,7 +1203,7 @@ if (!car) {
                   </div>
                   <div className="space-y-1">
                     <label className="block text-sm text-[color:var(--detail-text-400)]">
-                      Preferred time
+                      {t.preferredTime}
                     </label>
                     <input
                       type="time"
@@ -1308,7 +1215,7 @@ if (!car) {
 
                 <div className="space-y-1">
                   <label className="block text-sm text-[color:var(--detail-text-400)]">
-                    Comments
+                    {t.comments}
                   </label>
                   <textarea
                     name="comments"
@@ -1321,7 +1228,7 @@ if (!car) {
                   type="submit"
                   className="mt-2 w-full rounded bg-[var(--detail-bg-100)] px-3 py-2 text-sm font-semibold uppercase tracking-[0.16em] text-[color:var(--detail-text-950)] hover:bg-[var(--detail-bg-200)]"
                 >
-                  Send Request
+                  {t.sendRequest}
                 </button>
               </form>
             )}
