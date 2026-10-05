@@ -13,6 +13,7 @@ export type BotDraft = {
     | "notes"
     | "photos"
     | "replacephotos"
+    | "replaceonephoto"
     | "cover"
     | "hover"
     | "confirm"
@@ -42,6 +43,7 @@ export type BotDraft = {
   photoHashes?: string[];
   pendingDuplicateUrl?: string;
   pendingDuplicateHash?: string;
+  replacePhotoIndex?: number;
 };
 
 export type StoredVehicle = {
