@@ -1090,7 +1090,7 @@ export default function Inventory({ inventory }: InventoryProps) {
       <SellYourCarModal
         open={sellOpen}
         onClose={() => setSellOpen(false)}
-        lang={lang === "es" ? "es" : "en"}
+        lang={lang}
         whatsappDigits={whatsappDigits}
       />
 
