@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { createHash } from "crypto";
 import { deleteR2PhotoByUrl, uploadR2Photo } from "../../lib/r2Photos";
 import {
   answerCallbackQuery,
@@ -131,15 +132,20 @@ async function uploadTelegramPhoto(
       : "jpg";
 
   const body = await response.arrayBuffer();
+  const bytes = new Uint8Array(body);
+  const sha256 = createHash("sha256").update(bytes).digest("hex");
   const key = `inventory/photos/${sessionId}/${String(
     messageId ?? 0
   ).padStart(12, "0")}-${Date.now()}.${ext}`;
 
-  return uploadR2Photo({
+  const url = await uploadR2Photo({
     key,
-    body,
+    body: bytes,
     contentType,
+    sha256,
   });
+
+  return { url, sha256 };
 }
 
 async function deleteSessionPhotos(photoUrls: string[]) {
@@ -723,6 +729,20 @@ function hoverPhotoKeyboard(photoCount: number) {
 }
 
 
+function duplicatePhotoKeyboard() {
+  return {
+    inline_keyboard: [
+      [
+        { text: "Replace", callback_data: "duplicate:replace" },
+        { text: "Keep both", callback_data: "duplicate:keep" },
+      ],
+      [
+        { text: "Cancel", callback_data: "duplicate:cancel" },
+      ],
+    ],
+  };
+}
+
 function publishKeyboard() {
   return {
     inline_keyboard: [
@@ -1196,6 +1216,67 @@ async function handleCallback(query: TelegramCallbackQuery) {
   }
 
 
+  if (query.data?.startsWith("duplicate:")) {
+    const draft = await getDraft(chatId);
+    if (!draft) {
+      await sendTelegramMessage(chatId, "No active vehicle. Use /addcar.");
+      return;
+    }
+
+    const action = query.data.slice("duplicate:".length);
+    const pendingUrl = draft.pendingDuplicateUrl;
+    const pendingHash = draft.pendingDuplicateHash;
+
+    if (!pendingUrl || !pendingHash) {
+      await sendTelegramMessage(chatId, "No duplicate photo is waiting for a decision.");
+      return;
+    }
+
+    if (action === "cancel") {
+      try {
+        await deleteR2PhotoByUrl(pendingUrl);
+      } catch {}
+      draft.pendingDuplicateUrl = undefined;
+      draft.pendingDuplicateHash = undefined;
+      await saveDraft(chatId, draft);
+      await sendTelegramMessage(chatId, "Duplicate photo canceled.");
+      return;
+    }
+
+    if (action === "replace") {
+      const idx = (draft.photoHashes || []).findIndex((hash) => hash === pendingHash);
+      if (idx >= 0) {
+        const oldUrl = draft.photos?.[idx];
+        if (oldUrl && oldUrl !== pendingUrl) {
+          try {
+            await deleteR2PhotoByUrl(oldUrl);
+          } catch {}
+        }
+        draft.photos[idx] = pendingUrl;
+        draft.photoHashes![idx] = pendingHash;
+      } else {
+        draft.photos = [...(draft.photos || []), pendingUrl];
+        draft.photoHashes = [...(draft.photoHashes || []), pendingHash];
+      }
+      draft.pendingDuplicateUrl = undefined;
+      draft.pendingDuplicateHash = undefined;
+      await saveDraft(chatId, draft);
+      await sendTelegramMessage(chatId, "Duplicate photo replaced.");
+      return;
+    }
+
+    if (action === "keep") {
+      draft.photos = [...(draft.photos || []), pendingUrl];
+      draft.photoHashes = [...(draft.photoHashes || []), pendingHash];
+      draft.pendingDuplicateUrl = undefined;
+      draft.pendingDuplicateHash = undefined;
+      await saveDraft(chatId, draft);
+      await sendTelegramMessage(chatId, "Both copies kept.");
+      return;
+    }
+  }
+
+
   const draft = await getDraft(chatId);
   if (!draft) {
     await sendTelegramMessage(chatId, "No active vehicle. Use /addcar.");
@@ -1282,6 +1363,8 @@ async function handleCallback(query: TelegramCallbackQuery) {
 
     orderedPhotos.forEach((url, index) => {
       vehicle[`photo${index + 1}`] = url;
+      const hash = draft.photoHashes?.[index];
+      if (hash) vehicle[`photoHash${index + 1}`] = hash;
     });
 
     await saveVehicle(vehicle);
@@ -1479,11 +1562,13 @@ async function handleMessage(message: TelegramMessage) {
       const oldPhotos = storedVehiclePhotos(vehicle);
 
       for (const key of Object.keys(vehicle)) {
-        if (/^photo\d+$/i.test(key)) delete vehicle[key];
+        if (/^photo\d+$/i.test(key) || /^photoHash\d+$/i.test(key)) delete vehicle[key];
       }
 
       photos.forEach((url, index) => {
         vehicle[`photo${index + 1}`] = url;
+        const hash = draft.photoHashes?.[index];
+        if (hash) vehicle[`photoHash${index + 1}`] = hash;
       });
 
       vehicle.cardHoverPhoto = photos[1] || "none";
@@ -1823,12 +1908,27 @@ async function handleMessage(message: TelegramMessage) {
       const largest = [...message.photo].sort(
         (a, b) => (b.file_size || 0) - (a.file_size || 0)
       )[0];
-      const uploadedUrl = await uploadTelegramPhoto(
+      const uploaded = await uploadTelegramPhoto(
         draft.sessionId,
         message.message_id,
         largest
       );
-      draft.photos = [...(draft.photos || []), uploadedUrl];
+
+      const hashes = draft.photoHashes || [];
+      if (hashes.includes(uploaded.sha256)) {
+        draft.pendingDuplicateUrl = uploaded.url;
+        draft.pendingDuplicateHash = uploaded.sha256;
+        await saveDraft(chatId, draft);
+        await sendTelegramMessage(
+          chatId,
+          "⚠️ This photo is already in the current set. What do you want to do?",
+          duplicatePhotoKeyboard()
+        );
+        return;
+      }
+
+      draft.photos = [...(draft.photos || []), uploaded.url];
+      draft.photoHashes = [...hashes, uploaded.sha256];
       await saveDraft(chatId, draft);
       return;
     }
