@@ -99,11 +99,11 @@ function estimateDealerRange(args: {
   else if (args.mileage >= 90000) acquisitionFactor *= 0.96;
 
   // Dealer-buy range, intentionally below consumer retail.
-  // Extra risk reserve for hybrids/EVs with high mileage.
-  if (/hybrid|electric/i.test(args.fuel)) {
-    if (args.mileage >= 200000) acquisitionFactor *= 0.72;
-    else if (args.mileage >= 150000) acquisitionFactor *= 0.82;
-    else if (args.mileage >= 120000) acquisitionFactor *= 0.90;
+  // Brand/model-age adjustment: older Subarus typically need a more
+  // conservative acquisition number because wholesale/trade values can
+  // sit materially below asking prices.
+  if (args.make.toUpperCase() === "SUBARU" && age >= 12) {
+    acquisitionFactor *= args.mileage >= 150000 ? 0.74 : 0.82;
   }
 
   const low =
