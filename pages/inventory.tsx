@@ -1073,7 +1073,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                   }`}
                 >
                   <span>{option.label}</span>
-                  {lang === option.code ? <span aria-hidden="true">✓</span> :}
+                  {lang === option.code ? <span aria-hidden="true">✓</span> : null}
                 </button>
               ))}
             </div>
