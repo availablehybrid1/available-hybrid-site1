@@ -431,7 +431,7 @@ export default function Inventory({ inventory }: InventoryProps) {
               <div
                 role="group"
                 aria-label={lang === "en" ? "Language" : "Idioma"}
-                className="inline-flex rounded-full border border-white/20 bg-white/[0.03] p-1"
+                className="inline-flex rounded-full border border-[var(--inv-border)] bg-[var(--inv-surface)] p-1"
               >
                 {(["en", "es"] as const).map((option) => (
                   <button
@@ -439,10 +439,10 @@ export default function Inventory({ inventory }: InventoryProps) {
                     type="button"
                     aria-pressed={lang === option}
                     onClick={() => setLang(option)}
-                    className={`inline-flex min-h-8 min-w-10 items-center justify-center rounded-full px-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition-colors ${
+                    className={`inline-flex min-h-8 min-w-10 items-center justify-center rounded-full border px-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition-colors ${
                       lang === option
-                        ? "bg-white text-black"
-                        : "text-white/65 hover:bg-white/10 hover:text-white"
+                        ? "border-[var(--inv-border-strong)] bg-[var(--inv-active)] text-[color:var(--inv-on-active)]"
+                        : "border-transparent text-[color:var(--inv-muted)] hover:bg-[var(--inv-hover)] hover:text-[color:var(--inv-heading)]"
                     }`}
                   >
                     {option.toUpperCase()}
@@ -512,7 +512,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                 <div
                   role="group"
                   aria-label={lang === "en" ? "Language" : "Idioma"}
-                  className="inline-flex rounded-full border border-white/20 bg-white/[0.03] p-1"
+                  className="inline-flex rounded-full border border-[var(--inv-border)] bg-[var(--inv-surface)] p-1"
                 >
                   {(["en", "es"] as const).map((option) => (
                     <button
@@ -520,10 +520,10 @@ export default function Inventory({ inventory }: InventoryProps) {
                       type="button"
                       aria-pressed={lang === option}
                       onClick={() => setLang(option)}
-                      className={`inline-flex min-h-8 min-w-9 items-center justify-center rounded-full px-2 text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors ${
+                      className={`inline-flex min-h-8 min-w-9 items-center justify-center rounded-full border px-2 text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors ${
                         lang === option
-                          ? "bg-white text-black"
-                          : "text-white/65"
+                          ? "border-[var(--inv-border-strong)] bg-[var(--inv-active)] text-[color:var(--inv-on-active)]"
+                          : "border-transparent text-[color:var(--inv-muted)]"
                       }`}
                     >
                       {option.toUpperCase()}
@@ -572,8 +572,8 @@ export default function Inventory({ inventory }: InventoryProps) {
                   onClick={() => selectTheme(mode)}
                   className={`inline-flex min-h-9 items-center gap-2 rounded-full px-3 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current ${
                     theme === mode
-                      ? "bg-[var(--inv-active)] text-[color:var(--inv-on-active)]"
-                      : "text-[color:var(--inv-muted)] hover:bg-[var(--inv-hover)]"
+                      ? "border border-[var(--inv-border-strong)] bg-[var(--inv-active)] text-[color:var(--inv-on-active)]"
+                      : "border border-transparent text-[color:var(--inv-muted)] hover:bg-[var(--inv-hover)]"
                   }`}
                 >
                   <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
@@ -1004,9 +1004,9 @@ export default function Inventory({ inventory }: InventoryProps) {
           --inv-modal: rgba(10, 10, 10, .95);
           --inv-black80: rgba(0, 0, 0, .8);
           --inv-black70: rgba(0, 0, 0, .7);
-          --inv-active: #f5f5f5;
-          --inv-active-hover: #e5e5e5;
-          --inv-on-active: #000;
+          --inv-active: #0a0a0a;
+          --inv-active-hover: #171717;
+          --inv-on-active: #f5f5f5;
           --inv-border-subtle: #171717;
           --inv-border: #262626;
           --inv-border-strong: #404040;
@@ -1029,9 +1029,9 @@ export default function Inventory({ inventory }: InventoryProps) {
           --inv-modal: #fff;
           --inv-black80: #f7f7f7;
           --inv-black70: #fafafa;
-          --inv-active: #171717;
-          --inv-active-hover: #333;
-          --inv-on-active: #fff;
+          --inv-active: #fff;
+          --inv-active-hover: #f5f5f5;
+          --inv-on-active: #171717;
           --inv-border-subtle: #e5e5e5;
           --inv-border: #dedede;
           --inv-border-strong: #ccc;
