@@ -1,5 +1,5 @@
 import { Redis } from "@upstash/redis";
-import { del } from "@vercel/blob";
+import { deleteR2PhotoByUrl } from "./r2Photos";
 
 export type BotDraft = {
   sessionId: string;
@@ -141,11 +141,15 @@ export async function deleteStoredVehicle(
       .map(([, value]) => String(value));
 
     if (photoUrls.length) {
-      try {
-        await del(photoUrls);
-      } catch {
-        // Vehicle metadata must still be removable if the old Blob store is rate-limited.
-      }
+      await Promise.all(
+        photoUrls.map(async (url) => {
+          try {
+            await deleteR2PhotoByUrl(url);
+          } catch {
+            // Vehicle metadata must still be removable if an image cannot be removed.
+          }
+        })
+      );
     }
   }
 
