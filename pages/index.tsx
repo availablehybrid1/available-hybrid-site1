@@ -6,78 +6,120 @@ import { motion } from "framer-motion";
 import SellYourCarModal from "../components/SellYourCarModal";
 import ServiceModal from "../components/ServiceModal";
 import { architectsDaughter } from "../lib/fonts";
+import { SITE_LANGUAGES, applyDocumentLanguage, readSiteLanguage, saveSiteLanguage, type SiteLanguage } from "../lib/siteLanguage";
 
-const copy = {
-  EN: {
+const copy: Record<SiteLanguage, {
+  pageTitle: string;
+  metaDescription: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  ctaInventory: string;
+  ctaSold: string;
+  ctaService: string;
+  ctaRental: string;
+  sellYourCar: string;
+  language: string;
+  exploreLabel: string;
+  footerAddress: string;
+}> = {
+  en: {
     pageTitle: "AVAILABLE HYBRID R&M INC. – Hybrid & Fuel Efficient Vehicles",
-    metaDescription:
-      "Specialized in hybrid and fuel-efficient vehicles in Reseda, CA.",
-
-    navInventory: "Inventory",
-    navPrequal: "Pre-Qualify",
-
+    metaDescription: "Hybrid, fuel-efficient and specialty vehicles in Reseda, California.",
     heroTitle: "HYBRID, RACING AND MOTORSPORT",
-    heroSubtitle:
-  "Hybrid, performance and specialty vehicles in Los Angeles. Service, diagnostics and repairs.",
-
-    ctaInventory: "Inventory",
-    ctaSold: "Sold",
-    ctaPrequal: "Get Pre-Qualified",
-    ctaWhatsapp: "WhatsApp",
-ctaService: "Service",
-    trust: [
-      { title: "Hybrid Specialists", desc: "Toyota Prius · Lexus CT200h · More" },
-      { title: "DMV Dealer", desc: "Temporary plates, ROS/TLP online" },
-      { title: "BHPH Options", desc: "In-house payment plans" },
-    ],
-
-    featuredTitle: "Featured: Toyota Prius",
-    featuredSubtitle: "Clean title • 50+ MPG • Ready today",
-    featuredButton: "View more",
-
-    footerDealerName: "AVAILABLE HYBRID R&M INC.",
+    heroSubtitle: "Hybrid, performance and specialty vehicles in Los Angeles. Service, diagnostics and repairs.",
+    ctaInventory: "Inventory", ctaSold: "Sold", ctaService: "Service", ctaRental: "Car Rental",
+    sellYourCar: "Sell Your Car", language: "Language", exploreLabel: "Explore our services",
     footerAddress: "6726 Reseda Blvd Unit A7, Reseda, CA 91335",
-    footerHoursLabel: "Hours",
-    footerHoursValue: "Mon–Sat • 10:00–6:00",
   },
-
-  ES: {
+  es: {
     pageTitle: "AVAILABLE HYBRID R&M INC.",
-    metaDescription: "Vehículos híbridos en Los Ángeles.",
-
-    navInventory: "Inventario",
-    navPrequal: "Pre-Calificación",
-
+    metaDescription: "Vehículos híbridos, eficientes y especiales en Reseda, California.",
     heroTitle: "HYBRID, RACING AND MOTORSPORT",
-    heroSubtitle:
-  "Vehículos híbridos, deportivos y especiales en Los Ángeles. Servicio, diagnóstico y reparación.",
-
-    ctaInventory: "Inventario",
-    ctaSold: "Vendidos",
-    ctaPrequal: "Pre-Calificación",
-    ctaWhatsapp: "WhatsApp",
-ctaService: "Servicio",
-    trust: [
-      { title: "Especialistas", desc: "Prius · Lexus · Más" },
-      { title: "Dealer DMV", desc: "Procesos completos" },
-      { title: "BHPH", desc: "Planes flexibles" },
-    ],
-
-    featuredTitle: "Destacado",
-    featuredSubtitle: "Listo hoy",
-    featuredButton: "Ver más",
-
-    footerDealerName: "AVAILABLE HYBRID R&M INC.",
+    heroSubtitle: "Vehículos híbridos, deportivos y especiales en Los Ángeles. Servicio, diagnóstico y reparación.",
+    ctaInventory: "Inventario", ctaSold: "Vendidos", ctaService: "Servicio", ctaRental: "Renta de Autos",
+    sellYourCar: "Vende Tu Auto", language: "Idioma", exploreLabel: "Explora nuestros servicios",
     footerAddress: "6726 Reseda Blvd Unit A7, Reseda, CA 91335",
-    footerHoursLabel: "Horario",
-    footerHoursValue: "Lun–Sáb • 10:00–6:00",
   },
-} as const;
+  zh: {
+    pageTitle: "AVAILABLE HYBRID R&M INC.",
+    metaDescription: "位于加州 Reseda 的混合动力、省油和特色车辆。",
+    heroTitle: "HYBRID, RACING AND MOTORSPORT",
+    heroSubtitle: "洛杉矶混合动力、高性能和特色车辆。提供保养、诊断和维修。",
+    ctaInventory: "库存", ctaSold: "已售", ctaService: "维修服务", ctaRental: "汽车租赁",
+    sellYourCar: "出售您的车辆", language: "语言", exploreLabel: "浏览我们的服务",
+    footerAddress: "6726 Reseda Blvd Unit A7, Reseda, CA 91335",
+  },
+  ko: {
+    pageTitle: "AVAILABLE HYBRID R&M INC.",
+    metaDescription: "캘리포니아 Reseda의 하이브리드, 연비 좋은 차량 및 특수 차량.",
+    heroTitle: "HYBRID, RACING AND MOTORSPORT",
+    heroSubtitle: "로스앤젤레스의 하이브리드, 고성능 및 특수 차량. 정비, 진단 및 수리.",
+    ctaInventory: "재고", ctaSold: "판매 완료", ctaService: "서비스", ctaRental: "렌터카",
+    sellYourCar: "차량 판매", language: "언어", exploreLabel: "서비스 보기",
+    footerAddress: "6726 Reseda Blvd Unit A7, Reseda, CA 91335",
+  },
+  vi: {
+    pageTitle: "AVAILABLE HYBRID R&M INC.",
+    metaDescription: "Xe hybrid, tiết kiệm nhiên liệu và xe đặc biệt tại Reseda, California.",
+    heroTitle: "HYBRID, RACING AND MOTORSPORT",
+    heroSubtitle: "Xe hybrid, hiệu suất cao và xe đặc biệt tại Los Angeles. Bảo dưỡng, chẩn đoán và sửa chữa.",
+    ctaInventory: "Xe hiện có", ctaSold: "Đã bán", ctaService: "Dịch vụ", ctaRental: "Thuê xe",
+    sellYourCar: "Bán xe của bạn", language: "Ngôn ngữ", exploreLabel: "Khám phá dịch vụ",
+    footerAddress: "6726 Reseda Blvd Unit A7, Reseda, CA 91335",
+  },
+  hy: {
+    pageTitle: "AVAILABLE HYBRID R&M INC.",
+    metaDescription: "Հիբրիդային, տնտեսող և հատուկ մեքենաներ Reseda, California-ում։",
+    heroTitle: "HYBRID, RACING AND MOTORSPORT",
+    heroSubtitle: "Հիբրիդային, բարձր արդյունավետությամբ և հատուկ մեքենաներ Լոս Անջելեսում։ Սպասարկում, ախտորոշում և վերանորոգում։",
+    ctaInventory: "Մեքենաներ", ctaSold: "Վաճառված", ctaService: "Սպասարկում", ctaRental: "Մեքենայի վարձույթ",
+    sellYourCar: "Վաճառեք ձեր մեքենան", language: "Լեզու", exploreLabel: "Դիտել ծառայությունները",
+    footerAddress: "6726 Reseda Blvd Unit A7, Reseda, CA 91335",
+  },
+  tl: {
+    pageTitle: "AVAILABLE HYBRID R&M INC.",
+    metaDescription: "Hybrid, matipid sa gasolina at specialty vehicles sa Reseda, California.",
+    heroTitle: "HYBRID, RACING AND MOTORSPORT",
+    heroSubtitle: "Hybrid, performance at specialty vehicles sa Los Angeles. Serbisyo, diagnostic at repair.",
+    ctaInventory: "Mga Sasakyan", ctaSold: "Nabenta", ctaService: "Serbisyo", ctaRental: "Car Rental",
+    sellYourCar: "Ibenta ang Iyong Sasakyan", language: "Wika", exploreLabel: "Tingnan ang aming serbisyo",
+    footerAddress: "6726 Reseda Blvd Unit A7, Reseda, CA 91335",
+  },
+  ru: {
+    pageTitle: "AVAILABLE HYBRID R&M INC.",
+    metaDescription: "Гибридные, экономичные и специальные автомобили в Reseda, California.",
+    heroTitle: "HYBRID, RACING AND MOTORSPORT",
+    heroSubtitle: "Гибридные, спортивные и специальные автомобили в Лос-Анджелесе. Сервис, диагностика и ремонт.",
+    ctaInventory: "Автомобили", ctaSold: "Продано", ctaService: "Сервис", ctaRental: "Аренда авто",
+    sellYourCar: "Продать автомобиль", language: "Язык", exploreLabel: "Наши услуги",
+    footerAddress: "6726 Reseda Blvd Unit A7, Reseda, CA 91335",
+  },
+  ar: {
+    pageTitle: "AVAILABLE HYBRID R&M INC.",
+    metaDescription: "سيارات هجينة واقتصادية ومميزة في Reseda, California.",
+    heroTitle: "HYBRID, RACING AND MOTORSPORT",
+    heroSubtitle: "سيارات هجينة وعالية الأداء ومميزة في لوس أنجلوس. صيانة وتشخيص وإصلاح.",
+    ctaInventory: "المخزون", ctaSold: "تم البيع", ctaService: "الخدمة", ctaRental: "تأجير السيارات",
+    sellYourCar: "بع سيارتك", language: "اللغة", exploreLabel: "استكشف خدماتنا",
+    footerAddress: "6726 Reseda Blvd Unit A7, Reseda, CA 91335",
+  },
+};
 
 export default function Home() {
-  const [lang, setLang] = React.useState<"EN" | "ES">("EN");
+  const [lang, setLang] = React.useState<SiteLanguage>("en");
   const [sellOpen, setSellOpen] = React.useState(false);
   const [serviceOpen, setServiceOpen] = React.useState(false);
+  const [languageOpen, setLanguageOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const saved = readSiteLanguage();
+    setLang(saved);
+    applyDocumentLanguage(saved);
+  }, []);
+
+  React.useEffect(() => {
+    saveSiteLanguage(lang);
+  }, [lang]);
 
   const t = copy[lang];
 
@@ -146,11 +188,11 @@ export default function Home() {
             <div className="flex items-center justify-end gap-3">
               <button
                 type="button"
-                onClick={() => setLang(lang === "EN" ? "ES" : "EN")}
-                className="rounded-full border border-neutral-700 bg-neutral-900/80 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-200 hover:border-neutral-300 hover:bg-neutral-800"
-                aria-label={lang === "EN" ? "Cambiar a español" : "Switch to English"}
+                onClick={() => setLanguageOpen(true)}
+                className={`${architectsDaughter.className} inline-flex min-h-9 items-center gap-2 text-sm text-white/85 transition hover:text-white`}
               >
-                {lang === "EN" ? "ES" : "EN"}
+                <span>{t.language}</span>
+                <span aria-hidden="true">→</span>
               </button>
             </div>
           </div>
@@ -189,10 +231,11 @@ export default function Home() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setLang(lang === "EN" ? "ES" : "EN")}
-                  className="rounded-full border border-neutral-700 bg-neutral-900/80 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-200"
+                  onClick={() => setLanguageOpen(true)}
+                  className={`${architectsDaughter.className} inline-flex min-h-8 items-center gap-1.5 text-xs text-white/85`}
                 >
-                  {lang === "EN" ? "ES" : "EN"}
+                  <span>{t.language}</span>
+                  <span aria-hidden="true">→</span>
                 </button>
               </div>
             </div>
@@ -224,7 +267,7 @@ export default function Home() {
                 {t.heroSubtitle}
               </p>
               <nav
-                aria-label={lang === "EN" ? "Explore our services" : "Explora nuestros servicios"}
+                aria-label={t.exploreLabel}
                 className="mt-6 max-w-[22rem] sm:mt-9 sm:max-w-none"
               >
                 <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:gap-6">
@@ -249,7 +292,7 @@ export default function Home() {
                       href="/car-rental"
                       className={`${architectsDaughter.className} group inline-flex min-h-9 items-center gap-2 text-[15px] text-white/85 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}
                     >
-                      <span>Car Rental</span>
+                      <span>{t.ctaRental}</span>
                       <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
                     </Link>
                   </div>
@@ -268,7 +311,7 @@ export default function Home() {
                 onClick={() => setSellOpen(true)}
                 className={`${architectsDaughter.className} inline-flex min-h-9 items-center gap-2 text-sm text-white/85 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
               >
-                <span>{lang === "EN" ? "Sell Your Car" : "Vende Tu Auto"}</span>
+                <span>{t.sellYourCar}</span>
                 <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
               </button>
               <span>{t.footerAddress}</span>
@@ -282,16 +325,51 @@ export default function Home() {
 
       </main>
 
+      {languageOpen && (
+        <div
+          className="fixed inset-0 z-[95] flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Choose language"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setLanguageOpen(false);
+          }}
+        >
+          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-white/15 bg-neutral-950 text-white shadow-2xl">
+            <div className="flex items-start justify-between border-b border-white/10 px-5 py-5">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-white/45">Language</p>
+                <h2 className="mt-1 text-2xl font-semibold">Choose your language</h2>
+              </div>
+              <button type="button" onClick={() => setLanguageOpen(false)} className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-lg text-white/70">×</button>
+            </div>
+            <div className="grid gap-2 p-4 sm:grid-cols-2 sm:p-5">
+              {SITE_LANGUAGES.map((option) => (
+                <button
+                  key={option.code}
+                  type="button"
+                  onClick={() => { setLang(option.code); setLanguageOpen(false); }}
+                  className="flex min-h-12 items-center justify-between rounded-xl border border-white/15 bg-white/[0.04] px-4 py-3 text-left text-sm text-white transition hover:border-white/30 hover:bg-white/[0.08]"
+                >
+                  <span>{option.label}</span>
+                  {lang === option.code ? <span aria-hidden="true">✓</span> : <span aria-hidden="true">→</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <SellYourCarModal
         open={sellOpen}
         onClose={() => setSellOpen(false)}
-        lang={lang === "EN" ? "en" : "es"}
+        lang={lang === "es" ? "es" : "en"}
       />
 
       <ServiceModal
         open={serviceOpen}
         onClose={() => setServiceOpen(false)}
-        lang={lang}
+        lang={lang === "es" ? "ES" : "EN"}
       />
     </>
   );
