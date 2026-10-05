@@ -18,8 +18,8 @@ export type Car = {
 };
 
 const recoveryDeployments = [
-  "https://available-hybrid-site1-guv8-4sjwb7xl0.vercel.app",
-  "https://available-hybrid-site1-guv8-mowjsz77u.vercel.app",
+  "https://available-hybrid-site1-guv8-ja5j0wcog.vercel.app",
+  "https://available-hybrid-site1-guv8-87j47g1fa.vercel.app",
 ];
 
 function parseNextDataInventory(html: string): any[] {
@@ -159,8 +159,8 @@ export async function getInventory(): Promise<Car[]> {
   const recoveredCars = await recoverFromPreviousDeployment();
   if (!recoveredCars.length) return [];
 
-  // Recreate the metadata in the currently connected Blob so both the
-  // website and Telegram bot can use the recovered vehicles again.
+  // Recreate the metadata in Upstash Redis so both the website and
+  // Telegram bot use the same durable inventory store.
   await migrateRecoveredCars(recoveredCars);
 
   return recoveredCars.filter(
