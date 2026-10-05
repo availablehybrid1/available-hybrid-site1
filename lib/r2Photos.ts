@@ -34,6 +34,7 @@ export async function uploadR2Photo(args: {
   key: string;
   body: ArrayBuffer | Uint8Array;
   contentType: string;
+  sha256?: string;
 }) {
   await client().send(
     new PutObjectCommand({
@@ -42,6 +43,7 @@ export async function uploadR2Photo(args: {
       Body: args.body instanceof Uint8Array ? args.body : new Uint8Array(args.body),
       ContentType: args.contentType,
       CacheControl: "public, max-age=31536000, immutable",
+      Metadata: args.sha256 ? { sha256: args.sha256 } : undefined,
     })
   );
 
