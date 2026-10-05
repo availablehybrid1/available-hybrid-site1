@@ -1,4 +1,4 @@
-import { listStoredVehicles } from "./blobInventory";
+import { listStoredVehicles, saveVehicle, type StoredVehicle } from "./blobInventory";
 
 export type Car = {
   id: string;
@@ -17,87 +17,153 @@ export type Car = {
   [key: string]: any;
 };
 
-async function getSheetInventory(): Promise<Car[]> {
-  const sheetId = process.env.NEXT_PUBLIC_SHEET_ID;
-  if (!sheetId) return [];
+const recoveryDeployments = [
+  "https://available-hybrid-site1-guv8-4sjwb7xl0.vercel.app",
+  "https://available-hybrid-site1-guv8-mowjsz77u.vercel.app",
+];
 
-  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
+function parseNextDataInventory(html: string): any[] {
+  const match = html.match(
+    /<script[^>]+id=["']__NEXT_DATA__["'][^>]*>([\s\S]*?)<\/script>/i
+  );
+  if (!match?.[1]) return [];
 
   try {
-    const res = await fetch(url, { cache: "no-store" });
-    const text = await res.text();
-    const trimmed = text.trim();
-
-    if (!res.ok || trimmed.startsWith("<")) return [];
-
-    const match = text.match(/{[\s\S]*}/);
-    if (!match) return [];
-
-    const json = JSON.parse(match[0]);
-    if (!json.table || !json.table.cols || !json.table.rows) return [];
-
-    const headers = json.table.cols.map((col: any) =>
-      (col.label || "").toLowerCase()
-    );
-
-    return json.table.rows.map((row: any) =>
-      row.c.reduce((obj: any, cell: any, i: number) => {
-        const key = headers[i];
-        obj[key] = cell ? cell.v : "";
-        return obj;
-      }, {} as Car)
-    );
-  } catch (err) {
-    console.error("Error reading Google Sheets inventory:", err);
+    const data = JSON.parse(match[1]);
+    const inventory = data?.props?.pageProps?.inventory;
+    return Array.isArray(inventory) ? inventory : [];
+  } catch {
     return [];
   }
 }
 
-export async function getInventory(): Promise<Car[]> {
-  const [sheetCars, blobCars] = await Promise.all([
-    getSheetInventory(),
-    listStoredVehicles().catch((err) => {
-      console.error("Error reading bot inventory:", err);
-      return [];
-    }),
-  ]);
+async function recoverFromPreviousDeployment(): Promise<Car[]> {
+  for (const baseUrl of recoveryDeployments) {
+    try {
+      const res = await fetch(`${baseUrl}/inventory`, {
+        cache: "no-store",
+        headers: {
+          "User-Agent": "AvailableHybridInventoryRecovery/1.0",
+        },
+      });
 
-  const combined = new Map<string, Car>();
+      if (!res.ok) continue;
 
-  // Restore the older Google Sheets inventory first.
-  for (const car of sheetCars) {
-    if (!car?.id) continue;
-    combined.set(String(car.id).trim(), car);
-  }
+      const html = await res.text();
+      const recovered = parseNextDataInventory(html);
+      if (!recovered.length) continue;
 
-  // Telegram/Vercel Blob remains supported and overrides matching Sheet IDs.
-  for (const vehicle of blobCars) {
-    if (!vehicle?.id) continue;
-
-    const id = String(vehicle.id).trim();
-    if (String(vehicle.status || "").toLowerCase() === "sold") {
-      combined.delete(id);
-      continue;
+      return recovered
+        .filter((car) => car?.id)
+        .map((car) => ({
+          ...car,
+          id: String(car.id),
+          year: car.year != null ? String(car.year) : "",
+          make: car.make ?? "",
+          model: car.model ?? "",
+          mileage: car.mileage != null ? String(car.mileage) : "",
+          price: car.price != null ? String(car.price) : "",
+          exterior: car.exterior ?? "",
+          transmission: car.transmission ?? "",
+          fuel: car.fuel ?? "",
+          vin: car.vin ?? "",
+          photos: Array.isArray(car.photos)
+            ? car.photos.filter((url: unknown) => typeof url === "string").join(" ")
+            : String(car.photos ?? ""),
+          status: car.status ?? "available",
+          description: car.description ?? "",
+          cardHoverPhoto: car.cardHoverPhoto ?? "",
+          studioCover: car.studioCover ?? "",
+        })) as Car[];
+    } catch (err) {
+      console.error("Previous deployment recovery failed:", baseUrl, err);
     }
-
-    const photoUrls = Object.entries(vehicle)
-      .filter(
-        ([key, value]) =>
-          /^photo\d+$/i.test(key) &&
-          typeof value === "string" &&
-          value.startsWith("http")
-      )
-      .sort(([a], [b]) => Number(a.slice(5)) - Number(b.slice(5)))
-      .map(([, value]) => String(value));
-
-    combined.set(id, {
-      ...vehicle,
-      studioCover: "",
-      photos: photoUrls.join(" "),
-    } as Car);
   }
 
-  return Array.from(combined.values()).filter(
+  return [];
+}
+
+async function migrateRecoveredCars(cars: Car[]) {
+  for (const car of cars) {
+    try {
+      const photoUrls = String(car.photos || "")
+        .split(/\s+/)
+        .map((url) => url.trim())
+        .filter((url) => url.startsWith("http"));
+
+      const vehicle: StoredVehicle = {
+        id: String(car.id),
+        year: String(car.year || ""),
+        make: String(car.make || ""),
+        model: String(car.model || ""),
+        mileage: String(car.mileage || ""),
+        price: String(car.price || ""),
+        exterior: String(car.exterior || ""),
+        transmission: String(car.transmission || ""),
+        fuel: String(car.fuel || ""),
+        vin: String(car.vin || ""),
+        status: String(car.status || "available"),
+        description: String(car.description || ""),
+        cardHoverPhoto: String(car.cardHoverPhoto || ""),
+        studioCover: String(car.studioCover || ""),
+      };
+
+      photoUrls.forEach((url, index) => {
+        vehicle[`photo${index + 1}`] = url;
+      });
+
+      await saveVehicle(vehicle);
+    } catch (err) {
+      console.error("Could not migrate recovered vehicle:", car.id, err);
+    }
+  }
+}
+
+function normalizeBlobCars(vehicles: StoredVehicle[]): Car[] {
+  return vehicles
+    .filter(
+      (vehicle) =>
+        vehicle?.id &&
+        String(vehicle.status || "").toLowerCase() !== "sold"
+    )
+    .map((vehicle) => {
+      const photoUrls = Object.entries(vehicle)
+        .filter(
+          ([key, value]) =>
+            /^photo\d+$/i.test(key) &&
+            typeof value === "string" &&
+            value.startsWith("http")
+        )
+        .sort(([a], [b]) => Number(a.slice(5)) - Number(b.slice(5)))
+        .map(([, value]) => String(value));
+
+      return {
+        ...vehicle,
+        studioCover: vehicle.studioCover || "",
+        photos: photoUrls.join(" "),
+      } as Car;
+    });
+}
+
+export async function getInventory(): Promise<Car[]> {
+  const currentVehicles = await listStoredVehicles().catch((err) => {
+    console.error("Error reading bot inventory:", err);
+    return [];
+  });
+
+  const currentCars = normalizeBlobCars(currentVehicles);
+  if (currentCars.length) return currentCars;
+
+  // One-time recovery path: older Vercel deployments can retain the
+  // environment snapshot that was connected to the previous Blob store.
+  const recoveredCars = await recoverFromPreviousDeployment();
+  if (!recoveredCars.length) return [];
+
+  // Recreate the metadata in the currently connected Blob so both the
+  // website and Telegram bot can use the recovered vehicles again.
+  await migrateRecoveredCars(recoveredCars);
+
+  return recoveredCars.filter(
     (vehicle) =>
       vehicle?.id &&
       String(vehicle.status || "").toLowerCase() !== "sold"
