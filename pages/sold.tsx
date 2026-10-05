@@ -73,7 +73,7 @@ export default function Sold({ vehicles, loadError }: Props) {
                 <div className="pt-4">
                   <h2 className="text-base font-semibold uppercase tracking-wide lg:text-lg">{vehicle.title}</h2>
                   <p className="mt-2 text-sm leading-6 text-[color:var(--sold-muted)]">{[vehicle.mileage ? `${Number(vehicle.mileage).toLocaleString("en-US")} mi` : "", vehicle.fuel, vehicle.exterior].filter(Boolean).join(" · ")}</p>
-                  <p className="mt-3 text-xs font-medium uppercase tracking-[0.16em] text-[color:var(--sold-muted)]">{es ? "Vendido" : "Sold"}</p>
+                  <p className="mt-4 text-xl font-semibold uppercase tracking-wide text-[color:var(--sold-text)]">SOLD</p>
                 </div>
               </article>
             ))}
