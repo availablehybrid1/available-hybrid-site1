@@ -238,31 +238,34 @@ export default function Home() {
               </p>
               <nav
                 aria-label={lang === "EN" ? "Explore our services" : "Explora nuestros servicios"}
-                className="mt-6 flex max-w-[22rem] flex-col items-start gap-3 sm:mt-9 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-4"
+                className="mt-6 max-w-[22rem] sm:mt-9 sm:max-w-none"
               >
-                <Link
-                  href="/inventory"
-                  className={`${architectsDaughter.className} inline-flex min-h-11 w-full items-center justify-center border border-white bg-white px-4 py-2.5 text-[15px] text-black transition sm:w-auto sm:min-w-[176px] sm:px-7 hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}
-                >
-                  {t.ctaInventory}
-                </Link>
+                <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:gap-6">
+                  <Link
+                    href="/inventory"
+                    className={`${architectsDaughter.className} inline-flex min-h-11 w-full items-center justify-center border border-white bg-white px-5 py-2.5 text-[15px] text-black transition hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:w-auto sm:min-w-[184px] sm:px-8`}
+                  >
+                    {t.ctaInventory}
+                  </Link>
 
-                <Link
-                  href="/service"
-                  className={`${architectsDaughter.className} group inline-flex min-h-11 items-center gap-2 text-[15px] text-white/90 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}
-                >
-                  <span>{t.ctaService}</span>
-                  <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
-                </Link>
+                  <div className="flex flex-col items-start gap-1 border-l border-white/25 pl-4 sm:flex-row sm:items-center sm:gap-7 sm:border-l-0 sm:pl-0">
+                    <Link
+                      href="/service"
+                      className={`${architectsDaughter.className} group inline-flex min-h-9 items-center gap-2 text-[15px] text-white/85 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}
+                    >
+                      <span>{t.ctaService}</span>
+                      <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+                    </Link>
 
-                <Link
-                  href="/car-rental"
-                  className={`${architectsDaughter.className} group inline-flex min-h-11 items-center gap-2 text-[15px] text-white/90 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}
-                >
-                  <span>Car Rental</span>
-                  <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
-                </Link>
-
+                    <Link
+                      href="/car-rental"
+                      className={`${architectsDaughter.className} group inline-flex min-h-9 items-center gap-2 text-[15px] text-white/85 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}
+                    >
+                      <span>Car Rental</span>
+                      <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+                    </Link>
+                  </div>
+                </div>
               </nav>
             </div>
           </div>
