@@ -239,7 +239,6 @@ if (!car) {
       <style jsx>{`
         .vehicle-page {--detail-text-50:#fafafa;--detail-bg-50:#fafafa;--detail-border-50:#fafafa;--detail-text-100:#f5f5f5;--detail-bg-100:#f5f5f5;--detail-border-100:#f5f5f5;--detail-text-200:#e5e5e5;--detail-bg-200:#e5e5e5;--detail-border-200:#e5e5e5;--detail-text-300:#d4d4d4;--detail-bg-300:#d4d4d4;--detail-border-300:#d4d4d4;--detail-text-400:#a3a3a3;--detail-bg-400:#a3a3a3;--detail-border-400:#a3a3a3;--detail-text-500:#737373;--detail-bg-500:#737373;--detail-border-500:#737373;--detail-text-600:#525252;--detail-bg-600:#525252;--detail-border-600:#525252;--detail-text-700:#404040;--detail-bg-700:#404040;--detail-border-700:#404040;--detail-text-800:#262626;--detail-bg-800:#262626;--detail-border-800:#262626;--detail-text-900:#171717;--detail-bg-900:#171717;--detail-border-900:#171717;--detail-text-950:#0a0a0a;--detail-bg-950:#0a0a0a;--detail-border-950:#0a0a0a;--detail-accent:#34d399;background:#050505;color:#f5f5f5;color-scheme:dark;}
         .vehicle-page[data-theme="light"] {--detail-text-50:#171717;--detail-bg-50:#171717;--detail-border-50:#171717;--detail-text-100:#171717;--detail-bg-100:#171717;--detail-border-100:#171717;--detail-text-200:#262626;--detail-bg-200:#171717;--detail-border-200:#171717;--detail-text-300:#404040;--detail-bg-300:#f5f5f5;--detail-border-300:#dedede;--detail-text-400:#5c5c5c;--detail-bg-400:#f5f5f5;--detail-border-400:#dedede;--detail-text-500:#666;--detail-bg-500:#f5f5f5;--detail-border-500:#dedede;--detail-text-600:#525252;--detail-bg-600:#f5f5f5;--detail-border-600:#dedede;--detail-text-700:#404040;--detail-bg-700:#f5f5f5;--detail-border-700:#dedede;--detail-text-800:#262626;--detail-bg-800:#f5f5f5;--detail-border-800:#dedede;--detail-text-900:#171717;--detail-bg-900:#f5f5f5;--detail-border-900:#dedede;--detail-text-950:#fafafa;--detail-bg-950:#ffffff;--detail-border-950:#dedede;--detail-accent:#047857;background:#ffffff;color:#171717;color-scheme:light;}
-        header { color-scheme:dark; }
       `}</style>
     </main>
   );
@@ -544,7 +543,7 @@ if (!car) {
 
   return (
     <main data-theme={theme} className="vehicle-page min-h-screen">
-      <header className="border-b border-neutral-900 bg-black/90">
+      <header className="border-b border-[var(--detail-border-300)] bg-[var(--detail-bg-950)] text-[color:var(--detail-text-100)] transition-colors">
         <div className="mx-auto max-w-7xl px-4">
           <div className="hidden h-[150px] grid-cols-[1fr_auto_1fr] items-center gap-4 sm:grid">
             <div className="flex items-center justify-start gap-3">
@@ -562,7 +561,7 @@ if (!car) {
 
               <a
                 href={`tel:${phone.replace(/[^+\\d]/g, "")}`}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition hover:border-white hover:bg-white/[0.08] hover:text-white"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--detail-border-300)] bg-[var(--detail-bg-950)] text-[color:var(--detail-text-100)] transition hover:bg-[var(--detail-bg-900)]"
                 aria-label="Call"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
@@ -574,7 +573,7 @@ if (!car) {
                 href="https://www.instagram.com/availablehybridrm/"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition hover:border-white hover:bg-white/[0.08] hover:text-white"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--detail-border-300)] bg-[var(--detail-bg-950)] text-[color:var(--detail-text-100)] transition hover:bg-[var(--detail-bg-900)]"
                 aria-label="Instagram"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
@@ -599,7 +598,7 @@ if (!car) {
               <button
                 type="button"
                 onClick={() => setLanguageOpen(true)}
-                className={`${architectsDaughter.className} inline-flex min-h-9 items-center text-sm text-white/85 transition hover:text-white`}
+                className={`${architectsDaughter.className} inline-flex min-h-9 items-center text-sm text-[color:var(--detail-text-100)] transition hover:opacity-80`}
               >
                 {lang === "en" ? "Language" :
                  lang === "es" ? "Idioma" :
@@ -640,7 +639,7 @@ if (!car) {
 
                 <a
                   href={`tel:${phone.replace(/[^+\\d]/g, "")}`}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-white/80"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--detail-border-300)] text-[color:var(--detail-text-100)]"
                   aria-label="Call"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
@@ -652,7 +651,7 @@ if (!car) {
                   href="https://www.instagram.com/availablehybridrm/"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-white/80"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--detail-border-300)] text-[color:var(--detail-text-100)]"
                   aria-label="Instagram"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
@@ -666,7 +665,7 @@ if (!car) {
               <button
                 type="button"
                 onClick={() => setLanguageOpen(true)}
-                className={`${architectsDaughter.className} inline-flex min-h-8 items-center text-xs text-white/85`}
+                className={`${architectsDaughter.className} inline-flex min-h-8 items-center text-xs text-[color:var(--detail-text-100)]`}
               >
                 {lang === "en" ? "Language" :
                  lang === "es" ? "Idioma" :
@@ -1824,7 +1823,6 @@ if (!car) {
       <style jsx>{`
         .vehicle-page {--detail-text-50:#fafafa;--detail-bg-50:#fafafa;--detail-border-50:#fafafa;--detail-text-100:#f5f5f5;--detail-bg-100:#f5f5f5;--detail-border-100:#f5f5f5;--detail-text-200:#e5e5e5;--detail-bg-200:#e5e5e5;--detail-border-200:#e5e5e5;--detail-text-300:#d4d4d4;--detail-bg-300:#d4d4d4;--detail-border-300:#d4d4d4;--detail-text-400:#a3a3a3;--detail-bg-400:#a3a3a3;--detail-border-400:#a3a3a3;--detail-text-500:#737373;--detail-bg-500:#737373;--detail-border-500:#737373;--detail-text-600:#525252;--detail-bg-600:#525252;--detail-border-600:#525252;--detail-text-700:#404040;--detail-bg-700:#404040;--detail-border-700:#404040;--detail-text-800:#262626;--detail-bg-800:#262626;--detail-border-800:#262626;--detail-text-900:#171717;--detail-bg-900:#171717;--detail-border-900:#171717;--detail-text-950:#0a0a0a;--detail-bg-950:#0a0a0a;--detail-border-950:#0a0a0a;--detail-accent:#34d399;background:#050505;color:#f5f5f5;color-scheme:dark;}
         .vehicle-page[data-theme="light"] {--detail-text-50:#171717;--detail-bg-50:#171717;--detail-border-50:#171717;--detail-text-100:#171717;--detail-bg-100:#171717;--detail-border-100:#171717;--detail-text-200:#262626;--detail-bg-200:#171717;--detail-border-200:#171717;--detail-text-300:#404040;--detail-bg-300:#f5f5f5;--detail-border-300:#dedede;--detail-text-400:#5c5c5c;--detail-bg-400:#f5f5f5;--detail-border-400:#dedede;--detail-text-500:#666;--detail-bg-500:#f5f5f5;--detail-border-500:#dedede;--detail-text-600:#525252;--detail-bg-600:#f5f5f5;--detail-border-600:#dedede;--detail-text-700:#404040;--detail-bg-700:#f5f5f5;--detail-border-700:#dedede;--detail-text-800:#262626;--detail-bg-800:#f5f5f5;--detail-border-800:#dedede;--detail-text-900:#171717;--detail-bg-900:#f5f5f5;--detail-border-900:#dedede;--detail-text-950:#fafafa;--detail-bg-950:#ffffff;--detail-border-950:#dedede;--detail-accent:#047857;background:#ffffff;color:#171717;color-scheme:light;}
-        header { color-scheme:dark; }
       `}</style>
     </main>
   );
