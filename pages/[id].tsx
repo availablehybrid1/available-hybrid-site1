@@ -543,7 +543,7 @@ if (!car) {
 
   return (
     <main data-theme={theme} className="vehicle-page min-h-screen">
-      <header className="border-b border-[var(--detail-border-300)] bg-[var(--detail-bg-950)] text-[color:var(--detail-text-100)] transition-colors">
+      <header className="bg-[var(--detail-bg-950)] text-[color:var(--detail-text-100)] transition-colors">
         <div className="mx-auto max-w-7xl px-4">
           <div className="hidden h-[150px] grid-cols-[1fr_auto_1fr] items-center gap-4 sm:grid">
             <div className="flex items-center justify-start gap-3">
