@@ -131,6 +131,7 @@ export default function Inventory({ inventory }: InventoryProps) {
   // idioma EN / ES
   const [lang, setLang] = React.useState<"en" | "es">("en");
   const [sellOpen, setSellOpen] = React.useState(false);
+  const [languageOpen, setLanguageOpen] = React.useState(false);
 
   const text =
     lang === "en"
@@ -428,26 +429,45 @@ export default function Inventory({ inventory }: InventoryProps) {
             </Link>
 
             <div className="flex flex-col items-end gap-3">
-              <div
-                role="group"
-                aria-label={lang === "en" ? "Language" : "Idioma"}
-                className="inline-flex rounded-full border border-[var(--inv-border)] bg-[var(--inv-surface)] p-1"
-              >
-                {(["en", "es"] as const).map((option) => (
-                  <button
-                    key={option}
-                    type="button"
-                    aria-pressed={lang === option}
-                    onClick={() => setLang(option)}
-                    className={`inline-flex min-h-8 min-w-10 items-center justify-center rounded-full border px-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition-colors ${
-                      lang === option
-                        ? "border-[var(--inv-border-strong)] bg-[var(--inv-active)] text-[color:var(--inv-on-active)]"
-                        : "border-transparent text-[color:var(--inv-muted)] hover:bg-[var(--inv-hover)] hover:text-[color:var(--inv-heading)]"
-                    }`}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setLanguageOpen((open) => !open)}
+                  aria-expanded={languageOpen}
+                  aria-haspopup="menu"
+                  className={`${architectsDaughter.className} inline-flex min-h-9 items-center gap-2 text-sm text-white/85 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+                >
+                  <span>Language</span>
+                  <span aria-hidden="true">⌄</span>
+                </button>
+
+                {languageOpen && (
+                  <div
+                    role="menu"
+                    className="absolute right-0 top-full z-40 mt-2 min-w-40 overflow-hidden rounded-xl border border-white/15 bg-neutral-950 py-1 shadow-2xl"
                   >
-                    {option.toUpperCase()}
-                  </button>
-                ))}
+                    <button
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={lang === "en"}
+                      onClick={() => { setLang("en"); setLanguageOpen(false); }}
+                      className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm text-white/85 hover:bg-white/10"
+                    >
+                      <span>English</span>
+                      {lang === "en" && <span aria-hidden="true">✓</span>}
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={lang === "es"}
+                      onClick={() => { setLang("es"); setLanguageOpen(false); }}
+                      className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm text-white/85 hover:bg-white/10"
+                    >
+                      <span>Español</span>
+                      {lang === "es" && <span aria-hidden="true">✓</span>}
+                    </button>
+                  </div>
+                )}
               </div>
 
               <button
@@ -509,26 +529,45 @@ export default function Inventory({ inventory }: InventoryProps) {
               </div>
 
               <div className="flex flex-col items-end gap-2">
-                <div
-                  role="group"
-                  aria-label={lang === "en" ? "Language" : "Idioma"}
-                  className="inline-flex rounded-full border border-[var(--inv-border)] bg-[var(--inv-surface)] p-1"
-                >
-                  {(["en", "es"] as const).map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      aria-pressed={lang === option}
-                      onClick={() => setLang(option)}
-                      className={`inline-flex min-h-8 min-w-9 items-center justify-center rounded-full border px-2 text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors ${
-                        lang === option
-                          ? "border-[var(--inv-border-strong)] bg-[var(--inv-active)] text-[color:var(--inv-on-active)]"
-                          : "border-transparent text-[color:var(--inv-muted)]"
-                      }`}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setLanguageOpen((open) => !open)}
+                    aria-expanded={languageOpen}
+                    aria-haspopup="menu"
+                    className={`${architectsDaughter.className} inline-flex min-h-8 items-center gap-1.5 text-xs text-white/85 transition hover:text-white`}
+                  >
+                    <span>Language</span>
+                    <span aria-hidden="true">⌄</span>
+                  </button>
+
+                  {languageOpen && (
+                    <div
+                      role="menu"
+                      className="absolute right-0 top-full z-40 mt-2 min-w-36 overflow-hidden rounded-xl border border-white/15 bg-neutral-950 py-1 shadow-2xl"
                     >
-                      {option.toUpperCase()}
-                    </button>
-                  ))}
+                      <button
+                        type="button"
+                        role="menuitemradio"
+                        aria-checked={lang === "en"}
+                        onClick={() => { setLang("en"); setLanguageOpen(false); }}
+                        className="flex w-full items-center justify-between px-4 py-2.5 text-left text-xs text-white/85 hover:bg-white/10"
+                      >
+                        <span>English</span>
+                        {lang === "en" && <span aria-hidden="true">✓</span>}
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitemradio"
+                        aria-checked={lang === "es"}
+                        onClick={() => { setLang("es"); setLanguageOpen(false); }}
+                        className="flex w-full items-center justify-between px-4 py-2.5 text-left text-xs text-white/85 hover:bg-white/10"
+                      >
+                        <span>Español</span>
+                        {lang === "es" && <span aria-hidden="true">✓</span>}
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <button
