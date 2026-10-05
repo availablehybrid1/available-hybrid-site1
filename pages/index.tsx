@@ -238,7 +238,7 @@ export default function Home() {
               </p>
               <nav
                 aria-label={lang === "EN" ? "Explore our services" : "Explora nuestros servicios"}
-                className="mt-6 grid max-w-[22rem] grid-cols-2 items-center gap-x-5 gap-y-3 sm:mt-9 sm:flex sm:max-w-none sm:flex-wrap sm:gap-x-8 sm:gap-y-4"
+                className="mt-6 flex max-w-[22rem] flex-col items-start gap-3 sm:mt-9 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-4"
               >
                 <Link
                   href="/inventory"
@@ -263,13 +263,6 @@ export default function Home() {
                   <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
                 </Link>
 
-                <Link
-                  href="/sold"
-                  className={`${architectsDaughter.className} group inline-flex min-h-11 items-center gap-2 text-[15px] text-white/90 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:hidden`}
-                >
-                  <span>{t.ctaSold}</span>
-                  <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
-                </Link>
               </nav>
             </div>
           </div>
@@ -279,7 +272,7 @@ export default function Home() {
         <footer className="bg-black">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-7 text-sm text-white/65 sm:py-10 sm:text-base sm:text-white/70">
             <span className="max-w-[17rem] sm:max-w-none">{t.footerAddress}</span>
-            <Link href="/sold" className="hidden min-h-10 shrink-0 items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-medium text-white/80 transition hover:border-white/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:inline-flex">
+            <Link href="/sold" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-medium text-white/80 transition hover:border-white/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
               {t.ctaSold}
               <span aria-hidden="true">→</span>
             </Link>
