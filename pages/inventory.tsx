@@ -427,13 +427,22 @@ export default function Inventory({ inventory }: InventoryProps) {
               </div>
             </Link>
 
-            <div className="flex items-center justify-end gap-3">
+            <div className="flex flex-col items-end gap-3">
               <button
                 type="button"
                 onClick={() => setLang(lang === "en" ? "es" : "en")}
                 className="rounded-full border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-200 hover:border-neutral-300 hover:bg-neutral-800"
               >
                 {lang === "en" ? "ES" : "EN"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSellOpen(true)}
+                className={`${architectsDaughter.className} inline-flex min-h-9 items-center gap-2 text-sm text-white/85 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+              >
+                <span>{lang === "en" ? "Sell Your Car" : "Vende Tu Auto"}</span>
+                <span aria-hidden="true">→</span>
               </button>
             </div>
           </div>
@@ -485,13 +494,22 @@ export default function Inventory({ inventory }: InventoryProps) {
                 </a>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col items-end gap-2">
                 <button
                   type="button"
                   onClick={() => setLang(lang === "en" ? "es" : "en")}
                   className="rounded-full border border-neutral-700 bg-neutral-900 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-200"
                 >
                   {lang === "en" ? "ES" : "EN"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSellOpen(true)}
+                  className={`${architectsDaughter.className} inline-flex min-h-8 items-center gap-1.5 text-xs text-white/85 transition hover:text-white`}
+                >
+                  <span>{lang === "en" ? "Sell Your Car" : "Vende Tu Auto"}</span>
+                  <span aria-hidden="true">→</span>
                 </button>
               </div>
             </div>
@@ -577,31 +595,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                 >
                   <span>{text.sort}</span><span aria-hidden="true">⌄</span>
                 </button>
-                <footer className="mt-14 border-t border-[var(--inv-border)] bg-[var(--inv-page)]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-7 text-sm text-[color:var(--inv-muted)] sm:py-10">
-          <div className="flex max-w-[18rem] flex-col items-start gap-3 sm:max-w-none">
-            <button
-              type="button"
-              onClick={() => setSellOpen(true)}
-              className={`${architectsDaughter.className} inline-flex min-h-9 items-center gap-2 text-sm text-[color:var(--inv-heading)] transition hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current`}
-            >
-              <span>{lang === "en" ? "Sell Your Car" : "Vende Tu Auto"}</span>
-              <span aria-hidden="true">→</span>
-            </button>
-            <span>6726 Reseda Blvd Unit A7, Reseda, CA 91335</span>
-          </div>
-
-          <Link
-            href="/sold"
-            className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-[var(--inv-border)] px-4 py-2 text-xs font-medium text-[color:var(--inv-secondary)] transition hover:border-[var(--inv-border-hover)] hover:text-[color:var(--inv-heading)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
-          >
-            {lang === "en" ? "Sold" : "Vendidos"}
-            <span aria-hidden="true">→</span>
-          </Link>
-        </div>
-      </footer>
-
-      {isSortOpen && (
+                {isSortOpen && (
                   <div role="menu" className="absolute right-0 top-full mt-2 max-h-[60vh] w-52 overflow-y-auto rounded-xl border border-[var(--inv-border-strong)] bg-[var(--inv-surface)] py-1 shadow-2xl">
                     <button type="button" role="menuitemradio" aria-checked={sortBy === "priceDesc"} onClick={() => { setSortBy("priceDesc"); setIsSortOpen(false); }} className={`flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left text-xs hover:bg-[var(--inv-hover)] ${sortBy === "priceDesc" ? "text-[color:var(--inv-heading)]" : "text-[color:var(--inv-secondary)]"}`}>
                       <span>{text.sortHighestPrice}</span>{sortBy === "priceDesc" && <span aria-hidden="true">✓</span>}
