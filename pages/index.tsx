@@ -192,7 +192,6 @@ export default function Home() {
                 className={`${architectsDaughter.className} inline-flex min-h-9 items-center gap-2 text-sm text-white/85 transition hover:text-white`}
               >
                 <span>{t.language}</span>
-                <span aria-hidden="true">→</span>
               </button>
             </div>
           </div>
@@ -235,7 +234,6 @@ export default function Home() {
                   className={`${architectsDaughter.className} inline-flex min-h-8 items-center gap-1.5 text-xs text-white/85`}
                 >
                   <span>{t.language}</span>
-                  <span aria-hidden="true">→</span>
                 </button>
               </div>
             </div>
@@ -318,7 +316,6 @@ export default function Home() {
             </div>
             <Link href="/sold" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-medium text-white/80 transition hover:border-white/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
               {t.ctaSold}
-              <span aria-hidden="true">→</span>
             </Link>
           </div>
         </footer>
@@ -352,7 +349,7 @@ export default function Home() {
                   className="flex min-h-12 items-center justify-between rounded-xl border border-white/15 bg-white/[0.04] px-4 py-3 text-left text-sm text-white transition hover:border-white/30 hover:bg-white/[0.08]"
                 >
                   <span>{option.label}</span>
-                  {lang === option.code ? <span aria-hidden="true">✓</span> : <span aria-hidden="true">→</span>}
+                  {lang === option.code ? <span aria-hidden="true">✓</span> :}
                 </button>
               ))}
             </div>
