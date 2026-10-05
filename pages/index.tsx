@@ -363,7 +363,7 @@ export default function Home() {
       <SellYourCarModal
         open={sellOpen}
         onClose={() => setSellOpen(false)}
-        lang={lang === "es" ? "es" : "en"}
+        lang={lang}
       />
 
       <ServiceModal
