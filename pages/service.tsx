@@ -101,6 +101,7 @@ export default function ServicePage() {
   const [loading, setLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
   const [error, setError] = React.useState("");
+  const [serviceType, setServiceType] = React.useState("");
 
   React.useEffect(() => {
     if (typeof window === "undefined") return;
@@ -116,6 +117,29 @@ export default function ServicePage() {
   }, [lang]);
 
   const t = copy[lang];
+
+  function formatLocalDate(date: Date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  const today = formatLocalDate(new Date());
+  const requiresLeadTime = ![
+    "Diagnostic",
+    "Oil Change",
+    "General Maintenance",
+  ].includes(serviceType);
+
+  const leadTimeDate = (() => {
+    const date = new Date();
+    date.setHours(12, 0, 0, 0);
+    date.setDate(date.getDate() + 5);
+    return formatLocalDate(date);
+  })();
+
+  const minimumDate = serviceType && requiresLeadTime ? leadTimeDate : today;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -153,6 +177,7 @@ export default function ServicePage() {
 
       setSuccess(true);
       form.reset();
+      setServiceType("");
     } catch {
       setError(t.error);
     } finally {
@@ -319,8 +344,9 @@ export default function ServicePage() {
                   id="service"
                   name="service"
                   required
+                  value={serviceType}
+                  onChange={(e) => setServiceType(e.target.value)}
                   className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none focus:border-white/30"
-                  defaultValue=""
                 >
                   <option value="" disabled>
                     {t.selectService}
@@ -366,8 +392,15 @@ export default function ServicePage() {
     name="date"
     type="date"
     required
-    min={new Date().toISOString().split("T")[0]}
+    min={minimumDate}
 className="w-full rounded-xl border border-white/10 bg-white text-black px-4 py-3 outline-none"  />
+  {serviceType && requiresLeadTime && (
+    <p className="mt-1.5 text-xs text-white/45">
+      {lang === "EN"
+        ? "This service requires at least 4 days of advance notice."
+        : "Este servicio requiere al menos 4 días de anticipación."}
+    </p>
+  )}
 </div>
               <div>
   <label
