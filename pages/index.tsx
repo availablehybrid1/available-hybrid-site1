@@ -263,7 +263,6 @@ export default function Home() {
         <footer className="bg-black">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-7 text-sm text-white/65 sm:py-10 sm:text-base sm:text-white/70">
             <div className="flex max-w-[18rem] flex-col items-start gap-3 sm:max-w-none">
-              <span>{t.footerAddress}</span>
               <button
                 type="button"
                 onClick={() => setSellOpen(true)}
@@ -272,6 +271,7 @@ export default function Home() {
                 <span>{lang === "EN" ? "Sell Your Car" : "Vende Tu Auto"}</span>
                 <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
               </button>
+              <span>{t.footerAddress}</span>
             </div>
             <Link href="/sold" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-medium text-white/80 transition hover:border-white/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
               {t.ctaSold}
