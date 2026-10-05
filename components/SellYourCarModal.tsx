@@ -1,42 +1,16 @@
 import * as React from "react";
 
-type SellYourCarModalProps = {
+type Props = {
   open: boolean;
   onClose: () => void;
   lang: "en" | "es";
   whatsappDigits?: string;
 };
 
-type FormState = {
-  name: string;
-  phone: string;
-  email: string;
-  year: string;
-  make: string;
-  model: string;
-  mileage: string;
-  vin: string;
-  titleStatus: string;
-  condition: string;
-  askingPrice: string;
-  payoff: string;
-  notes: string;
-};
-
-const emptyForm: FormState = {
-  name: "",
-  phone: "",
-  email: "",
-  year: "",
-  make: "",
-  model: "",
-  mileage: "",
-  vin: "",
-  titleStatus: "",
-  condition: "",
-  askingPrice: "",
-  payoff: "",
-  notes: "",
+type Estimate = {
+  low: number;
+  high: number;
+  marketPrice: number;
 };
 
 export default function SellYourCarModal({
@@ -44,90 +18,123 @@ export default function SellYourCarModal({
   onClose,
   lang,
   whatsappDigits = "17473544098",
-}: SellYourCarModalProps) {
-  const [form, setForm] = React.useState<FormState>(emptyForm);
+}: Props) {
+  const isEN = lang === "en";
+  const [step, setStep] = React.useState(1);
+  const [vin, setVin] = React.useState("");
+  const [mileage, setMileage] = React.useState("");
+  const [titleStatus, setTitleStatus] = React.useState("clean");
+  const [condition, setCondition] = React.useState("good");
+  const [name, setName] = React.useState("");
+  const [phone, setPhone] = React.useState("");
+  const [estimate, setEstimate] = React.useState<Estimate | null>(null);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState("");
 
   React.useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [open]);
-
-  React.useEffect(() => {
-    if (!open) return;
-    const handler = (event: KeyboardEvent) => {
+    const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
   }, [open, onClose]);
+
+  React.useEffect(() => {
+    if (!open) {
+      setStep(1);
+      setEstimate(null);
+      setError("");
+    }
+  }, [open]);
 
   if (!open) return null;
 
-  const isEN = lang === "en";
-  const update = (key: keyof FormState) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => setForm((prev) => ({ ...prev, [key]: e.target.value }));
+  const field =
+    "w-full rounded-xl border border-white/15 bg-white/[0.05] px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-white/40";
+  const select =
+    "w-full rounded-xl border border-white/15 bg-neutral-900 px-4 py-3 text-sm text-white outline-none focus:border-white/40";
+  const cleanVin = vin.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, "");
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
+  async function getEstimate() {
+    const miles = Number(mileage.replace(/[^0-9]/g, ""));
+
+    if (cleanVin.length !== 17) {
+      setError(isEN ? "Enter a valid 17-character VIN." : "Ingresa un VIN válido de 17 caracteres.");
+      return;
+    }
+    if (!miles || miles < 1) {
+      setError(isEN ? "Enter the current mileage." : "Ingresa las millas actuales.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/vehicle-estimate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vin: cleanVin, mileage: miles, titleStatus, condition }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "Estimate unavailable");
+
+      setEstimate({
+        low: Number(data.low),
+        high: Number(data.high),
+        marketPrice: Number(data.marketPrice),
+      });
+      setStep(3);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : isEN
+          ? "We couldn't calculate an estimate right now."
+          : "No pudimos calcular el estimado en este momento."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function sendFinalOffer() {
+    if (!estimate || !name.trim() || !phone.trim()) return;
+    const miles = Number(mileage.replace(/[^0-9]/g, ""));
     const lines = [
-      isEN ? "Hi, I would like to sell my vehicle." : "Hola, me gustaría vender mi vehículo.",
+      isEN ? "Hi, I would like a final offer for my vehicle." : "Hola, quisiera una oferta final por mi vehículo.",
       "",
-      isEN ? "SELLER INFORMATION" : "INFORMACIÓN DEL VENDEDOR",
-      `${isEN ? "Name" : "Nombre"}: ${form.name || "-"}`,
-      `${isEN ? "Phone" : "Teléfono"}: ${form.phone || "-"}`,
-      `Email: ${form.email || "-"}`,
+      "VIN: " + cleanVin,
+      (isEN ? "Mileage: " : "Millas: ") + miles.toLocaleString(),
+      (isEN ? "Title: " : "Título: ") + titleStatus,
+      (isEN ? "Condition: " : "Condición: ") + condition,
+      (isEN ? "Online estimate: $" : "Estimado online: $") +
+        estimate.low.toLocaleString() + " – $" + estimate.high.toLocaleString(),
       "",
-      isEN ? "VEHICLE INFORMATION" : "INFORMACIÓN DEL VEHÍCULO",
-      `${isEN ? "Year" : "Año"}: ${form.year || "-"}`,
-      `${isEN ? "Make" : "Marca"}: ${form.make || "-"}`,
-      `${isEN ? "Model" : "Modelo"}: ${form.model || "-"}`,
-      `${isEN ? "Mileage" : "Millas"}: ${form.mileage || "-"}`,
-      `VIN: ${form.vin || "-"}`,
-      `${isEN ? "Title status" : "Título"}: ${form.titleStatus || "-"}`,
-      `${isEN ? "Condition" : "Condición"}: ${form.condition || "-"}`,
-      `${isEN ? "Asking price" : "Precio solicitado"}: ${form.askingPrice || "-"}`,
-      `${isEN ? "Loan / payoff" : "Saldo de préstamo"}: ${form.payoff || "-"}`,
-      `${isEN ? "Notes" : "Notas"}: ${form.notes || "-"}`,
+      (isEN ? "Name: " : "Nombre: ") + name,
+      (isEN ? "Phone: " : "Teléfono: ") + phone,
       "",
       isEN
-        ? "I can send vehicle photos here on WhatsApp."
-        : "Puedo enviar las fotos del vehículo por este WhatsApp.",
+        ? "I understand this is a preliminary estimate and the final offer is subject to inspection and verification."
+        : "Entiendo que este es un estimado preliminar y la oferta final está sujeta a inspección y verificación.",
     ];
 
     window.open(
-      `https://wa.me/${whatsappDigits}?text=${encodeURIComponent(lines.join("\n"))}`,
+      "https://wa.me/" + whatsappDigits + "?text=" + encodeURIComponent(lines.join("\n")),
       "_blank",
       "noopener,noreferrer"
     );
-  };
-
-  const fieldClass =
-    "mt-1.5 w-full rounded-xl border border-white/15 bg-white/[0.05] px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/35 focus:border-white/45";
-
-  const yearOptions = Array.from({ length: 48 }, (_, index) => String(2027 - index));
-  const makeOptions = [
-    "Acura", "Audi", "BMW", "Buick", "Cadillac", "Chevrolet", "Chrysler",
-    "Dodge", "Ford", "Genesis", "GMC", "Honda", "Hyundai", "Infiniti",
-    "Jeep", "Kia", "Lexus", "Lincoln", "Mazda", "Mercedes-Benz", "MINI",
-    "Mitsubishi", "Nissan", "Porsche", "Ram", "Subaru", "Tesla", "Toyota",
-    "Volkswagen", "Volvo"
-  ];
-  const titleOptions = isEN
-    ? ["Clean", "Salvage", "Rebuilt", "Lien", "Other"]
-    : ["Limpio", "Salvage", "Rebuilt", "Con préstamo / lien", "Otro"];
-  const conditionOptions = isEN
-    ? ["Excellent", "Good", "Fair", "Needs repairs", "Not running"]
-    : ["Excelente", "Buena", "Regular", "Necesita reparaciones", "No enciende"];
-  const labelClass = "text-xs font-medium text-white/70";
+  }
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/75 px-4 py-6 backdrop-blur-sm sm:py-10"
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/75 px-4 py-6 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-label={isEN ? "Sell your car" : "Vende tu auto"}
@@ -135,172 +142,164 @@ export default function SellYourCarModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="w-full max-w-3xl overflow-hidden rounded-3xl border border-white/15 bg-neutral-950 shadow-2xl">
-        <div className="flex items-start justify-between border-b border-white/10 px-5 py-4 sm:px-7">
+      <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-white/15 bg-neutral-950 shadow-2xl">
+        <div className="flex items-start justify-between border-b border-white/10 px-5 py-5 sm:px-7">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-white/45">
-              {isEN ? "Vehicle appraisal" : "Evaluación de vehículo"}
+              {isEN ? "Instant estimate" : "Estimado rápido"}
             </p>
             <h2 className="mt-1 text-2xl font-semibold text-white">
               {isEN ? "Sell Your Car" : "Vende Tu Auto"}
             </h2>
             <p className="mt-1 text-sm text-white/55">
               {isEN
-                ? "Complete the information below and send it directly to us on WhatsApp."
-                : "Completa la información y envíanosla directamente por WhatsApp."}
+                ? "Get a preliminary dealer offer range in just a few steps."
+                : "Recibe un rango preliminar de oferta en pocos pasos."}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/15 text-lg text-white/70 hover:border-white/35 hover:text-white"
-            aria-label={isEN ? "Close" : "Cerrar"}
           >
             ×
           </button>
         </div>
 
-        <form onSubmit={submit} className="space-y-6 px-5 py-5 sm:px-7 sm:py-6">
-          <section>
-            <h3 className="text-sm font-semibold text-white">
-              {isEN ? "Your information" : "Tu información"}
-            </h3>
-            <div className="mt-3 grid gap-4 sm:grid-cols-3">
-              <label className={labelClass}>
-                {isEN ? "Name" : "Nombre"} *
-                <input required value={form.name} onChange={update("name")} className={fieldClass} />
-              </label>
-              <label className={labelClass}>
-                {isEN ? "Phone" : "Teléfono"} *
-                <input required value={form.phone} onChange={update("phone")} inputMode="tel" className={fieldClass} />
-              </label>
-              <label className={labelClass}>
-                Email
-                <input value={form.email} onChange={update("email")} type="email" className={fieldClass} />
-              </label>
-            </div>
-          </section>
-
-          <section>
-            <h3 className="text-sm font-semibold text-white">
-              {isEN ? "Vehicle details" : "Datos del vehículo"}
-            </h3>
-            <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <label className={labelClass}>
-                {isEN ? "Year" : "Año"} *
-                <input
-                  required
-                  list="sell-car-years"
-                  value={form.year}
-                  onChange={update("year")}
-                  inputMode="numeric"
-                  placeholder={isEN ? "Select or type year" : "Selecciona o escribe el año"}
-                  className={fieldClass}
-                />
-                <datalist id="sell-car-years">
-                  {yearOptions.map((year) => <option key={year} value={year} />)}
-                </datalist>
-              </label>
-              <label className={labelClass}>
-                {isEN ? "Make" : "Marca"} *
-                <input
-                  required
-                  list="sell-car-makes"
-                  value={form.make}
-                  onChange={update("make")}
-                  placeholder={isEN ? "Select or type make" : "Selecciona o escribe la marca"}
-                  className={fieldClass}
-                />
-                <datalist id="sell-car-makes">
-                  {makeOptions.map((make) => <option key={make} value={make} />)}
-                </datalist>
-              </label>
-              <label className={labelClass}>
-                {isEN ? "Model" : "Modelo"} *
-                <input
-                  required
-                  value={form.model}
-                  onChange={update("model")}
-                  placeholder={isEN ? "Type model" : "Escribe el modelo"}
-                  className={fieldClass}
-                />
-              </label>
-              <label className={labelClass}>
-                {isEN ? "Mileage" : "Millas"} *
-                <input required value={form.mileage} onChange={update("mileage")} inputMode="numeric" className={fieldClass} />
-              </label>
-              <label className={labelClass}>
-                VIN
-                <input value={form.vin} onChange={update("vin")} maxLength={17} className={fieldClass} />
-              </label>
-              <label className={labelClass}>
-                {isEN ? "Title status" : "Estado del título"} *
-                <input
-                  required
-                  list="sell-car-title-status"
-                  value={form.titleStatus}
-                  onChange={update("titleStatus")}
-                  placeholder={isEN ? "Select or type" : "Selecciona o escribe"}
-                  className={fieldClass}
-                />
-                <datalist id="sell-car-title-status">
-                  {titleOptions.map((option) => <option key={option} value={option} />)}
-                </datalist>
-              </label>
-              <label className={labelClass}>
-                {isEN ? "Vehicle condition" : "Condición"} *
-                <input
-                  required
-                  list="sell-car-condition"
-                  value={form.condition}
-                  onChange={update("condition")}
-                  placeholder={isEN ? "Select or describe" : "Selecciona o describe"}
-                  className={fieldClass}
-                />
-                <datalist id="sell-car-condition">
-                  {conditionOptions.map((option) => <option key={option} value={option} />)}
-                </datalist>
-              </label>
-              <label className={labelClass}>
-                {isEN ? "Asking price" : "Precio solicitado"}
-                <input value={form.askingPrice} onChange={update("askingPrice")} inputMode="numeric" placeholder="$" className={fieldClass} />
-              </label>
-              <label className={labelClass}>
-                {isEN ? "Loan / payoff balance" : "Saldo de préstamo"}
-                <input value={form.payoff} onChange={update("payoff")} inputMode="numeric" placeholder="$" className={fieldClass} />
-              </label>
-            </div>
-          </section>
-
-          <label className={labelClass}>
-            {isEN ? "Additional details" : "Detalles adicionales"}
-            <textarea
-              value={form.notes}
-              onChange={update("notes")}
-              rows={4}
-              placeholder={
-                isEN
-                  ? "Mechanical issues, cosmetic damage, recent repairs, options, etc."
-                  : "Problemas mecánicos, daños, reparaciones recientes, equipamiento, etc."
-              }
-              className={fieldClass}
-            />
-          </label>
-
-          <div className="flex flex-col gap-3 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs leading-5 text-white/45">
-              {isEN
-                ? "After submitting, WhatsApp will open with all the information. You can send photos there."
-                : "Al enviar, WhatsApp abrirá con toda la información. Allí podrás enviar las fotos."}
-            </p>
-            <button
-              type="submit"
-              className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-white px-6 text-sm font-semibold text-black transition hover:bg-white/90"
-            >
-              {isEN ? "Send Vehicle Info" : "Enviar Información"}
-            </button>
+        <div className="px-5 py-5 sm:px-7 sm:py-6">
+          <div className="mb-5 flex gap-2">
+            {[1, 2, 3].map((number) => (
+              <div
+                key={number}
+                className={"h-1 flex-1 rounded-full " + (number <= step ? "bg-white" : "bg-white/15")}
+              />
+            ))}
           </div>
-        </form>
+
+          {step === 1 && (
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-white/70">VIN</label>
+                <input
+                  value={vin}
+                  onChange={(e) => setVin(e.target.value.toUpperCase())}
+                  maxLength={17}
+                  placeholder="17-character VIN"
+                  className={field}
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-white/70">
+                  {isEN ? "Current mileage" : "Millas actuales"}
+                </label>
+                <input
+                  value={mileage}
+                  onChange={(e) => setMileage(e.target.value.replace(/[^0-9]/g, ""))}
+                  inputMode="numeric"
+                  placeholder="85000"
+                  className={field}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (cleanVin.length !== 17 || !Number(mileage)) {
+                    setError(isEN ? "Enter VIN and mileage to continue." : "Ingresa VIN y millas para continuar.");
+                    return;
+                  }
+                  setError("");
+                  setStep(2);
+                }}
+                className="inline-flex w-full items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-white/90"
+              >
+                {isEN ? "Continue" : "Continuar"}
+              </button>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-white/70">
+                  {isEN ? "Title status" : "Estado del título"}
+                </label>
+                <select value={titleStatus} onChange={(e) => setTitleStatus(e.target.value)} className={select}>
+                  <option value="clean">{isEN ? "Clean title" : "Título limpio"}</option>
+                  <option value="rebuilt">Rebuilt</option>
+                  <option value="salvage">Salvage</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-white/70">
+                  {isEN ? "Vehicle condition" : "Condición del vehículo"}
+                </label>
+                <select value={condition} onChange={(e) => setCondition(e.target.value)} className={select}>
+                  <option value="excellent">{isEN ? "Excellent — no known issues" : "Excelente — sin problemas conocidos"}</option>
+                  <option value="good">{isEN ? "Good — normal wear, drives well" : "Buena — desgaste normal, maneja bien"}</option>
+                  <option value="fair">{isEN ? "Fair — minor issues" : "Regular — detalles menores"}</option>
+                  <option value="needs_repair">{isEN ? "Needs repairs" : "Necesita reparaciones"}</option>
+                  <option value="not_running">{isEN ? "Not running" : "No enciende / no maneja"}</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-white/15 px-4 text-sm text-white/75 hover:border-white/30 hover:text-white"
+                >
+                  {isEN ? "Back" : "Atrás"}
+                </button>
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={getEstimate}
+                  className="inline-flex min-h-11 flex-[2] items-center justify-center rounded-xl bg-white px-5 text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-60"
+                >
+                  {loading
+                    ? isEN ? "Calculating..." : "Calculando..."
+                    : isEN ? "See Estimate" : "Ver estimado"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && estimate && (
+            <div>
+              <div className="rounded-2xl border border-white/15 bg-white/[0.04] px-5 py-6 text-center">
+                <p className="text-xs uppercase tracking-[0.18em] text-white/45">
+                  {isEN ? "Estimated dealer offer" : "Oferta estimada del dealer"}
+                </p>
+                <p className="mt-3 text-3xl font-semibold text-white">
+                  {"$" + estimate.low.toLocaleString() + " – $" + estimate.high.toLocaleString()}
+                </p>
+                <p className="mt-3 text-xs leading-5 text-white/45">
+                  {isEN
+                    ? "Preliminary estimate only. Final value depends on inspection, vehicle history and verification."
+                    : "Estimado preliminar. El valor final depende de inspección, historial y verificación."}
+                </p>
+              </div>
+
+              <div className="mt-5 space-y-3">
+                <p className="text-sm font-medium text-white">
+                  {isEN ? "Want a final offer?" : "¿Quieres una oferta final?"}
+                </p>
+                <input value={name} onChange={(e) => setName(e.target.value)} placeholder={isEN ? "Your name" : "Tu nombre"} className={field} />
+                <input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" placeholder={isEN ? "Phone number" : "Número de teléfono"} className={field} />
+                <button
+                  type="button"
+                  disabled={!name.trim() || !phone.trim()}
+                  onClick={sendFinalOffer}
+                  className="inline-flex w-full items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {isEN ? "Get Final Offer" : "Obtener oferta final"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+        </div>
       </div>
     </div>
   );
