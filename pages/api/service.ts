@@ -46,10 +46,10 @@ export default async function handler(
     return res.status(400).json({ ok: false, msg: "Missing required fields" });
   }
 
-  const isEN = language === "EN";
+  const isES = language === "ES" || language === "es";
   const safe = (v: any) => (v ? String(v) : "-");
 
-  const summary = isEN
+  const summary = !isES
     ? `📩 NEW SERVICE REQUEST
 
 👤 Name: ${safe(name)}
