@@ -500,6 +500,9 @@ function inventoryKeyboard(vehicle: StoredVehicle) {
             { text: "🖼 Hover", callback_data: `pickhover:${vehicle.id}` },
           ],
           [
+            { text: "📸 Replace Photos", callback_data: `replacephotos:${vehicle.id}` },
+          ],
+          [
             { text: "🗑 Delete", callback_data: `delete:${vehicle.id}` },
           ],
         ],
@@ -966,6 +969,45 @@ async function handleCallback(query: TelegramCallbackQuery) {
   }
 
 
+  if (query.data?.startsWith("replacephotos:")) {
+    const id = query.data.slice("replacephotos:".length);
+    const vehicle = await getStoredVehicle(id);
+
+    if (!vehicle) {
+      await sendTelegramMessage(chatId, "Vehicle not found.");
+      return;
+    }
+
+    await deleteDraft(chatId);
+
+    const photoDraft: BotDraft = {
+      sessionId: `replace-${id}-${Date.now()}`,
+      step: "replacephotos",
+      editingVehicleId: id,
+      photos: [],
+    };
+
+    await saveDraft(chatId, photoDraft);
+
+    await sendTelegramMessage(
+      chatId,
+      [
+        "📸 <b>Replace vehicle photos</b>",
+        "",
+        `Vehicle: <b>${escapeHtml(
+          [vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(" ")
+        )}</b>`,
+        "",
+        "Send the new photos now.",
+        "The first photo will become the cover.",
+        "When finished, type /done.",
+        "",
+        "The vehicle details will not be changed.",
+      ].join("\n")
+    );
+    return;
+  }
+
   if (query.data?.startsWith("pickcover:")) {
     const id = query.data.slice("pickcover:".length);
     const vehicle = await getStoredVehicle(id);
@@ -1384,6 +1426,103 @@ async function handleMessage(message: TelegramMessage) {
     return;
   }
 
+
+
+  if (draft.step === "replacephotos") {
+    const id = draft.editingVehicleId;
+    if (!id) {
+      await deleteSessionPhotos(draft.photos || []);
+      await deleteDraft(chatId);
+      await sendTelegramMessage(chatId, "Photo replacement session expired. Use /inventory.");
+      return;
+    }
+
+    if (message.photo?.length) {
+      const largest = [...message.photo].sort(
+        (a, b) => (b.file_size || 0) - (a.file_size || 0)
+      )[0];
+
+      const uploadedUrl = await uploadTelegramPhoto(
+        draft.sessionId,
+        message.message_id,
+        largest
+      );
+
+      draft.photos = [...(draft.photos || []), uploadedUrl];
+      await saveDraft(chatId, draft);
+
+      await sendTelegramMessage(
+        chatId,
+        `Photo ${draft.photos.length} received. Send another photo or type /done.`
+      );
+      return;
+    }
+
+    if (text === "/done") {
+      const photos = draft.photos || [];
+      if (!photos.length) {
+        await sendTelegramMessage(
+          chatId,
+          "Send at least one new photo before /done."
+        );
+        return;
+      }
+
+      const vehicle = await getStoredVehicle(id);
+      if (!vehicle) {
+        await deleteSessionPhotos(photos);
+        await deleteDraft(chatId);
+        await sendTelegramMessage(chatId, "Vehicle not found.");
+        return;
+      }
+
+      const oldPhotos = storedVehiclePhotos(vehicle);
+
+      for (const key of Object.keys(vehicle)) {
+        if (/^photo\d+$/i.test(key)) delete vehicle[key];
+      }
+
+      photos.forEach((url, index) => {
+        vehicle[`photo${index + 1}`] = url;
+      });
+
+      vehicle.cardHoverPhoto = photos[1] || "none";
+      vehicle.studioCover = "";
+
+      await saveVehicle(vehicle);
+      await deleteDraft(chatId);
+
+      await Promise.all(
+        oldPhotos.map(async (url) => {
+          try {
+            await deleteR2PhotoByUrl(url);
+          } catch {
+            // Old photos may belong to the previous Blob store; ignore cleanup failures.
+          }
+        })
+      );
+
+      await sendTelegramMessage(
+        chatId,
+        [
+          "✅ <b>Photos replaced</b>",
+          "",
+          `${photos.length} new photo${photos.length === 1 ? "" : "s"} saved.`,
+          "The first photo is now the cover.",
+          photos.length > 1
+            ? "The second photo is now the hover photo."
+            : "Hover photo is disabled.",
+        ].join("\n")
+      );
+      return;
+    }
+
+    await sendTelegramMessage(
+      chatId,
+      "Send the new photos, then type /done when finished."
+    );
+    return;
+  }
 
 
   if (draft.step === "edit") {
