@@ -148,23 +148,12 @@ async function uploadTelegramPhoto(
   return blob.url;
 }
 
-async function listSessionPhotos(sessionId: string) {
-  const result = await list({
-    prefix: `inventory/photos/${sessionId}/`,
-    limit: 100,
-  });
-  return result.blobs
-    .sort((a, b) => a.pathname.localeCompare(b.pathname))
-    .map((b) => b.url);
-}
-
-async function deleteSessionPhotos(sessionId: string) {
-  const result = await list({
-    prefix: `inventory/photos/${sessionId}/`,
-    limit: 100,
-  });
-  if (result.blobs.length) {
-    await del(result.blobs.map((b) => b.url));
+async function deleteSessionPhotos(photoUrls: string[]) {
+  if (!photoUrls.length) return;
+  try {
+    await del(photoUrls);
+  } catch {
+    // Old Blob storage may be rate-limited. Draft cleanup must still continue.
   }
 }
 
@@ -806,7 +795,7 @@ async function handleCallback(query: TelegramCallbackQuery) {
       return;
     }
 
-    const photos = await listSessionPhotos(draft.sessionId);
+    const photos = draft.photos || [];
     if (
       !Number.isInteger(selectedIndex) ||
       selectedIndex < 0 ||
@@ -854,7 +843,7 @@ async function handleCallback(query: TelegramCallbackQuery) {
       return;
     }
 
-    const photos = await listSessionPhotos(draft.sessionId);
+    const photos = draft.photos || [];
     const selection = query.data.slice("hover:".length);
 
     if (selection === "none") {
@@ -1185,14 +1174,14 @@ async function handleCallback(query: TelegramCallbackQuery) {
   }
 
   if (query.data === "cancel") {
-    await deleteSessionPhotos(draft.sessionId);
+    await deleteSessionPhotos(draft.photos || []);
     await deleteDraft(chatId);
     await sendTelegramMessage(chatId, "Vehicle canceled.");
     return;
   }
 
   if (query.data === "publish") {
-    const photos = await listSessionPhotos(draft.sessionId);
+    const photos = draft.photos || [];
     if (!photos.length) {
       draft.step = "photos";
       await saveDraft(chatId, draft);
@@ -1355,7 +1344,7 @@ async function handleMessage(message: TelegramMessage) {
 
   if (text === "/cancel") {
     const draft = await getDraft(chatId);
-    if (draft) await deleteSessionPhotos(draft.sessionId);
+    if (draft) await deleteSessionPhotos(draft.photos || []);
     await deleteDraft(chatId);
     await sendTelegramMessage(chatId, "Current vehicle canceled.");
     return;
@@ -1696,12 +1685,18 @@ async function handleMessage(message: TelegramMessage) {
       const largest = [...message.photo].sort(
         (a, b) => (b.file_size || 0) - (a.file_size || 0)
       )[0];
-      await uploadTelegramPhoto(draft.sessionId, message.message_id, largest);
+      const uploadedUrl = await uploadTelegramPhoto(
+        draft.sessionId,
+        message.message_id,
+        largest
+      );
+      draft.photos = [...(draft.photos || []), uploadedUrl];
+      await saveDraft(chatId, draft);
       return;
     }
 
     if (text === "/done") {
-      const photos = await listSessionPhotos(draft.sessionId);
+      const photos = draft.photos || [];
       if (!photos.length) {
         await sendTelegramMessage(
           chatId,
@@ -1813,6 +1808,16 @@ export default async function handler(
       hasBotToken: Boolean(process.env.TELEGRAM_BOT_TOKEN),
       hasWebhookSecret: Boolean(process.env.TELEGRAM_WEBHOOK_SECRET),
       hasBlobToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+      hasRedisUrl: Boolean(
+        process.env.UPSTASH_REDIS_KV_REST_API_URL ||
+        process.env.UPSTASH_REDIS_REST_URL ||
+        process.env.KV_REST_API_URL
+      ),
+      hasRedisToken: Boolean(
+        process.env.UPSTASH_REDIS_KV_REST_API_TOKEN ||
+        process.env.UPSTASH_REDIS_REST_TOKEN ||
+        process.env.KV_REST_API_TOKEN
+      ),
     });
   }
 
