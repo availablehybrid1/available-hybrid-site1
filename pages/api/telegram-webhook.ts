@@ -1525,13 +1525,28 @@ async function handleMessage(message: TelegramMessage) {
         (a, b) => (b.file_size || 0) - (a.file_size || 0)
       )[0];
 
-      const uploadedUrl = await uploadTelegramPhoto(
+      const uploaded = await uploadTelegramPhoto(
         draft.sessionId,
         message.message_id,
         largest
       );
 
-      draft.photos = [...(draft.photos || []), uploadedUrl];
+      const hashes = draft.photoHashes || [];
+      if (hashes.includes(uploaded.sha256)) {
+        draft.pendingDuplicateUrl = uploaded.url;
+        draft.pendingDuplicateHash = uploaded.sha256;
+        await saveDraft(chatId, draft);
+
+        await sendTelegramMessage(
+          chatId,
+          "⚠️ This photo is already in the current set. What do you want to do?",
+          duplicatePhotoKeyboard()
+        );
+        return;
+      }
+
+      draft.photos = [...(draft.photos || []), uploaded.url];
+      draft.photoHashes = [...hashes, uploaded.sha256];
       await saveDraft(chatId, draft);
 
       return;
