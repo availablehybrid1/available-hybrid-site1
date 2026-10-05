@@ -428,7 +428,7 @@ export default function Inventory({ inventory }: InventoryProps) {
   return (
     <main data-theme={theme} className="min-h-screen bg-[var(--inv-page)] text-[color:var(--inv-text)] pb-16">
       {/* HEADER */}
-      <header className="border-b border-[var(--inv-border)] bg-[var(--inv-page)] text-[color:var(--inv-heading)] transition-colors">
+      <header className="bg-[var(--inv-page)] text-[color:var(--inv-heading)] transition-colors">
         <div className="mx-auto max-w-7xl px-4">
           {/* Desktop: contact icons left, centered logo, sell CTA right */}
           <div className="hidden min-h-[150px] grid-cols-[1fr_auto_1fr] items-center gap-4 sm:grid">
