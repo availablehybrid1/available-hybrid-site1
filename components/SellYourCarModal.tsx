@@ -149,18 +149,33 @@ export default function SellYourCarModal({
     >
       <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-white/15 bg-neutral-950 shadow-2xl">
         <div className="flex items-start justify-between border-b border-white/10 px-5 py-5 sm:px-7">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-white/45">
-              {isEN ? "Instant estimate" : "Estimado rápido"}
-            </p>
-            <h2 className="mt-1 text-2xl font-semibold text-white">
-              {isEN ? "Sell Your Car" : "Vende Tu Auto"}
-            </h2>
-            <p className="mt-1 text-sm text-white/55">
-              {isEN
-                ? "Get a preliminary dealer offer range in just a few steps."
-                : "Recibe un rango preliminar de oferta en pocos pasos."}
-            </p>
+          <div className="flex min-w-0 items-start gap-3">
+            {step > 1 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setError("");
+                  setStep((prev) => Math.max(1, prev - 1));
+                }}
+                className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/15 text-lg text-white/70 transition hover:border-white/35 hover:text-white"
+                aria-label={isEN ? "Back" : "Atrás"}
+              >
+                ←
+              </button>
+            )}
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-white/45">
+                {isEN ? "Instant estimate" : "Estimado rápido"}
+              </p>
+              <h2 className="mt-1 text-2xl font-semibold text-white">
+                {isEN ? "Sell Your Car" : "Vende Tu Auto"}
+              </h2>
+              <p className="mt-1 text-sm text-white/55">
+                {isEN
+                  ? "Get a preliminary dealer offer range in just a few steps."
+                  : "Recibe un rango preliminar de oferta en pocos pasos."}
+              </p>
+            </div>
           </div>
           <button
             type="button"
