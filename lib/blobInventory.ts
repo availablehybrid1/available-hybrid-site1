@@ -1,4 +1,5 @@
-import { del, list, put } from "@vercel/blob";
+import { Redis } from "@upstash/redis";
+import { del } from "@vercel/blob";
 
 export type BotDraft = {
   sessionId: string;
@@ -55,96 +56,85 @@ export type StoredVehicle = {
   [key: string]: string;
 };
 
-function draftPrefix(chatId: number | string) {
-  return `telegram/drafts/${chatId}/`;
+const VEHICLE_IDS_KEY = "available-hybrid:inventory:vehicle-ids";
+
+function redisClient() {
+  const url =
+    process.env.UPSTASH_REDIS_KV_REST_API_URL ||
+    process.env.UPSTASH_REDIS_REST_URL ||
+    process.env.KV_REST_API_URL;
+  const token =
+    process.env.UPSTASH_REDIS_KV_REST_API_TOKEN ||
+    process.env.UPSTASH_REDIS_REST_TOKEN ||
+    process.env.KV_REST_API_TOKEN;
+
+  if (!url || !token) {
+    throw new Error("Upstash Redis environment variables are not configured");
+  }
+
+  return new Redis({ url, token });
+}
+
+function draftKey(chatId: number | string) {
+  return `available-hybrid:draft:${chatId}`;
+}
+
+function vehicleKey(id: string) {
+  return `available-hybrid:vehicle:${id}`;
 }
 
 export async function saveDraft(
   chatId: number | string,
   draft: BotDraft
 ): Promise<void> {
-  const path = `${draftPrefix(chatId)}${Date.now()}.json`;
-  await put(path, JSON.stringify(draft), {
-    access: "public",
-    addRandomSuffix: true,
-    contentType: "application/json",
-    cacheControlMaxAge: 60,
-  });
+  const redis = redisClient();
+  await redis.set(draftKey(chatId), draft, { ex: 60 * 60 * 24 * 7 });
 }
 
 export async function getDraft(
   chatId: number | string
 ): Promise<BotDraft | null> {
-  const result = await list({ prefix: draftPrefix(chatId), limit: 100 });
-  const blob = [...result.blobs]
-    .filter((b) => b.pathname.endsWith(".json"))
-    .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())[0];
-
-  if (!blob) return null;
-
-  const res = await fetch(`${blob.url}?v=${Date.now()}`, {
-    cache: "no-store",
-  });
-  if (!res.ok) return null;
-  return (await res.json()) as BotDraft;
+  const redis = redisClient();
+  return (await redis.get<BotDraft>(draftKey(chatId))) ?? null;
 }
 
 export async function deleteDraft(chatId: number | string): Promise<void> {
-  const result = await list({ prefix: draftPrefix(chatId), limit: 100 });
-  if (result.blobs.length) {
-    await del(result.blobs.map((b) => b.url));
-  }
-}
-
-function vehiclePath(id: string) {
-  return `inventory/vehicles/${id}.json`;
+  const redis = redisClient();
+  await redis.del(draftKey(chatId));
 }
 
 export async function getStoredVehicle(
   id: string
 ): Promise<StoredVehicle | null> {
-  const result = await list({ prefix: vehiclePath(id), limit: 10 });
-  const blob = result.blobs.find((b) => b.pathname === vehiclePath(id));
-  if (!blob) return null;
-
-  try {
-    const res = await fetch(`${blob.url}?v=${Date.now()}`, {
-      cache: "no-store",
-    });
-    if (!res.ok) return null;
-    return (await res.json()) as StoredVehicle;
-  } catch {
-    return null;
-  }
+  const redis = redisClient();
+  return (await redis.get<StoredVehicle>(vehicleKey(id))) ?? null;
 }
 
 export async function saveVehicle(vehicle: StoredVehicle): Promise<void> {
-  const path = vehiclePath(vehicle.id);
-  const existing = await list({ prefix: path, limit: 10 });
-  const oldBlob = existing.blobs.find((b) => b.pathname === path);
-  if (oldBlob) await del(oldBlob.url);
-
-  await put(path, JSON.stringify(vehicle), {
-    access: "public",
-    addRandomSuffix: false,
-    contentType: "application/json",
-    cacheControlMaxAge: 60,
-  });
+  const redis = redisClient();
+  await Promise.all([
+    redis.set(vehicleKey(vehicle.id), vehicle),
+    redis.sadd(VEHICLE_IDS_KEY, vehicle.id),
+  ]);
 }
 
 export async function deleteStoredVehicle(
   id: string,
   deletePhotos = true
 ): Promise<boolean> {
+  const redis = redisClient();
   const vehicle = await getStoredVehicle(id);
-  const result = await list({ prefix: vehiclePath(id), limit: 10 });
-  const blob = result.blobs.find((b) => b.pathname === vehiclePath(id));
 
-  if (deletePhotos && vehicle) {
+  if (!vehicle) {
+    await redis.srem(VEHICLE_IDS_KEY, id);
+    return false;
+  }
+
+  if (deletePhotos) {
     const photoUrls = Object.entries(vehicle)
       .filter(
         ([key, value]) =>
-          key.toLowerCase().startsWith("photo") &&
+          /^photo\d+$/i.test(key) &&
           typeof value === "string" &&
           value.startsWith("http")
       )
@@ -154,34 +144,26 @@ export async function deleteStoredVehicle(
       try {
         await del(photoUrls);
       } catch {
-        // Keep deleting the inventory record even if an old photo is missing.
+        // Vehicle metadata must still be removable if the old Blob store is rate-limited.
       }
     }
   }
 
-  if (blob) {
-    await del(blob.url);
-    return true;
-  }
-  return false;
+  await Promise.all([
+    redis.del(vehicleKey(id)),
+    redis.srem(VEHICLE_IDS_KEY, id),
+  ]);
+  return true;
 }
 
 export async function listStoredVehicles(): Promise<StoredVehicle[]> {
-  const result = await list({ prefix: "inventory/vehicles/", limit: 1000 });
-  const vehicles: StoredVehicle[] = [];
+  const redis = redisClient();
+  const ids = await redis.smembers<string[]>(VEHICLE_IDS_KEY);
+  if (!ids?.length) return [];
 
-  for (const blob of result.blobs) {
-    if (!blob.pathname.endsWith(".json")) continue;
-    try {
-      const res = await fetch(`${blob.url}?v=${Date.now()}`, {
-        cache: "no-store",
-      });
-      if (!res.ok) continue;
-      vehicles.push((await res.json()) as StoredVehicle);
-    } catch {
-      // Ignore a malformed inventory blob and keep loading the rest.
-    }
-  }
+  const vehicles = await Promise.all(
+    ids.map((id) => redis.get<StoredVehicle>(vehicleKey(id)))
+  );
 
-  return vehicles;
+  return vehicles.filter((vehicle): vehicle is StoredVehicle => Boolean(vehicle?.id));
 }
