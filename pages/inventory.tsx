@@ -428,7 +428,7 @@ export default function Inventory({ inventory }: InventoryProps) {
   return (
     <main data-theme={theme} className="min-h-screen bg-[var(--inv-page)] text-[color:var(--inv-text)] pb-16">
       {/* HEADER */}
-      <header className="border-b border-neutral-900 bg-black/95">
+      <header className="border-b border-[var(--inv-border)] bg-[var(--inv-page)] text-[color:var(--inv-heading)] transition-colors">
         <div className="mx-auto max-w-7xl px-4">
           {/* Desktop: contact icons left, centered logo, sell CTA right */}
           <div className="hidden min-h-[150px] grid-cols-[1fr_auto_1fr] items-center gap-4 sm:grid">
@@ -449,7 +449,7 @@ export default function Inventory({ inventory }: InventoryProps) {
 
               <a
                 href={`tel:${phone.replace(/[^+\\d]/g, "")}`}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition-all duration-300 hover:border-white hover:bg-white/[0.08] hover:text-white"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--inv-border)] bg-[var(--inv-surface)] text-[color:var(--inv-heading)] transition-all duration-300 hover:border-[var(--inv-border-hover)] hover:bg-[var(--inv-hover)]"
                 aria-label="Call"
               >
                 <svg
@@ -472,7 +472,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                 href="https://www.instagram.com/availablehybridrm/"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/80 transition-all duration-300 hover:border-white hover:bg-white/[0.08] hover:text-white"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--inv-border)] bg-[var(--inv-surface)] text-[color:var(--inv-heading)] transition-all duration-300 hover:border-[var(--inv-border-hover)] hover:bg-[var(--inv-hover)]"
                 aria-label="Instagram"
               >
                 <svg
@@ -504,7 +504,7 @@ export default function Inventory({ inventory }: InventoryProps) {
               <button
                 type="button"
                 onClick={() => setLanguageOpen(true)}
-                className={`${architectsDaughter.className} inline-flex min-h-9 items-center gap-2 text-sm text-white/85 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+                className={`${architectsDaughter.className} inline-flex min-h-9 items-center gap-2 text-sm text-[color:var(--inv-heading)] transition hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
               >
                 <span>Language</span>
               </button>
@@ -512,7 +512,7 @@ export default function Inventory({ inventory }: InventoryProps) {
               <button
                 type="button"
                 onClick={() => setSellOpen(true)}
-                className={`${architectsDaughter.className} inline-flex min-h-9 items-center gap-2 text-sm text-white/85 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+                className={`${architectsDaughter.className} inline-flex min-h-9 items-center gap-2 text-sm text-[color:var(--inv-heading)] transition hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
               >
                 <span>{text.sellYourCar}</span>
               </button>
@@ -544,7 +544,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                 </a>
                 <a
                   href={`tel:${phone.replace(/[^+\\d]/g, "")}`}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-white/80"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--inv-border)] text-[color:var(--inv-heading)]"
                   aria-label="Call"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
@@ -555,7 +555,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                   href="https://www.instagram.com/availablehybridrm/"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-white/80"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--inv-border)] text-[color:var(--inv-heading)]"
                   aria-label="Instagram"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
@@ -570,7 +570,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                 <button
                   type="button"
                   onClick={() => setLanguageOpen(true)}
-                  className={`${architectsDaughter.className} inline-flex min-h-8 items-center gap-1.5 text-xs text-white/85 transition hover:text-white`}
+                  className={`${architectsDaughter.className} inline-flex min-h-8 items-center gap-1.5 text-xs text-[color:var(--inv-heading)] transition hover:opacity-80`}
                 >
                   <span>Language</span>
                 </button>
@@ -578,7 +578,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                 <button
                   type="button"
                   onClick={() => setSellOpen(true)}
-                  className={`${architectsDaughter.className} inline-flex min-h-8 items-center gap-1.5 text-xs text-white/85 transition hover:text-white`}
+                  className={`${architectsDaughter.className} inline-flex min-h-8 items-center gap-1.5 text-xs text-[color:var(--inv-heading)] transition hover:opacity-80`}
                 >
                   <span>{text.sellYourCar}</span>
                 </button>
