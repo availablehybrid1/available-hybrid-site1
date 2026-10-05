@@ -428,13 +428,27 @@ export default function Inventory({ inventory }: InventoryProps) {
             </Link>
 
             <div className="flex flex-col items-end gap-3">
-              <button
-                type="button"
-                onClick={() => setLang(lang === "en" ? "es" : "en")}
-                className="rounded-full border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-200 hover:border-neutral-300 hover:bg-neutral-800"
+              <div
+                role="group"
+                aria-label={lang === "en" ? "Language" : "Idioma"}
+                className="inline-flex rounded-full border border-white/20 bg-white/[0.03] p-1"
               >
-                {lang === "en" ? "ES" : "EN"}
-              </button>
+                {(["en", "es"] as const).map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={lang === option}
+                    onClick={() => setLang(option)}
+                    className={`inline-flex min-h-8 min-w-10 items-center justify-center rounded-full px-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition-colors ${
+                      lang === option
+                        ? "bg-white text-black"
+                        : "text-white/65 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {option.toUpperCase()}
+                  </button>
+                ))}
+              </div>
 
               <button
                 type="button"
@@ -495,13 +509,27 @@ export default function Inventory({ inventory }: InventoryProps) {
               </div>
 
               <div className="flex flex-col items-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setLang(lang === "en" ? "es" : "en")}
-                  className="rounded-full border border-neutral-700 bg-neutral-900 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-200"
+                <div
+                  role="group"
+                  aria-label={lang === "en" ? "Language" : "Idioma"}
+                  className="inline-flex rounded-full border border-white/20 bg-white/[0.03] p-1"
                 >
-                  {lang === "en" ? "ES" : "EN"}
-                </button>
+                  {(["en", "es"] as const).map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      aria-pressed={lang === option}
+                      onClick={() => setLang(option)}
+                      className={`inline-flex min-h-8 min-w-9 items-center justify-center rounded-full px-2 text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors ${
+                        lang === option
+                          ? "bg-white text-black"
+                          : "text-white/65"
+                      }`}
+                    >
+                      {option.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
 
                 <button
                   type="button"
