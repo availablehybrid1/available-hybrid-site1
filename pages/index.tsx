@@ -369,7 +369,7 @@ export default function Home() {
       <ServiceModal
         open={serviceOpen}
         onClose={() => setServiceOpen(false)}
-        lang={lang === "es" ? "ES" : "EN"}
+        lang={lang}
       />
     </>
   );
