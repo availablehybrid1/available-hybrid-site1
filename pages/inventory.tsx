@@ -6,6 +6,7 @@ import Image from "next/image";
 import { getInventory, type Car } from "../lib/getInventory";
 import SellYourCarModal from "../components/SellYourCarModal";
 import { architectsDaughter } from "../lib/fonts";
+import { SITE_LANGUAGES, applyDocumentLanguage, readSiteLanguage, saveSiteLanguage, type SiteLanguage } from "../lib/siteLanguage";
 
 // Convierte fotos de Drive a imágenes visibles
 function parsePhotos(raw?: string | null): string[] {
@@ -98,6 +99,16 @@ export default function Inventory({ inventory }: InventoryProps) {
     }
   }, []);
 
+  React.useEffect(() => {
+    const savedLanguage = readSiteLanguage();
+    setLang(savedLanguage);
+    applyDocumentLanguage(savedLanguage);
+  }, []);
+
+  React.useEffect(() => {
+    saveSiteLanguage(lang);
+  }, [lang]);
+
   function selectTheme(next: "dark" | "light") {
     setTheme(next);
     try {
@@ -128,8 +139,7 @@ export default function Inventory({ inventory }: InventoryProps) {
   const [priceMin, setPriceMin] = React.useState<number | null>(null);
   const [priceMax, setPriceMax] = React.useState<number | null>(null);
 
-  type LanguageCode = "en" | "es" | "zh" | "ko" | "vi" | "hy" | "tl" | "ru" | "ar";
-  const [lang, setLang] = React.useState<LanguageCode>("en");
+  const [lang, setLang] = React.useState<SiteLanguage>("en");
   const [sellOpen, setSellOpen] = React.useState(false);
   const [languageOpen, setLanguageOpen] = React.useState(false);
 
@@ -1059,7 +1069,7 @@ export default function Inventory({ inventory }: InventoryProps) {
                   type="button"
                   disabled={!option.active}
                   onClick={() => {
-                    setLang(option.code as LanguageCode);
+                    setLang(option.code as SiteLanguage);
                     setLanguageOpen(false);
                   }}
                   className={`flex min-h-12 items-center justify-between rounded-xl border px-4 py-3 text-left text-sm transition ${
