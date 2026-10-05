@@ -17,7 +17,7 @@ const copy = {
 
     heroTitle: "HYBRID, RACING AND MOTORSPORT",
     heroSubtitle:
-  "Hybrid, performance and specialty vehicles in Los Angeles. Hybrid service, diagnostics and repairs for all vehicles.",
+  "Hybrid, performance and specialty vehicles in Los Angeles. Service, diagnostics and repairs.",
 
     ctaInventory: "View Inventory",
     ctaSold: "Sold",
@@ -49,7 +49,7 @@ ctaService: "Schedule Service",
 
     heroTitle: "HYBRID, RACING AND MOTORSPORT",
     heroSubtitle:
-  "Vehículos híbridos, deportivos y especiales en Los Ángeles. Servicio híbrido, diagnóstico y reparación para todo tipo de vehículos.",
+  "Vehículos híbridos, deportivos y especiales en Los Ángeles. Servicio, diagnóstico y reparación.",
 
     ctaInventory: "Ver inventario",
     ctaSold: "Vendidos",
@@ -218,25 +218,31 @@ export default function Home() {
         <section className="relative min-h-[88vh] flex items-stretch">
 
           <div className="absolute inset-0 -z-10">
-            <Image src="/lux-hero.jpg" alt="hero" fill className="object-cover" />
-            <div className="absolute inset-0 bg-black/70" />
+            <Image
+              src="/lux-hero.jpg"
+              alt="hero"
+              fill
+              className="object-cover object-[68%_center] sm:object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/25 to-black/60 sm:hidden" />
+            <div className="absolute inset-0 hidden bg-black/70 sm:block" />
           </div>
 
-          <div className="relative mx-auto flex w-full max-w-7xl items-center px-4 pb-20 pt-28 sm:px-6 lg:px-8">
+          <div className="relative mx-auto flex w-full max-w-7xl items-start px-4 pb-12 pt-44 sm:items-center sm:px-6 sm:pb-20 sm:pt-28 lg:px-8">
             <div className="w-full max-w-3xl">
-              <h1 className={`${architectsDaughter.className} text-4xl leading-[1.08] tracking-[0.02em] text-white sm:text-5xl lg:text-6xl`}>
+              <h1 className={`${architectsDaughter.className} max-w-[22rem] text-[2rem] leading-[1.08] tracking-[0.02em] text-white sm:max-w-none sm:text-5xl lg:text-6xl`}>
                 {t.heroTitle}
               </h1>
-              <p className="mt-6 max-w-xl text-base leading-7 text-white/75">
+              <p className="mt-4 max-w-[21rem] text-sm leading-6 text-white/75 sm:mt-6 sm:max-w-xl sm:text-base sm:leading-7">
                 {t.heroSubtitle}
               </p>
               <nav
                 aria-label={lang === "EN" ? "Explore our services" : "Explora nuestros servicios"}
-                className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4"
+                className="mt-6 grid max-w-[22rem] grid-cols-2 items-center gap-x-5 gap-y-3 sm:mt-9 sm:flex sm:max-w-none sm:flex-wrap sm:gap-x-8 sm:gap-y-4"
               >
                 <Link
                   href="/inventory"
-                  className={`${architectsDaughter.className} inline-flex min-h-11 min-w-[176px] items-center justify-center border border-white bg-white px-7 py-2.5 text-[15px] text-black transition hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}
+                  className={`${architectsDaughter.className} inline-flex min-h-11 w-full items-center justify-center border border-white bg-white px-4 py-2.5 text-[15px] text-black transition sm:w-auto sm:min-w-[176px] sm:px-7 hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}
                 >
                   {t.ctaInventory}
                 </Link>
@@ -256,6 +262,14 @@ export default function Home() {
                   <span>Car Rental</span>
                   <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
                 </Link>
+
+                <Link
+                  href="/sold"
+                  className={`${architectsDaughter.className} group inline-flex min-h-11 items-center gap-2 text-[15px] text-white/90 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:hidden`}
+                >
+                  <span>{t.ctaSold}</span>
+                  <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+                </Link>
               </nav>
             </div>
           </div>
@@ -263,9 +277,9 @@ export default function Home() {
 
         {/* FOOTER (SIN LINEA BLANCA) */}
         <footer className="bg-black">
-          <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-10 text-white/70">
-            <span>{t.footerAddress}</span>
-            <Link href="/sold" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-medium text-white/80 transition hover:border-white/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-7 text-sm text-white/65 sm:py-10 sm:text-base sm:text-white/70">
+            <span className="max-w-[17rem] sm:max-w-none">{t.footerAddress}</span>
+            <Link href="/sold" className="hidden min-h-10 shrink-0 items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-medium text-white/80 transition hover:border-white/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:inline-flex">
               {t.ctaSold}
               <span aria-hidden="true">→</span>
             </Link>
