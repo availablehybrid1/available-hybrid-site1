@@ -10,6 +10,7 @@ export default function ServiceModal({ open, onClose, lang }: Props) {
   const [loading, setLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
   const [error, setError] = React.useState("");
+  const [serviceType, setServiceType] = React.useState("");
 
   React.useEffect(() => {
     if (!open) return;
@@ -27,6 +28,29 @@ export default function ServiceModal({ open, onClose, lang }: Props) {
   if (!open) return null;
 
   const en = lang === "EN";
+
+  function formatLocalDate(date: Date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  const today = formatLocalDate(new Date());
+  const requiresLeadTime = ![
+    "Diagnostic",
+    "Oil Change",
+    "General Maintenance",
+  ].includes(serviceType);
+
+  const leadTimeDate = (() => {
+    const date = new Date();
+    date.setHours(12, 0, 0, 0);
+    date.setDate(date.getDate() + 5);
+    return formatLocalDate(date);
+  })();
+
+  const minimumDate = serviceType && requiresLeadTime ? leadTimeDate : today;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -59,6 +83,7 @@ export default function ServiceModal({ open, onClose, lang }: Props) {
       if (!res.ok) throw new Error("Request failed");
       setSuccess(true);
       form.reset();
+      setServiceType("");
     } catch {
       setError(
         en
@@ -138,7 +163,8 @@ export default function ServiceModal({ open, onClose, lang }: Props) {
           <select
             name="service"
             required
-            defaultValue=""
+            value={serviceType}
+            onChange={(e) => setServiceType(e.target.value)}
             className="w-full rounded-xl border border-white/10 bg-neutral-900 px-4 py-3 text-sm text-white outline-none focus:border-white/30"
           >
             <option value="" disabled>
@@ -173,9 +199,16 @@ export default function ServiceModal({ open, onClose, lang }: Props) {
                 name="date"
                 type="date"
                 required
-                min={new Date().toISOString().split("T")[0]}
+                min={minimumDate}
                 className="w-full rounded-xl border border-white/10 bg-white px-4 py-3 text-sm text-black outline-none"
               />
+              {serviceType && requiresLeadTime && (
+                <p className="mt-1.5 text-[11px] leading-4 text-white/45">
+                  {en
+                    ? "This service requires at least 4 days of advance notice."
+                    : "Este servicio requiere al menos 4 días de anticipación."}
+                </p>
+              )}
             </div>
             <div>
               <label className="mb-1.5 block text-xs text-white/55">
