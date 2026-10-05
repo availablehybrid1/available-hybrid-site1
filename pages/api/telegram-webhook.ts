@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { del, put } from "@vercel/blob";
+import { deleteR2PhotoByUrl, uploadR2Photo } from "../../lib/r2Photos";
 import {
   answerCallbackQuery,
   getTelegramFileUrl,
@@ -131,30 +131,29 @@ async function uploadTelegramPhoto(
       : "jpg";
 
   const body = await response.arrayBuffer();
-  const blob = await put(
-    `inventory/photos/${sessionId}/${String(messageId ?? 0).padStart(
-      12,
-      "0"
-    )}-${Date.now()}.${ext}`,
-    body,
-    {
-      access: "public",
-      addRandomSuffix: true,
-      contentType,
-      cacheControlMaxAge: 31536000,
-    }
-  );
+  const key = `inventory/photos/${sessionId}/${String(
+    messageId ?? 0
+  ).padStart(12, "0")}-${Date.now()}.${ext}`;
 
-  return blob.url;
+  return uploadR2Photo({
+    key,
+    body,
+    contentType,
+  });
 }
 
 async function deleteSessionPhotos(photoUrls: string[]) {
   if (!photoUrls.length) return;
-  try {
-    await del(photoUrls);
-  } catch {
-    // Old Blob storage may be rate-limited. Draft cleanup must still continue.
-  }
+
+  await Promise.all(
+    photoUrls.map(async (url) => {
+      try {
+        await deleteR2PhotoByUrl(url);
+      } catch {
+        // Keep draft cleanup moving even if a single image cannot be removed.
+      }
+    })
+  );
 }
 
 
