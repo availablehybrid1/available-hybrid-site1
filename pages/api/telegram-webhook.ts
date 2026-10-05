@@ -1534,10 +1534,6 @@ async function handleMessage(message: TelegramMessage) {
       draft.photos = [...(draft.photos || []), uploadedUrl];
       await saveDraft(chatId, draft);
 
-      await sendTelegramMessage(
-        chatId,
-        `Photo ${draft.photos.length} received. Send another photo or type /done.`
-      );
       return;
     }
 
