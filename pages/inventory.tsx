@@ -1,6 +1,6 @@
 // pages/inventory.tsx
 import * as React from "react";
-import type { GetStaticProps } from "next";
+import type { GetServerSideProps } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { getInventory, type Car } from "../lib/getInventory";
@@ -1032,7 +1032,7 @@ export default function Inventory({ inventory }: InventoryProps) {
   );
 }
 
-export const getStaticProps: GetStaticProps<InventoryProps> = async () => {
+export const getServerSideProps: GetServerSideProps<InventoryProps> = async () => {
   const data = await getInventory();
 
   const inventory: Vehicle[] = data.map((c) => {
@@ -1059,6 +1059,8 @@ export const getStaticProps: GetStaticProps<InventoryProps> = async () => {
     };
   });
 
-  return { props: { inventory }, revalidate: 60 };
+  return {
+    props: { inventory },
+  };
 };
 
