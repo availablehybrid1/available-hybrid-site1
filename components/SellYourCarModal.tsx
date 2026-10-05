@@ -34,6 +34,8 @@ export default function SellYourCarModal({
   const [phone, setPhone] = React.useState("");
   const [estimate, setEstimate] = React.useState<Estimate | null>(null);
   const [loading, setLoading] = React.useState(false);
+  const [leadSending, setLeadSending] = React.useState(false);
+  const [leadSent, setLeadSent] = React.useState(false);
   const [error, setError] = React.useState("");
 
   React.useEffect(() => {
@@ -109,32 +111,52 @@ export default function SellYourCarModal({
     }
   }
 
-  function sendFinalOffer() {
+  async function sendFinalOffer() {
     if (!estimate || !name.trim() || !phone.trim()) return;
-    const miles = Number(mileage.replace(/[^0-9]/g, ""));
-    const lines = [
-      isEN ? "Hi, I would like a final offer for my vehicle." : "Hola, quisiera una oferta final por mi vehículo.",
-      "",
-      "VIN: " + cleanVin,
-      (isEN ? "Mileage: " : "Millas: ") + miles.toLocaleString(),
-      (isEN ? "Title: " : "Título: ") + titleStatus,
-      (isEN ? "Condition: " : "Condición: ") + condition,
-      (isEN ? "Online estimate: $" : "Estimado online: $") +
-        estimate.low.toLocaleString() + " – $" + estimate.high.toLocaleString(),
-      "",
-      (isEN ? "Name: " : "Nombre: ") + name,
-      (isEN ? "Phone: " : "Teléfono: ") + phone,
-      "",
-      isEN
-        ? "I understand this is a preliminary estimate and the final offer is subject to inspection and verification."
-        : "Entiendo que este es un estimado preliminar y la oferta final está sujeta a inspección y verificación.",
-    ];
 
-    window.open(
-      "https://wa.me/" + whatsappDigits + "?text=" + encodeURIComponent(lines.join("\n")),
-      "_blank",
-      "noopener,noreferrer"
-    );
+    setLeadSending(true);
+    setLeadSent(false);
+    setError("");
+
+    const miles = Number(mileage.replace(/[^0-9]/g, ""));
+    const vehicleName = estimate.vehicle
+      ? [estimate.vehicle.year, estimate.vehicle.make, estimate.vehicle.model, estimate.vehicle.trim]
+          .filter(Boolean)
+          .join(" ")
+      : "";
+
+    try {
+      const res = await fetch("/api/sell-car-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vin: cleanVin,
+          mileage: miles,
+          titleStatus,
+          condition,
+          low: estimate.low,
+          high: estimate.high,
+          name: name.trim(),
+          phone: phone.trim(),
+          vehicle: vehicleName,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "Could not send request.");
+
+      setLeadSent(true);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : isEN
+          ? "We couldn't send your request. Please try again."
+          : "No pudimos enviar tu solicitud. Inténtalo nuevamente."
+      );
+    } finally {
+      setLeadSending(false);
+    }
   }
 
   return (
@@ -315,12 +337,23 @@ export default function SellYourCarModal({
                 <input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" placeholder={isEN ? "Phone number" : "Número de teléfono"} className={field} />
                 <button
                   type="button"
-                  disabled={!name.trim() || !phone.trim()}
+                  disabled={!name.trim() || !phone.trim() || leadSending || leadSent}
                   onClick={sendFinalOffer}
                   className="inline-flex w-full items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {isEN ? "Get Final Offer" : "Obtener oferta final"}
+                  {leadSending
+                    ? isEN ? "Sending..." : "Enviando..."
+                    : leadSent
+                    ? isEN ? "Request Sent" : "Solicitud enviada"
+                    : isEN ? "Get Final Offer" : "Obtener oferta final"}
                 </button>
+                {leadSent && (
+                  <p className="text-center text-sm text-green-400">
+                    {isEN
+                      ? "Request sent. We’ll contact you shortly."
+                      : "Solicitud enviada. Te contactaremos pronto."}
+                  </p>
+                )}
               </div>
             </div>
           )}
