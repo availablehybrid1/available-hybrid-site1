@@ -230,15 +230,31 @@ export default function Home() {
               <p className="mt-6 max-w-xl text-base leading-7 text-white/75">
                 {t.heroSubtitle}
               </p>
-              <nav aria-label={lang === "EN" ? "Explore our services" : "Explora nuestros servicios"} className="mt-8 flex flex-wrap gap-3">
-                <Link href="/inventory" className={`${architectsDaughter.className} inline-flex min-h-12 items-center justify-center rounded-sm border border-white bg-white px-6 py-3 text-base text-black transition hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}>
+              <nav
+                aria-label={lang === "EN" ? "Explore our services" : "Explora nuestros servicios"}
+                className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4"
+              >
+                <Link
+                  href="/inventory"
+                  className={`${architectsDaughter.className} inline-flex min-h-11 min-w-[176px] items-center justify-center border border-white bg-white px-7 py-2.5 text-[15px] text-black transition hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}
+                >
                   {t.ctaInventory}
                 </Link>
-                <Link href="/service" className={`${architectsDaughter.className} inline-flex min-h-12 items-center justify-center rounded-sm border border-white/40 px-6 py-3 text-base text-white transition hover:border-white/70 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}>
-                  {t.ctaService}
+
+                <Link
+                  href="/service"
+                  className={`${architectsDaughter.className} group inline-flex min-h-11 items-center gap-2 text-[15px] text-white/90 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}
+                >
+                  <span>{t.ctaService}</span>
+                  <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
                 </Link>
-                <Link href="/car-rental" className={`${architectsDaughter.className} inline-flex min-h-12 items-center justify-center rounded-sm border border-white/40 px-6 py-3 text-base text-white transition hover:border-white/70 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}>
-                  Car Rental
+
+                <Link
+                  href="/car-rental"
+                  className={`${architectsDaughter.className} group inline-flex min-h-11 items-center gap-2 text-[15px] text-white/90 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}
+                >
+                  <span>Car Rental</span>
+                  <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
                 </Link>
               </nav>
             </div>
