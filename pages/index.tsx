@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import SellYourCarModal from "../components/SellYourCarModal";
+import ServiceModal from "../components/ServiceModal";
 import { architectsDaughter } from "../lib/fonts";
 
 const copy = {
@@ -23,7 +24,7 @@ const copy = {
     ctaSold: "Sold",
     ctaPrequal: "Get Pre-Qualified",
     ctaWhatsapp: "WhatsApp",
-ctaService: "Schedule Service",
+ctaService: "Service",
     trust: [
       { title: "Hybrid Specialists", desc: "Toyota Prius · Lexus CT200h · More" },
       { title: "DMV Dealer", desc: "Temporary plates, ROS/TLP online" },
@@ -55,7 +56,7 @@ ctaService: "Schedule Service",
     ctaSold: "Vendidos",
     ctaPrequal: "Pre-Calificación",
     ctaWhatsapp: "WhatsApp",
-ctaService: "Agenda tu servicio",
+ctaService: "Servicio",
     trust: [
       { title: "Especialistas", desc: "Prius · Lexus · Más" },
       { title: "Dealer DMV", desc: "Procesos completos" },
@@ -76,6 +77,7 @@ ctaService: "Agenda tu servicio",
 export default function Home() {
   const [lang, setLang] = React.useState<"EN" | "ES">("EN");
   const [sellOpen, setSellOpen] = React.useState(false);
+  const [serviceOpen, setServiceOpen] = React.useState(false);
 
   const t = copy[lang];
 
@@ -249,13 +251,14 @@ export default function Home() {
                   </Link>
 
                   <div className="flex flex-col items-start gap-1 border-l border-white/25 pl-4 sm:flex-row sm:items-center sm:gap-7 sm:border-l-0 sm:pl-0">
-                    <Link
-                      href="/service"
+                    <button
+                      type="button"
+                      onClick={() => setServiceOpen(true)}
                       className={`${architectsDaughter.className} group inline-flex min-h-9 items-center gap-2 text-[15px] text-white/85 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}
                     >
                       <span>{t.ctaService}</span>
                       <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
-                    </Link>
+                    </button>
 
                     <Link
                       href="/car-rental"
@@ -288,6 +291,12 @@ export default function Home() {
         open={sellOpen}
         onClose={() => setSellOpen(false)}
         lang={lang === "EN" ? "en" : "es"}
+      />
+
+      <ServiceModal
+        open={serviceOpen}
+        onClose={() => setServiceOpen(false)}
+        lang={lang}
       />
     </>
   );
