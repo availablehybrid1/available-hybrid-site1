@@ -1802,6 +1802,20 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method === "GET") {
+    let telegramWebhookUrl: string | null = null;
+    try {
+      const token = process.env.TELEGRAM_BOT_TOKEN;
+      if (token) {
+        const infoRes = await fetch(`https://api.telegram.org/bot${token}/getWebhookInfo`);
+        if (infoRes.ok) {
+          const info = await infoRes.json();
+          telegramWebhookUrl = info?.result?.url || null;
+        }
+      }
+    } catch {
+      // Diagnostic only; never expose the bot token.
+    }
+
     return res.status(200).json({
       ok: true,
       vercelEnv: process.env.VERCEL_ENV ?? null,
@@ -1818,6 +1832,7 @@ export default async function handler(
         process.env.UPSTASH_REDIS_REST_TOKEN ||
         process.env.KV_REST_API_TOKEN
       ),
+      telegramWebhookUrl,
     });
   }
 
