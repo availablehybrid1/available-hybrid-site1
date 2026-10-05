@@ -1,3 +1,4 @@
+// Telegram lead notification endpoint
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sendTelegramMessage } from "../../lib/telegram";
 
