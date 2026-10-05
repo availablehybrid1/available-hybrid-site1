@@ -16,7 +16,7 @@ export default async function handler(
     return res.status(500).json({ ok: false, error: "Missing TELEGRAM_BOT_TOKEN" });
   }
 
-  const webhookUrl = "https://hybridrm.com/api/telegram-webhook";
+  const webhookUrl = "https://available-hybrid-site1-guv8-git-main-availablehybrid1s-projects.vercel.app/api/telegram-webhook";
 
   try {
     const response = await fetch(
