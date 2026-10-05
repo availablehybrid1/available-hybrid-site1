@@ -67,20 +67,43 @@ function estimateDealerRange(args: {
   };
 
   const conditionFactors: Record<string, [number, number]> = {
-    excellent: [0.80, 0.88],
-    good: [0.72, 0.82],
-    fair: [0.60, 0.72],
-    needs_repair: [0.40, 0.58],
-    not_running: [0.22, 0.40],
+    excellent: [0.58, 0.68],
+    good: [0.50, 0.61],
+    fair: [0.40, 0.51],
+    needs_repair: [0.24, 0.38],
+    not_running: [0.12, 0.25],
   };
 
   const titleFactor = titleFactors[args.titleStatus] ?? 1;
   const conditionFactor =
     conditionFactors[args.condition] || conditionFactors.good;
 
-  // Dealer-buy range, not consumer retail value.
-  const low = estimatedRetail * titleFactor * conditionFactor[0];
-  const high = estimatedRetail * titleFactor * conditionFactor[1];
+  // Older/high-mileage vehicles need extra acquisition margin for
+  // recon, auction/wholesale risk, transport, title work and resale spread.
+  let acquisitionFactor = 1;
+
+  if (age >= 15) acquisitionFactor *= 0.72;
+  else if (age >= 12) acquisitionFactor *= 0.80;
+  else if (age >= 9) acquisitionFactor *= 0.88;
+  else if (age >= 6) acquisitionFactor *= 0.94;
+
+  if (args.mileage >= 220000) acquisitionFactor *= 0.62;
+  else if (args.mileage >= 180000) acquisitionFactor *= 0.72;
+  else if (args.mileage >= 150000) acquisitionFactor *= 0.82;
+  else if (args.mileage >= 120000) acquisitionFactor *= 0.90;
+  else if (args.mileage >= 90000) acquisitionFactor *= 0.96;
+
+  // Dealer-buy range, intentionally below consumer retail.
+  const low =
+    estimatedRetail *
+    titleFactor *
+    conditionFactor[0] *
+    acquisitionFactor;
+  const high =
+    estimatedRetail *
+    titleFactor *
+    conditionFactor[1] *
+    acquisitionFactor;
 
   return {
     low: roundTo50(low),
