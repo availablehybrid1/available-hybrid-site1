@@ -8,6 +8,8 @@ type SoldVehicle = {
   id: string;
   title: string;
   photo: string;
+  photos: string[];
+  hoverPhoto: string;
   mileage: string;
   fuel: string;
   exterior: string;
@@ -17,6 +19,8 @@ type Props = { vehicles: SoldVehicle[]; loadError: boolean };
 export default function Sold({ vehicles, loadError }: Props) {
   const [theme, setTheme] = React.useState<"dark" | "light">("dark");
   const [lang, setLang] = React.useState<"EN" | "ES">("EN");
+  const [galleryVehicle, setGalleryVehicle] = React.useState<SoldVehicle | null>(null);
+  const [galleryIndex, setGalleryIndex] = React.useState(0);
   React.useEffect(() => {
     try {
       const saved = window.localStorage.getItem("hybridrm-inventory-theme");
@@ -27,6 +31,33 @@ export default function Sold({ vehicles, loadError }: Props) {
     setTheme(value);
     try { window.localStorage.setItem("hybridrm-inventory-theme", value); } catch {}
   };
+
+  const openGallery = (vehicle: SoldVehicle) => {
+    if (!vehicle.photos.length) return;
+    setGalleryVehicle(vehicle);
+    setGalleryIndex(0);
+  };
+  const closeGallery = () => setGalleryVehicle(null);
+  const goPrev = () => {
+    if (!galleryVehicle?.photos.length) return;
+    setGalleryIndex((prev) => prev === 0 ? galleryVehicle.photos.length - 1 : prev - 1);
+  };
+  const goNext = () => {
+    if (!galleryVehicle?.photos.length) return;
+    setGalleryIndex((prev) => (prev + 1) % galleryVehicle.photos.length);
+  };
+
+  React.useEffect(() => {
+    if (!galleryVehicle) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeGallery();
+      if (event.key === "ArrowLeft") goPrev();
+      if (event.key === "ArrowRight") goNext();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [galleryVehicle]);
+
   const es = lang === "ES";
   return (
     <main data-theme={theme} className="sold-page min-h-screen">
@@ -67,13 +98,44 @@ export default function Sold({ vehicles, loadError }: Props) {
           <div className="mt-10 grid gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-3">
             {vehicles.map(vehicle => (
               <article key={vehicle.id}>
-                <div className="aspect-[16/10] overflow-hidden bg-[var(--sold-surface)]">
-                  {vehicle.photo ? <img src={vehicle.photo} alt={vehicle.title} loading="lazy" className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-sm text-[color:var(--sold-muted)]">{es ? "Foto no disponible" : "Photo unavailable"}</div>}
-                </div>
+                <button
+                  type="button"
+                  onClick={() => openGallery(vehicle)}
+                  className="group relative block aspect-[16/10] w-full overflow-hidden bg-[var(--sold-surface)] text-left"
+                  aria-label={es ? `Ver fotos de ${vehicle.title}` : `View photos of ${vehicle.title}`}
+                >
+                  {vehicle.photo ? (
+                    <>
+                      <img src={vehicle.photo} alt={vehicle.title} loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]" />
+                      {vehicle.hoverPhoto && vehicle.hoverPhoto !== vehicle.photo ? (
+                        <img
+                          src={vehicle.hoverPhoto}
+                          alt=""
+                          loading="lazy"
+                          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-0 transition duration-300 group-hover:opacity-100"
+                        />
+                      ) : null}
+                      {vehicle.photos.length > 1 ? (
+                        <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-3 py-1 text-xs font-medium text-white backdrop-blur">
+                          {vehicle.photos.length} {es ? "fotos" : "photos"}
+                        </span>
+                      ) : null}
+                    </>
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-sm text-[color:var(--sold-muted)]">{es ? "Foto no disponible" : "Photo unavailable"}</div>
+                  )}
+                </button>
                 <div className="pt-4">
                   <h2 className="text-base font-semibold uppercase tracking-wide lg:text-lg">{vehicle.title}</h2>
                   <p className="mt-2 text-sm leading-6 text-[color:var(--sold-muted)]">{[vehicle.mileage ? `${Number(vehicle.mileage).toLocaleString("en-US")} mi` : "", vehicle.fuel, vehicle.exterior].filter(Boolean).join(" · ")}</p>
-                  <p className="mt-4 text-xl font-semibold uppercase tracking-wide text-[color:var(--sold-text)]">SOLD</p>
+                  <div className="mt-4 flex items-center justify-between gap-4">
+                    <p className="text-xl font-semibold uppercase tracking-wide text-[color:var(--sold-text)]">SOLD</p>
+                    {vehicle.photos.length ? (
+                      <button type="button" onClick={() => openGallery(vehicle)} className="text-sm text-[color:var(--sold-muted)] underline-offset-4 hover:underline">
+                        {es ? "Ver fotos" : "View photos"}
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
               </article>
             ))}
@@ -87,6 +149,48 @@ export default function Sold({ vehicles, loadError }: Props) {
           <Link href="/inventory" className="inline-flex min-h-11 items-center justify-center border border-[var(--sold-border)] px-6 py-3 text-sm font-medium transition hover:bg-[var(--sold-surface)]">{es ? "Ver inventario disponible" : "View Available Inventory"}<span aria-hidden="true" className="ml-3">→</span></Link>
         </div>
       </div>
+
+      {galleryVehicle && galleryVehicle.photos.length ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 px-3 py-4" onClick={closeGallery}>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={es ? `Fotos de ${galleryVehicle.title}` : `Photos of ${galleryVehicle.title}`}
+            className="relative flex max-h-[94vh] w-full max-w-6xl flex-col items-center"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button type="button" onClick={closeGallery} aria-label={es ? "Cerrar galería" : "Close gallery"} className="absolute right-0 top-0 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-black/70 text-xl text-white">×</button>
+            <div className="mb-3 pr-12 text-center">
+              <p className="text-sm font-medium text-white">{galleryVehicle.title}</p>
+              <p className="mt-1 text-xs text-white/60">{galleryIndex + 1} / {galleryVehicle.photos.length}</p>
+            </div>
+            <div className="relative flex min-h-0 w-full flex-1 items-center justify-center">
+              {galleryVehicle.photos.length > 1 ? (
+                <button type="button" onClick={goPrev} aria-label={es ? "Foto anterior" : "Previous photo"} className="absolute left-1 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-black/70 text-3xl text-white sm:left-3">‹</button>
+              ) : null}
+              <img src={galleryVehicle.photos[galleryIndex]} alt={galleryVehicle.title} className="max-h-[78vh] max-w-full object-contain" />
+              {galleryVehicle.photos.length > 1 ? (
+                <button type="button" onClick={goNext} aria-label={es ? "Siguiente foto" : "Next photo"} className="absolute right-1 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-black/70 text-3xl text-white sm:right-3">›</button>
+              ) : null}
+            </div>
+            {galleryVehicle.photos.length > 1 ? (
+              <div className="mt-4 flex max-w-full gap-2 overflow-x-auto pb-1">
+                {galleryVehicle.photos.map((photo, index) => (
+                  <button
+                    type="button"
+                    key={photo + index}
+                    onClick={() => setGalleryIndex(index)}
+                    aria-label={es ? `Ver foto ${index + 1}` : `View photo ${index + 1}`}
+                    className={`h-16 w-24 shrink-0 overflow-hidden border ${galleryIndex === index ? "border-white" : "border-white/20"}`}
+                  >
+                    <img src={photo} alt="" loading="lazy" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
       <style jsx>{`
         .sold-page {--sold-page:#050505;--sold-text:#f5f5f5;--sold-muted:#a3a3a3;--sold-border:#262626;--sold-surface:#171717;background:var(--sold-page);color:var(--sold-text);color-scheme:dark;}
         .sold-page[data-theme="light"] {--sold-page:#ffffff;--sold-text:#171717;--sold-muted:#5c5c5c;--sold-border:#dedede;--sold-surface:#f5f5f5;color-scheme:light;}
@@ -102,13 +206,21 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
       .filter(vehicle => vehicle?.id && String(vehicle.status || "").trim().toLowerCase() === "sold")
       .sort((a, b) => Number(b.year || 0) - Number(a.year || 0))
       .map(vehicle => {
-        const photo = Object.entries(vehicle)
+        const photos = Object.entries(vehicle)
           .filter(([key, value]) => /^photo\d+$/i.test(key) && typeof value === "string" && /^https?:\/\//.test(value))
-          .sort(([a], [b]) => Number(a.slice(5)) - Number(b.slice(5)))[0]?.[1] || "";
+          .sort(([a], [b]) => Number(a.slice(5)) - Number(b.slice(5)))
+          .map(([, value]) => String(value));
+        const photo = photos[0] || "";
+        const storedHover = typeof vehicle.cardHoverPhoto === "string" ? vehicle.cardHoverPhoto : "";
+        const hoverPhoto = storedHover && storedHover !== "none" && /^https?:\/\//.test(storedHover)
+          ? storedHover
+          : "";
         return {
           id: String(vehicle.id),
           title: [vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(" "),
           photo,
+          photos,
+          hoverPhoto,
           mileage: Number.isFinite(Number(vehicle.mileage)) && Number(vehicle.mileage) > 0 ? String(vehicle.mileage) : "",
           fuel: vehicle.fuel || "",
           exterior: vehicle.exterior || "",
