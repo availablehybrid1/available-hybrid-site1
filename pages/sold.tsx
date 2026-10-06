@@ -1,7 +1,7 @@
 import * as React from "react";
 import Head from "next/head";
 import Link from "next/link";
-import type { GetStaticProps } from "next";
+import type { GetServerSideProps } from "next";
 import { listStoredVehicles } from "../lib/blobInventory";
 
 type SoldVehicle = {
@@ -95,7 +95,7 @@ export default function Sold({ vehicles, loadError }: Props) {
   );
 }
 
-export const getStaticProps: GetStaticProps<Props> = async () => {
+export const getServerSideProps: GetServerSideProps<Props> = async () => {
   try {
     const stored = await listStoredVehicles();
     const vehicles = stored
@@ -114,8 +114,8 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
           exterior: vehicle.exterior || "",
         };
       });
-    return { props: { vehicles, loadError: false }, revalidate: 60 };
+    return { props: { vehicles, loadError: false } };
   } catch {
-    return { props: { vehicles: [], loadError: true }, revalidate: 60 };
+    return { props: { vehicles: [], loadError: true } };
   }
 };
