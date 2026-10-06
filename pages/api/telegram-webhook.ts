@@ -492,6 +492,10 @@ function inventoryKeyboard(vehicle: StoredVehicle) {
     inline_keyboard: isSold
       ? [
           [
+            { text: "📷 Cover", callback_data: `pickcover:${vehicle.id}` },
+            { text: "🖼 Hover", callback_data: `pickhover:${vehicle.id}` },
+          ],
+          [
             { text: "↩️ Restore", callback_data: `restore:${vehicle.id}` },
             { text: "🗑 Delete", callback_data: `delete:${vehicle.id}` },
           ],
